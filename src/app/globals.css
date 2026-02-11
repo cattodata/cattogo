@@ -575,6 +575,71 @@ body {
   padding: 1rem;
 }
 
+/* Quick Reply Chips */
+.quick-replies {
+  padding: 8px 16px;
+  margin-bottom: 8px;
+}
+.chip-hint {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-bottom: 8px;
+  text-align: center;
+}
+.chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+.quick-chip {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1.5px solid #e0e7ff;
+  background: white;
+  font-size: 13px;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.quick-chip:hover {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  transform: scale(1.02);
+}
+.quick-chip.selected {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+.chip-confirm {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+.chip-confirm:hover {
+  opacity: 0.9;
+}
+
+/* AI Done Card */
+.ai-done-card {
+  margin: 16px;
+  padding: 24px 20px;
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+  border: 2px solid #bae6fd;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.12);
+}
+
 /* Result card */
 .result-card {
   width: 100%;

@@ -57,47 +57,26 @@ const STAGE_META = [
 const TOTAL_STAGES = STAGE_META.length
 
 // ===== AI SYSTEM PROMPT =====
-const AI_SYSTEM_PROMPT = `คุณชื่อ "Rain" เป็นที่ปรึกษาย้ายประเทศสำหรับคนไทย พูดคุยเป็นกันเอง ไม่ใช่ทางการ ใช้ emoji บ้าง
+const AI_SYSTEM_PROMPT = `คุณชื่อ "Rain" ที่ปรึกษาย้ายประเทศ คุยสนุกเหมือนเพื่อน สั้นกระชับ ใช้ emoji บ้าง
 
-หน้าที่: คุยกับ user 3-5 ข้อความ เพื่อเข้าใจว่าเขาอยากย้ายไปไหนและทำไม แล้วเก็บข้อมูลสำหรับวิเคราะห์
+เก็บข้อมูล 5 อย่าง ถามทีละเรื่อง:
+1. ทำไมอยากย้าย → goals (1-3): money-job | balance | family | stable | lifestyle
+2. อาชีพอะไร → occupation: software | engineering | accounting | healthcare | chef | other
+3. อายุ → age: "18-24" | "25-32" | "33-39" | "40-44" | "45+"
+4. ไปกับใคร → family: "single" | "couple" | "family"
+5. เงินเดือน → monthlyIncome: number (บาท)
 
-Goal IDs (เลือก 1-3 ที่ตรงกับสิ่งที่ user พูด):
-- money-job: อยากเงินดี หางานง่าย เก็บเงินได้
-- balance: work-life balance ดี ปลอดภัย
-- family: ลูกเรียนดี สวัสดิการครบ
-- stable: การเมืองมั่นคง ระบบเป๊ะ
-- lifestyle: อากาศดี เกษียณสบาย ย้ายง่าย
+กฎสำคัญ:
+- ตอบสั้นมาก 1-2 ประโยค ห้ามยาว
+- รับรู้ที่ user พูดก่อน เช่น "เข้าใจเลย! 💪" แล้วถามต่อทันที
+- จบทุกข้อความด้วยคำถามหรือ prompt ที่ชัดเจน
+- user อาจกดปุ่มส่งคำตอบสั้นๆ มา ให้ตอบรับแล้วถามเรื่องถัดไปเลย
+- ห้ามถามหลายเรื่องพร้อมกัน ถามทีละ 1 เรื่อง
+- ห้ามสรุปยาว ห้ามอธิบายเยอะ
+- พอครบ → สรุปสั้น 1 บรรทัด แล้ว set ready: true
 
-Occupation IDs:
-- software: IT/Tech/AI/Data/โปรแกรมเมอร์
-- engineering: วิศวกร/ช่าง/ช่างเทคนิค
-- accounting: บัญชี/การเงิน/บริหาร/การตลาด
-- healthcare: แพทย์/พยาบาล/สาธารณสุข
-- chef: เชฟ/พ่อครัว/โรงแรม/Hospitality
-- other: ครู/ดีไซน์/อื่นๆ
-
-ข้อมูลที่ต้องเก็บ:
-- goals: array ของ 1-3 Goal IDs
-- occupation: 1 Occupation ID
-- monthlyIncome: เงินเดือน (บาท/เดือน, number)
-- age: "18-24" | "25-32" | "33-39" | "40-44" | "45+"
-- family: "single" | "couple" | "family"
-
-วิธีคุย:
-1. เริ่มถามว่าอะไรทำให้คิดอยากย้ายประเทศ
-2. ฟังแล้ว identify goals จากสิ่งที่พูด
-3. ถามเรื่องงาน/อาชีพ
-4. ถามข้อมูลพื้นฐาน (อายุ, เงินเดือน, ไปคนเดียว/คู่/ครอบครัว)
-5. เมื่อมีข้อมูลครบ set ready: true
-
-ข้อสำคัญ:
-- ถามทีละ 1-2 คำถาม อย่าถามรวมหมด
-- ถ้า user บอกไม่ครบ ก็ถามเพิ่ม
-- ตอบสั้นกระชับ 1-3 ประโยค
-- เมื่อครบแล้ว สรุปสิ่งที่เข้าใจก่อน set ready: true
-
-ตอบเป็น JSON เสมอ:
-{"message": "ข้อความภาษาไทย", "gathered": {"goals": [], "occupation": "", "monthlyIncome": 0, "age": "", "family": "", "ready": false}}`
+ตอบ JSON เสมอ:
+{"message": "...", "gathered": {"goals": [], "occupation": "", "monthlyIncome": 0, "age": "", "family": "", "ready": false}}`
 
 // ===== MAIN COMPONENT =====
 export function ChatSimulator() {
@@ -139,6 +118,7 @@ export function ChatSimulator() {
   const [aiGathered, setAiGathered] = useState<GatheredData>({ goals: [], occupation: '', monthlyIncome: 0, age: '', family: '', ready: false })
   const [aiAnalysis, setAiAnalysis] = useState('')
   const [aiError, setAiError] = useState('')
+  const [chipSelected, setChipSelected] = useState<string[]>([])
 
   const bottomRef = useRef<HTMLDivElement>(null)
 
@@ -164,15 +144,15 @@ export function ChatSimulator() {
     setAiChatHistory([{ role: 'system', content: AI_SYSTEM_PROMPT }, { role: 'assistant', content: JSON.stringify({ message: greeting, gathered: { goals: [], occupation: '', monthlyIncome: 0, age: '', family: '', ready: false } }) }])
   }
 
-  const sendAiMessage = async () => {
-    if (!aiInput.trim() || aiLoading) return
-    const userText = aiInput.trim()
+  const sendMessage = async (text: string) => {
+    if (!text.trim() || aiLoading) return
     setAiInput('')
+    setChipSelected([])
     setAiError('')
-    setAiMessages(prev => [...prev, { role: 'user', text: userText }])
+    setAiMessages(prev => [...prev, { role: 'user', text: text.trim() }])
     setAiLoading(true)
 
-    const newHistory: ChatMessage[] = [...aiChatHistory, { role: 'user', content: userText }]
+    const newHistory: ChatMessage[] = [...aiChatHistory, { role: 'user', content: text.trim() }]
     setAiChatHistory(newHistory)
 
     try {
@@ -180,42 +160,13 @@ export function ChatSimulator() {
       setAiMessages(prev => [...prev, { role: 'bot', text: aiRes.message }])
       setAiChatHistory(prev => [...prev, { role: 'assistant', content: JSON.stringify(aiRes) }])
       setAiGathered(aiRes.gathered)
-
-      // If ready, trigger country matching
-      if (aiRes.gathered.ready) {
-        setTimeout(() => {
-          setGoals(aiRes.gathered.goals)
-          setOccupation(aiRes.gathered.occupation)
-          setQuickProfile({
-            age: aiRes.gathered.age,
-            monthlyIncome: String(aiRes.gathered.monthlyIncome),
-            savings: '',
-            family: aiRes.gathered.family,
-          })
-          setPhase('analyzing')
-          setTimeout(() => {
-            const params: MatchParams = {
-              goals: aiRes.gathered.goals,
-              occupation: aiRes.gathered.occupation,
-              monthlyIncome: aiRes.gathered.monthlyIncome,
-              age: aiRes.gathered.age,
-              family: aiRes.gathered.family,
-            }
-            const results = matchCountries(params)
-            setMatchResults(results)
-            // Run AI analysis
-            runAiAnalysis(aiRes.gathered, results)
-            setPhase('countryResults')
-          }, 2500)
-        }, 1500)
-      }
     } catch (err) {
       setAiError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาด')
-      setAiLoading(false)
-      return
     }
     setAiLoading(false)
   }
+
+  const sendAiMessage = () => sendMessage(aiInput)
 
   const runAiAnalysis = async (gathered: GatheredData, results: MatchResult[]) => {
     try {
@@ -226,6 +177,104 @@ export function ChatSimulator() {
     } catch {
       // fail silently — analysis is optional
     }
+  }
+
+  // ===== POST-CHAT NAVIGATION =====
+  const applyGatheredData = (g: GatheredData) => {
+    setGoals(g.goals)
+    setOccupation(g.occupation)
+    setQuickProfile({ age: g.age, monthlyIncome: String(g.monthlyIncome), savings: '', family: g.family })
+  }
+
+  const goToCountryAnalysis = () => {
+    applyGatheredData(aiGathered)
+    setPhase('analyzing')
+    setTimeout(() => {
+      const params: MatchParams = {
+        goals: aiGathered.goals, occupation: aiGathered.occupation,
+        monthlyIncome: aiGathered.monthlyIncome, age: aiGathered.age, family: aiGathered.family,
+      }
+      const results = matchCountries(params)
+      setMatchResults(results)
+      runAiAnalysis(aiGathered, results)
+      setPhase('countryResults')
+    }, 2500)
+  }
+
+  const goToAuSim = () => {
+    applyGatheredData(aiGathered)
+    setAuProfile(p => ({ ...p, thaiSalary: String(aiGathered.monthlyIncome) }))
+    setPhase('auProfile')
+  }
+
+  // ===== CHIP HANDLERS =====
+  const toggleChip = (id: string) => {
+    setChipSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : prev.length < 3 ? [...prev, id] : prev)
+  }
+
+  const GOAL_CHIP_LABELS: Record<string, string> = {
+    'money-job': '💰 เงินดี หางานง่าย',
+    'balance': '🏖️ Work-life balance',
+    'family': '👨‍👩‍👧 ลูกเรียนดี สวัสดิการ',
+    'stable': '🏛️ การเมืองมั่นคง',
+    'lifestyle': '🌴 ย้ายง่าย เกษียณสบาย',
+  }
+
+  const sendGoalChips = () => {
+    if (chipSelected.length === 0) return
+    const text = chipSelected.map(id => GOAL_CHIP_LABELS[id] || id).join(', ')
+    sendMessage(text)
+  }
+
+  // Quick reply chips based on gathered data
+  const getQuickReplies = (): { type: 'none' | 'multi' | 'single'; items: { id: string; label: string }[] } => {
+    if (aiLoading || aiGathered.ready || aiMessages.length < 1) return { type: 'none', items: [] }
+    if (aiGathered.goals.length === 0) {
+      return { type: 'multi', items: [
+        { id: 'money-job', label: '💰 เงินดี หางานง่าย' },
+        { id: 'balance', label: '🏖️ Work-life balance' },
+        { id: 'family', label: '👨‍👩‍👧 ลูกเรียนดี สวัสดิการ' },
+        { id: 'stable', label: '🏛️ การเมืองมั่นคง' },
+        { id: 'lifestyle', label: '🌴 ย้ายง่าย เกษียณสบาย' },
+      ]}
+    }
+    if (!aiGathered.occupation) {
+      return { type: 'single', items: [
+        { id: 'software', label: '💻 IT / โปรแกรมเมอร์' },
+        { id: 'engineering', label: '⚙️ วิศวกร / ช่าง' },
+        { id: 'accounting', label: '📊 บัญชี / การเงิน' },
+        { id: 'healthcare', label: '🏥 แพทย์ / พยาบาล' },
+        { id: 'chef', label: '👨‍🍳 เชฟ / โรงแรม' },
+        { id: 'other', label: '📝 อื่นๆ' },
+      ]}
+    }
+    if (!aiGathered.age) {
+      return { type: 'single', items: [
+        { id: '18-24', label: '18-24 ปี' },
+        { id: '25-32', label: '25-32 ปี' },
+        { id: '33-39', label: '33-39 ปี' },
+        { id: '40-44', label: '40-44 ปี' },
+        { id: '45+', label: '45+ ปี' },
+      ]}
+    }
+    if (!aiGathered.family) {
+      return { type: 'single', items: [
+        { id: 'single', label: '🧑 คนเดียว' },
+        { id: 'couple', label: '👫 กับคนรัก' },
+        { id: 'family', label: '👨‍👩‍👧 ครอบครัว' },
+      ]}
+    }
+    if (aiGathered.monthlyIncome === 0) {
+      return { type: 'single', items: [
+        { id: '15000', label: '~15,000 ฿' },
+        { id: '25000', label: '~25,000 ฿' },
+        { id: '35000', label: '~35,000 ฿' },
+        { id: '50000', label: '~50,000 ฿' },
+        { id: '80000', label: '~80,000 ฿' },
+        { id: '120000', label: '100,000+ ฿' },
+      ]}
+    }
+    return { type: 'none', items: [] }
   }
 
   // ===== DERIVED (AU SIMULATION) =====
@@ -357,7 +406,7 @@ export function ChatSimulator() {
     setAuProfile({ english: '', experience: '', education: '', thaiSalary: '', city: 'melbourne' })
     setSimStage(0); setSavingsInput(''); setIsMotherLord(false); setInitialAUD(0); setChoices({})
     setAiMessages([]); setAiChatHistory([]); setAiInput(''); setAiGathered({ goals: [], occupation: '', monthlyIncome: 0, age: '', family: '', ready: false })
-    setAiAnalysis(''); setAiError(''); setOccDisplayLabel(''); setAiMode(false)
+    setAiAnalysis(''); setAiError(''); setOccDisplayLabel(''); setChipSelected([]); setAiMode(false)
     // Re-start AI chat after reset
     setTimeout(() => {
       setAiMode(true)
@@ -397,6 +446,7 @@ export function ChatSimulator() {
   // ===== RENDER: AI CHAT =====
   // ================================================================
   if (phase === 'aiChat') {
+    const chips = getQuickReplies()
     return (
       <div className="sim-container">
         <div className="sim-scroll">
@@ -417,8 +467,33 @@ export function ChatSimulator() {
             </div>
           )}
 
+          {/* Quick reply chips */}
+          {!aiLoading && !aiGathered.ready && chips.type !== 'none' && (
+            <div className="quick-replies animate-fade-in">
+              <div className="chip-hint">
+                {chips.type === 'multi' ? 'กดเลือก 1-3 ข้อ แล้วกดส่ง ✨' : 'กดเลือกเลย หรือพิมพ์เอง ✍️'}
+              </div>
+              <div className="chip-grid">
+                {chips.items.map(c => (
+                  <button
+                    key={c.id}
+                    onClick={() => chips.type === 'multi' ? toggleChip(c.id) : sendMessage(c.label)}
+                    className={`quick-chip ${chipSelected.includes(c.id) ? 'selected' : ''}`}
+                  >
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+              {chips.type === 'multi' && chipSelected.length > 0 && (
+                <button onClick={sendGoalChips} className="chip-confirm animate-fade-in">
+                  ✅ ส่ง {chipSelected.length} ข้อ
+                </button>
+              )}
+            </div>
+          )}
+
           {/* Gathered info badges */}
-          {(aiGathered.goals.length > 0 || aiGathered.occupation) && (
+          {(aiGathered.goals.length > 0 || aiGathered.occupation) && !aiGathered.ready && (
             <div className="ai-gathered animate-fade-in">
               {aiGathered.goals.length > 0 && <span className="ai-badge">🎯 {aiGathered.goals.length} goals</span>}
               {aiGathered.occupation && <span className="ai-badge">💼 {aiGathered.occupation}</span>}
@@ -435,11 +510,20 @@ export function ChatSimulator() {
             </div>
           )}
 
-          {/* Ready indicator */}
+          {/* Ready — show choice buttons */}
           {aiGathered.ready && (
-            <div className="text-center py-4 animate-fade-in">
-              <div className="text-lg font-bold text-green-600">✅ ได้ข้อมูลครบแล้ว!</div>
-              <div className="text-sm text-gray-500">กำลังวิเคราะห์ 14 ประเทศให้คุณ...</div>
+            <div className="ai-done-card animate-fade-in">
+              <div className="text-center mb-4">
+                <div className="text-3xl mb-1">✨</div>
+                <div className="text-lg font-bold text-gray-800">Rain เข้าใจคุณแล้ว!</div>
+                <div className="text-xs text-gray-500 mt-1">เลือกว่าจะดูอะไรต่อ</div>
+              </div>
+              <button onClick={goToCountryAnalysis} className="btn-primary w-full justify-center rounded-xl py-3 text-sm mb-2">
+                📊 วิเคราะห์เทียบ 14 ประเทศ
+              </button>
+              <button onClick={goToAuSim} className="w-full py-3 rounded-xl border-2 border-blue-200 text-blue-600 hover:bg-blue-50 text-sm font-medium">
+                🇦🇺 จำลองชีวิตที่ออสเลย!
+              </button>
             </div>
           )}
 
