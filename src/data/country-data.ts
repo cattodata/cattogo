@@ -40,20 +40,14 @@ export interface MatchResult {
   occupationNote: string
 }
 
-// ===== OCCUPATION CATEGORIES =====
+// ===== OCCUPATION CATEGORIES (6 กลุ่มรวม — matchIds ใช้จับคู่กับ hotJobs) =====
 export const OCCUPATIONS = [
-  { id: 'software', label: '💻 IT / Software Dev', labelTH: 'ไอที / ซอฟต์แวร์' },
-  { id: 'data-ai', label: '📊 Data / AI / ML', labelTH: 'Data / AI' },
-  { id: 'accounting', label: '💰 บัญชี / การเงิน', labelTH: 'บัญชี / การเงิน' },
-  { id: 'engineering', label: '⚙️ วิศวกร', labelTH: 'วิศวกร' },
-  { id: 'healthcare', label: '👨‍⚕️ แพทย์ / พยาบาล', labelTH: 'แพทย์ / พยาบาล' },
-  { id: 'chef', label: '👨‍🍳 เชฟ / Hospitality', labelTH: 'เชฟ / โรงแรม' },
-  { id: 'trades', label: '🔧 ช่าง / Trades', labelTH: 'ช่างเทคนิค' },
-  { id: 'teaching', label: '📚 ครู / อาจารย์', labelTH: 'ครู / อาจารย์' },
-  { id: 'marketing', label: '📣 การตลาด / ดิจิทัล', labelTH: 'การตลาด' },
-  { id: 'business', label: '💼 บริหาร / ที่ปรึกษา', labelTH: 'บริหาร' },
-  { id: 'creative', label: '🎨 ดีไซน์ / Creative', labelTH: 'ดีไซน์' },
-  { id: 'other', label: '📋 อื่นๆ', labelTH: 'อื่นๆ' },
+  { id: 'software', label: '💻 IT / Tech / AI', labelTH: 'ไอที / เทค', matchIds: ['software', 'data-ai'] },
+  { id: 'engineering', label: '⚙️ วิศวกร / ช่างเทคนิค', labelTH: 'วิศวกร / ช่าง', matchIds: ['engineering', 'trades'] },
+  { id: 'accounting', label: '💰 บัญชี / การเงิน / บริหาร', labelTH: 'บัญชี / บริหาร', matchIds: ['accounting', 'business', 'marketing'] },
+  { id: 'healthcare', label: '🏥 แพทย์ / พยาบาล', labelTH: 'แพทย์ / สุขภาพ', matchIds: ['healthcare'] },
+  { id: 'chef', label: '🍳 เชฟ / Hospitality', labelTH: 'เชฟ / บริการ', matchIds: ['chef'] },
+  { id: 'other', label: '📋 สายอื่นๆ', labelTH: 'อื่นๆ', matchIds: ['other', 'teaching', 'creative'] },
 ] as const
 
 // ===== GOALS (combined motivation + priority — ถามทีเดียว เลือก 1-3) =====
@@ -74,33 +68,24 @@ const GOAL_WEIGHTS: Record<string, Partial<Record<keyof CountryScores, number>>>
   'lifestyle': { climate: 3, immigrationEase: 3, costOfLiving: 2 },
 }
 
-// ===== OCCUPATION NOTES PER COUNTRY =====
+// ===== OCCUPATION NOTES PER COUNTRY (ใช้ new grouped IDs) =====
 const OCCUPATION_NOTES: Record<string, Record<string, string>> = {
   australia: {
-    software: '🔥 อยู่ใน Skill Shortage List — วีซ่า 189/190 เปิดรับ',
-    'data-ai': '🔥 Data/AI demand สูงมาก — เงินเดือนเริ่มต้น $80K+',
+    software: '🔥 IT/AI อยู่ใน Skill Shortage List — วีซ่า 189/190 เปิดรับ, Data/AI demand สูงมาก $80K+',
+    engineering: '🔥 วิศวกร+ช่างขาดแคลนหนัก — Engineers Australia assess, electrician/plumber demand สูง',
     accounting: '✅ อยู่ใน Skill List — CPA Australia ต้องเทียบวุฒิ',
-    engineering: '🔥 วิศวกรขาดแคลน — Engineers Australia assess',
     healthcare: '🔥 พยาบาลขาดหนักมาก — fast track visa',
     chef: '✅ Chef อยู่ใน shortage list — 482 visa ได้',
-    trades: '🔥 ช่าง demand สูงมาก — electrician/plumber ขาดหนัก',
-    teaching: '⚠️ ต้อง register กับ State Board — ใช้เวลา',
-    marketing: '⚠️ ไม่อยู่ใน Skill List — ต้อง employer sponsor',
-    business: '⚠️ ต้อง employer sponsor หรือ Business visa',
-    creative: '⚠️ ต้องมี portfolio + employer sponsor',
     other: 'ℹ️ ตรวจสอบ Skill Shortage List ที่ Home Affairs',
   },
   canada: {
-    software: '🔥 Express Entry NOC 21232 — demand สูง',
-    'data-ai': '🔥 AI boom ใน Toronto/Montreal',
+    software: '🔥 Express Entry NOC 21232 — IT/AI demand สูง, Toronto/Montreal เป็น hub',
     healthcare: '🔥 พยาบาลขาดมาก — PNP fast track',
-    engineering: '✅ Engineers Canada assess — demand ดี',
-    trades: '🔥 Red Seal trades demand สูงมาก',
+    engineering: '✅ Engineers Canada assess — demand ดี, Red Seal trades สูงมาก',
     default: 'ℹ️ ใช้ระบบ Express Entry CRS points',
   },
   usa: {
-    software: '💰 เงินเดือนสูงสุดในโลก — แต่ H1B lottery ยาก',
-    'data-ai': '💰 AI hub ของโลก — FAANG ชิงกัน',
+    software: '💰 เงินเดือน IT/AI สูงสุดในโลก — แต่ H1B lottery ยาก',
     default: '⚠️ H1B visa lottery ~25% chance — ยากมาก',
   },
   uk: {
@@ -119,8 +104,8 @@ const OCCUPATION_NOTES: Record<string, Record<string, string>> = {
     default: '⚠️ ภาษาญี่ปุ่นสำคัญมาก — JLPT N2+ แนะนำ',
   },
   singapore: {
-    software: '✅ Employment Pass — แต่กำลัง tighten',
-    'data-ai': '✅ Tech hub ของ SEA',
+    software: '✅ Employment Pass — Tech hub ของ SEA, แต่กำลัง tighten',
+    accounting: '✅ Financial hub — บัญชี/บริหารมี demand',
     default: 'ℹ️ Employment Pass ขั้นต่ำ $5,000/เดือน',
   },
 }
@@ -128,7 +113,15 @@ const OCCUPATION_NOTES: Record<string, Record<string, string>> = {
 function getOccupationNote(countryId: string, occupation: string): string {
   const countryNotes = OCCUPATION_NOTES[countryId]
   if (!countryNotes) return ''
-  return countryNotes[occupation] || countryNotes['default'] || ''
+  // ลองหา note ตรง id ก่อน → ถ้าไม่มี ลอง matchIds → fallback to default
+  if (countryNotes[occupation]) return countryNotes[occupation]
+  const occDef = OCCUPATIONS.find(o => o.id === occupation)
+  if (occDef) {
+    for (const mid of occDef.matchIds) {
+      if (countryNotes[mid]) return countryNotes[mid]
+    }
+  }
+  return countryNotes['default'] || ''
 }
 
 // ===== COUNTRY DATA =====
@@ -318,8 +311,11 @@ export function matchCountries(params: MatchParams): MatchResult[] {
       maxPossible += 10 * weight
     }
 
-    // 3. Occupation demand bonus
-    const isHotJob = country.hotJobs.includes(params.occupation)
+    // 3. Occupation demand bonus (ใช้ matchIds จับคู่กับ hotJobs)
+    const occDef = OCCUPATIONS.find(o => o.id === params.occupation)
+    const isHotJob = occDef
+      ? occDef.matchIds.some(mid => country.hotJobs.includes(mid))
+      : country.hotJobs.includes(params.occupation)
     if (isHotJob) {
       score *= 1.12
     } else {
@@ -394,9 +390,13 @@ function generateHighlights(country: Country, params: MatchParams): string[] {
     }
   }
 
-  // Add occupation note if it's a hot job
-  if (country.hotJobs.includes(params.occupation)) {
-    const occLabel = OCCUPATIONS.find(o => o.id === params.occupation)?.labelTH || params.occupation
+  // Add occupation note if it's a hot job (ใช้ matchIds)
+  const occDef = OCCUPATIONS.find(o => o.id === params.occupation)
+  const isHotJob = occDef
+    ? occDef.matchIds.some(mid => country.hotJobs.includes(mid))
+    : country.hotJobs.includes(params.occupation)
+  if (isHotJob) {
+    const occLabel = occDef?.labelTH || params.occupation
     highlights.push(`🔥 ${occLabel} เป็นที่ต้องการ`)
   }
 

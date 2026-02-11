@@ -627,3 +627,42 @@ export function getCategories(): string[] {
   const cats = new Set(Object.values(occupations).map(o => o.category))
   return Array.from(cats).sort()
 }
+
+// ===== Map occupation category → country-data occupation ID =====
+const CATEGORY_TO_OCC_ID: Record<string, string> = {
+  'ICT & Technology': 'software',
+  'Engineering': 'engineering',
+  'Trades': 'engineering',
+  'Healthcare': 'healthcare',
+  'Medical Specialists': 'healthcare',
+  'Allied Health': 'healthcare',
+  'Business & Finance': 'accounting',
+  'Legal': 'accounting',
+  'Education': 'other',
+  'Architecture & Design': 'other',
+  'Science & Research': 'other',
+  'Agriculture & Environment': 'other',
+  'Community Services': 'other',
+}
+
+/** ค้นหาอาชีพจากชื่อ (case-insensitive) */
+export function searchOccupations(query: string): { key: string; title: string; category: string; occId: string }[] {
+  if (!query || query.length < 1) return []
+  const q = query.toLowerCase()
+  return Object.entries(occupations)
+    .filter(([, o]) => o.title.toLowerCase().includes(q) || o.category.toLowerCase().includes(q))
+    .slice(0, 8) // limit results
+    .map(([key, o]) => ({
+      key,
+      title: o.title,
+      category: o.category,
+      occId: CATEGORY_TO_OCC_ID[o.category] || 'other',
+    }))
+}
+
+/** map specific occupation key → country-data ID */
+export function getOccIdForKey(key: string): string {
+  const occ = occupations[key]
+  if (!occ) return 'other'
+  return CATEGORY_TO_OCC_ID[occ.category] || 'other'
+}

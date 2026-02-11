@@ -12,6 +12,7 @@ import {
   AU_CITIES, FOOD_COSTS, TRANSPORT_COSTS,
   calculateSimpleVisaScore,
 } from '@/data/simulator-data'
+import { searchOccupations } from '@/data/occupations'
 
 // ===== TYPES =====
 type Phase = 'quiz' | 'analyzing' | 'countryResults' | 'auProfile' | 'sim' | 'result'
@@ -75,6 +76,11 @@ export function ChatSimulator() {
   const [initialAUD, setInitialAUD] = useState(0)
   const [choices, setChoices] = useState<Record<string, string>>({})
 
+  // Occupation search
+  const [occSearchMode, setOccSearchMode] = useState(false)
+  const [occSearchQuery, setOccSearchQuery] = useState('')
+  const [occDisplayLabel, setOccDisplayLabel] = useState('')
+
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -82,12 +88,12 @@ export function ChatSimulator() {
   }, [quizStep, phase, simStage])
 
   // ===== DERIVED (AU SIMULATION) =====
-  const auOccKey = (['software', 'data-ai', 'accounting', 'engineering', 'healthcare', 'chef', 'trades'].includes(occupation)) ? occupation : 'other'
+  const auOccKey = occupation // new 6 IDs map directly to AU_SALARIES keys
   const city = AU_CITIES[auProfile.city] || AU_CITIES['melbourne']
   const salaryData = AU_SALARIES[auOccKey] || AU_SALARIES['other']
 
   const preDepartureCosts = useMemo(() => {
-    const visa = quickProfile.family === 'family' ? 8200 : quickProfile.family === 'couple' ? 6200 : 4640
+    const visa = quickProfile.family === 'family' ? 9825 : quickProfile.family === 'couple' ? 7365 : 4910
     return [
       { label: '📋 Visa Application Fee', aud: visa },
       { label: '📝 Skills Assessment', aud: 1000 },
@@ -146,8 +152,11 @@ export function ChatSimulator() {
     if (goals.length >= 1) setQuizStep(1)
   }
 
-  const pickOccupation = (id: string) => {
+  const pickOccupation = (id: string, displayLabel?: string) => {
     setOccupation(id)
+    if (displayLabel) setOccDisplayLabel(displayLabel)
+    setOccSearchMode(false)
+    setOccSearchQuery('')
     setQuizStep(2)
   }
 
@@ -262,19 +271,59 @@ export function ChatSimulator() {
 
           {/* ===== STEP 1: OCCUPATION ===== */}
           {quizStep === 1 && (
-            <div className="options-grid animate-fade-in">
-              {OCCUPATIONS.map(o => (
-                <button key={o.id} onClick={() => pickOccupation(o.id)} className="chat-option-btn">
-                  {o.label}
-                </button>
-              ))}
+            <div className="animate-fade-in">
+              {!occSearchMode ? (
+                <div className="options-grid">
+                  {OCCUPATIONS.filter(o => o.id !== 'other').map(o => (
+                    <button key={o.id} onClick={() => pickOccupation(o.id)} className="chat-option-btn">
+                      {o.label}
+                    </button>
+                  ))}
+                  <button onClick={() => setOccSearchMode(true)} className="chat-option-btn occ-search-trigger">
+                    🔍 ค้นหาอาชีพอื่น
+                  </button>
+                </div>
+              ) : (
+                <div className="occ-search-box">
+                  <input
+                    type="text"
+                    value={occSearchQuery}
+                    onChange={e => setOccSearchQuery(e.target.value)}
+                    placeholder="พิมพ์ชื่ออาชีพ เช่น nurse, engineer, chef..."
+                    className="occ-search-input"
+                    autoFocus
+                  />
+                  {occSearchQuery.length >= 1 && (
+                    <div className="occ-search-results">
+                      {searchOccupations(occSearchQuery).map(r => (
+                        <button
+                          key={r.key}
+                          onClick={() => pickOccupation(r.occId, r.title)}
+                          className="occ-search-item"
+                        >
+                          <span className="occ-search-title">{r.title}</span>
+                          <span className="occ-search-cat">{r.category}</span>
+                        </button>
+                      ))}
+                      {searchOccupations(occSearchQuery).length === 0 && (
+                        <div className="occ-search-empty">
+                          ไม่เจอ — <button onClick={() => pickOccupation('other', occSearchQuery)} className="occ-search-fallback">ใช้ &ldquo;{occSearchQuery}&rdquo; เลย</button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  <button onClick={() => { setOccSearchMode(false); setOccSearchQuery('') }} className="text-xs text-gray-500 mt-2 hover:text-gray-700">
+                    ← กลับเลือกกลุ่มหลัก
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
           {/* User chose occupation */}
           {quizStep >= 2 && (
             <>
-              <UserMsg>{OCCUPATIONS.find(o => o.id === occupation)?.label || occupation}</UserMsg>
+              <UserMsg>{occDisplayLabel || OCCUPATIONS.find(o => o.id === occupation)?.label || occupation}</UserMsg>
               <BotMsg>
                 เยี่ยม! 🎯 กรอกข้อมูลคร่าวๆ เดี๋ยวเอาไปวิเคราะห์ให้<br />
                 <span className="text-xs text-gray-500">ข้อมูลไม่ได้เก็บไว้ คำนวณในเครื่องคุณเท่านั้น 🔒</span>
@@ -349,7 +398,7 @@ export function ChatSimulator() {
             <div className="text-5xl mb-4 analyzing-globe">🌍</div>
             <div className="text-xl font-bold text-gray-800 mb-2">กำลังวิเคราะห์ {COUNTRIES.length} ประเทศ...</div>
             <div className="text-sm text-gray-500 mb-4">
-              เทียบ {goals.length} goals × อาชีพ {OCCUPATIONS.find(o => o.id === occupation)?.labelTH} × {COUNTRIES.length} ประเทศ
+              เทียบ {goals.length} goals × อาชีพ {occDisplayLabel || OCCUPATIONS.find(o => o.id === occupation)?.labelTH} × {COUNTRIES.length} ประเทศ
             </div>
             <div className="analyzing-bar">
               <div className="analyzing-bar-fill" />
