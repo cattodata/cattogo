@@ -838,6 +838,266 @@ export const USA: CountryDetailedData = {
   dataVersion: 'Jan 2026',
 }
 
+// ===== PORTUGAL 🇵🇹 =====
+export const PORTUGAL: CountryDetailedData = {
+  id: 'portugal',
+  name: 'Portugal',
+  flag: '🇵🇹',
+  
+  visaCosts: {
+    single: 110,
+    couple: 220,
+    family: 330,
+    currency: 'EUR',
+    notes: 'D7 Passive Income Visa: National D visa €110 (increased from €90 in 2025) + residence permit €160-170 + AIMA fee €156. Total realistic: €500-800',
+    source: 'AIMA, Jobbatical',
+    lastUpdated: 'Jan 2026',
+  },
+  
+  minSalaryRequirement: 'D7: €920/month (€11,040/year), D8 Digital Nomad: €3,480-3,680/month',
+  
+  salaries: {
+    softwareDev: { entry: 22000, mid: 39000, senior: 71000, currency: 'EUR' },
+    dataAI: { entry: 30000, mid: 50000, senior: 85000, currency: 'EUR' },
+    nurse: { entry: 18000, mid: 25000, senior: 35000, currency: 'EUR' },
+    engineer: { entry: 25000, mid: 42000, senior: 65000, currency: 'EUR' },
+    accountant: { entry: 22000, mid: 35000, senior: 55000, currency: 'EUR' },
+    trades: { entry: 18000, mid: 28000, senior: 42000, currency: 'EUR' },
+  },
+  
+  costOfLiving: [
+    { city: 'Lisbon', rent1BR: 1150, food: 325, transport: 40, utilities: 100, currency: 'EUR', notes: 'Cheapest transport in Western EU (€40/month pass)' },
+    { city: 'Porto', rent1BR: 850, food: 280, transport: 35, utilities: 90, currency: 'EUR', notes: '20-30% cheaper than Lisbon' },
+  ],
+  
+  prPath: {
+    minYears: 5,
+    maxYears: 5,
+    difficulty: 'easy',
+    notes: 'Permanent residence after 5 years. Citizenship after 5 years (Portuguese A2 required). Stay requirement: only 7-14 days/year!',
+  },
+  
+  keyBenefits: [
+    'Lowest cost of living in Western Europe',
+    'NHR Tax: 20% flat tax for qualified activities',
+    'Tech hub growing (Web Summit, Lisbon)',
+    'Golden visa alternative (D7 much cheaper)',
+    '300+ sunny days per year',
+    'English widely spoken in tech scene',
+  ],
+  
+  keyChallenges: [
+    'Lowest EU salaries (€25K-45K typical)',
+    '40-60% lower than DE/NL',
+    'AIMA appointments hard to get',
+    'Housing crisis (Lisbon rent rising)',
+    'Portuguese language helpful for integration',
+  ],
+  
+  officialSources: {
+    immigration: 'imigrante.sef.pt, aima.gov.pt',
+    salaries: 'PayScale, Levels.fyi Feb 2026',
+    costOfLiving: 'Numbeo Feb 2026',
+  },
+  
+  dataVersion: 'Jan 2026',
+}
+
+// ===== SOUTH KOREA 🇰🇷 =====
+export const SOUTH_KOREA: CountryDetailedData = {
+  id: 'korea',
+  name: 'South Korea',
+  flag: '🇰🇷',
+  
+  visaCosts: {
+    single: 100,
+    couple: 200,
+    family: 300,
+    currency: 'USD',
+    notes: 'E-7 Professional Work Visa: Single entry $60, Multiple entry $100. Total with docs/translations: $200-500',
+    source: 'Ministry of Justice Korea, Kowork',
+    lastUpdated: 'Jan 2026',
+  },
+  
+  minSalaryRequirement: 'E-7-1: ₩35,200,000/year (₩2,933,000/month ≈ $2,100/mo) increased Feb 1, 2026',
+  
+  salaries: {
+    softwareDev: { entry: 36000000, mid: 47400000, senior: 94000000, currency: 'KRW' },
+    dataAI: { entry: 45000000, mid: 66000000, senior: 73200000, currency: 'KRW' },
+    nurse: { entry: 30000000, mid: 40000000, senior: 55000000, currency: 'KRW' },
+    engineer: { entry: 40000000, mid: 53000000, senior: 94000000, currency: 'KRW' },
+    accountant: { entry: 35000000, mid: 45000000, senior: 65000000, currency: 'KRW' },
+    trades: { entry: 30000000, mid: 42000000, senior: 60000000, currency: 'KRW' },
+  },
+  
+  costOfLiving: [
+    { city: 'Seoul', rent1BR: 1200000, food: 400000, transport: 80000, utilities: 200000, currency: 'KRW', notes: 'Transport excellent & cheap. Internet fastest in world!' },
+    { city: 'Busan', rent1BR: 900000, food: 350000, transport: 70000, utilities: 180000, currency: 'KRW', notes: '20-30% cheaper than Seoul' },
+  ],
+  
+  prPath: {
+    minYears: 5,
+    maxYears: 5,
+    difficulty: 'hard',
+    notes: 'F-2 residence after 3-5 years (80+ points). F-5 PR after 5 years + TOPIK Level 4. Citizenship very difficult (must renounce).',
+  },
+  
+  keyBenefits: [
+    'Fastest internet in world (1Gbps standard)',
+    'Excellent public transport',
+    'Very safe, low crime',
+    'Amazing food, affordable restaurants',
+    'Tech jobs (Samsung, LG, Naver, Kakao)',
+    '6-hour flight to Thailand',
+  ],
+  
+  keyChallenges: [
+    'Korean language essential (TOPIK 3-4)',
+    'Work culture: long hours, hierarchical',
+    'PR difficult (requires fluent Korean + 5 years)',
+    'Salaries 30-50% lower than US/AU',
+    'Age discrimination (harder for 35+)',
+  ],
+  
+  officialSources: {
+    immigration: 'hikorea.go.kr, kowork.kr',
+    salaries: 'Join Horizons, Tivazo Jan 2026',
+    costOfLiving: 'Numbeo Feb 2026',
+  },
+  
+  dataVersion: 'Jan 2026',
+}
+
+// ===== SWITZERLAND 🇨🇭 =====
+export const SWITZERLAND: CountryDetailedData = {
+  id: 'switzerland',
+  name: 'Switzerland',
+  flag: '🇨🇭',
+  
+  visaCosts: {
+    single: 88,
+    couple: 176,
+    family: 264,
+    currency: 'CHF',
+    notes: 'Work Permit B: CHF 88 (Category D). Fees vary by canton (CHF 100-300 typical). Total realistic: CHF 200-500 (~$220-550 USD)',
+    source: 'Swiss State Secretariat (SEM), Deel',
+    lastUpdated: '2024',
+  },
+  
+  salaries: {
+    softwareDev: { entry: 90000, mid: 133000, senior: 287000, currency: 'CHF' },
+    dataAI: { entry: 120000, mid: 150000, senior: 180000, currency: 'CHF' },
+    nurse: { entry: 70000, mid: 85000, senior: 105000, currency: 'CHF' },
+    engineer: { entry: 95000, mid: 120000, senior: 160000, currency: 'CHF' },
+    accountant: { entry: 85000, mid: 110000, senior: 145000, currency: 'CHF' },
+    trades: { entry: 75000, mid: 95000, senior: 125000, currency: 'CHF' },
+  },
+  
+  costOfLiving: [
+    { city: 'Zurich', rent1BR: 2400, food: 750, transport: 120, utilities: 200, currency: 'CHF', notes: 'Most expensive! + CHF 300-500/mo mandatory health insurance' },
+    { city: 'Geneva', rent1BR: 2500, food: 800, transport: 130, utilities: 210, currency: 'CHF', notes: 'Slightly more expensive than Zurich' },
+    { city: 'Basel', rent1BR: 1900, food: 650, transport: 100, utilities: 180, currency: 'CHF', notes: '10-20% cheaper than Zurich' },
+  ],
+  
+  prPath: {
+    minYears: 10,
+    maxYears: 10,
+    difficulty: 'very-hard',
+    notes: 'Permit C (settlement): 10 years for non-EU (EU: 5 years). Citizenship after 10-12 years + canton approval (very strict).',
+  },
+  
+  keyBenefits: [
+    'Highest salaries in Europe (CHF 100K-200K+)',
+    'High quality of life',
+    'World-class healthcare',
+    'Central Europe location',
+    'Low taxes (compared to other high-salary countries)',
+    'Multilingual (DE/FR/IT/EN)',
+  ],
+  
+  keyChallenges: [
+    'Most expensive country in world',
+    'PR very slow (10 years for non-EU)',
+    'Mandatory health insurance (CHF 300-500/mo)',
+    'Work permit quotas for non-EU',
+    'Must learn German/French for PR',
+    'Not EU (no automatic EU work rights)',
+  ],
+  
+  officialSources: {
+    immigration: 'sem.admin.ch',
+    salaries: 'Levels.fyi, Jobs.ch Feb 2026',
+    costOfLiving: 'Numbeo Feb 2026',
+  },
+  
+  dataVersion: '2024',
+}
+
+// ===== JAPAN 🇯🇵 =====
+export const JAPAN: CountryDetailedData = {
+  id: 'japan',
+  name: 'Japan',
+  flag: '🇯🇵',
+  
+  visaCosts: {
+    single: 650,
+    couple: 1300,
+    family: 1950,
+    currency: 'USD',
+    notes: 'MAJOR INCREASE April 2026! PR: ¥100,000 (~$650, was ¥10,000). Visa status change: ¥30,000-40,000 (~$200-260, was ¥4,000-6,000). 500%+ increase!',
+    source: 'Japan Ministry of Justice',
+    lastUpdated: 'Feb 2026',
+  },
+  
+  salaries: {
+    softwareDev: { entry: 3500000, mid: 6000000, senior: 10000000, currency: 'JPY' },
+    dataAI: { entry: 5500000, mid: 7000000, senior: 9000000, currency: 'JPY' },
+    nurse: { entry: 3800000, mid: 4500000, senior: 6000000, currency: 'JPY' },
+    engineer: { entry: 4000000, mid: 6000000, senior: 8500000, currency: 'JPY' },
+    accountant: { entry: 3500000, mid: 5000000, senior: 7500000, currency: 'JPY' },
+    trades: { entry: 3200000, mid: 4500000, senior: 6500000, currency: 'JPY' },
+  },
+  
+  costOfLiving: [
+    { city: 'Tokyo', rent1BR: 125000, food: 50000, transport: 15000, utilities: 12500, currency: 'JPY', notes: 'Most expensive JP city. Food affordable!' },
+    { city: 'Osaka', rent1BR: 90000, food: 42000, transport: 13000, utilities: 11000, currency: 'JPY', notes: '20-30% cheaper than Tokyo' },
+    { city: 'Fukuoka', rent1BR: 70000, food: 38000, transport: 11000, utilities: 10000, currency: 'JPY', notes: 'Most affordable major city' },
+  ],
+  
+  prPath: {
+    minYears: 1,
+    maxYears: 10,
+    difficulty: 'medium',
+    notes: 'Standard: 10 years. HSP (Highly Skilled Professional): 1 year (80+ points) or 3 years (70-79 points). Citizenship: 5-10 years (must renounce).',
+  },
+  
+  keyBenefits: [
+    'Safest country in world',
+    'Amazing cuisine, affordable eating out',
+    'Best train system (Shinkansen)',
+    'National Health Insurance affordable',
+    'HSP visa fast-track PR (1-3 years)',
+    'Unique culture, travel',
+  ],
+  
+  keyChallenges: [
+    'Japanese essential (JLPT N2-N1)',
+    'Salaries 40-60% lower than US/AU',
+    'Work culture: long hours, hierarchy',
+    'Visa fees skyrocketing (PR ¥100K from April 2026)',
+    'Must renounce citizenship',
+    'Language barrier in daily life',
+  ],
+  
+  officialSources: {
+    immigration: 'moj.go.jp, immi-moj.go.jp',
+    salaries: 'PayScale JP, Glassdoor JP',
+    costOfLiving: 'Numbeo Feb 2026',
+  },
+  
+  dataVersion: 'Feb 2026',
+}
+
 // ===== EXPORT ALL =====
 export const ALL_DETAILED_COUNTRIES = [
   AUSTRALIA,
@@ -852,6 +1112,10 @@ export const ALL_DETAILED_COUNTRIES = [
   NETHERLANDS,
   IRELAND,
   USA,
+  PORTUGAL,
+  SOUTH_KOREA,
+  SWITZERLAND,
+  JAPAN,
 ]
 
 export function getCountryDetails(countryId: string): CountryDetailedData | undefined {

@@ -99,9 +99,9 @@ const OCCUPATION_NOTES: Record<string, Record<string, string>> = {
     default: 'ℹ️ EU Blue Card หรือ Job Seeker visa',
   },
   japan: {
-    software: '✅ Engineer visa — แต่ต้องพูด JP ในหลายบริษัท',
+    software: '✅ Engineer visa — แต่ต้องพูด JP ในหลายบริษัท. HSP fast-track PR (1-3 years)',
     chef: '✅ Thai restaurant demand — ได้ Specified Skilled Worker visa',
-    default: '⚠️ ภาษาญี่ปุ่นสำคัญมาก — JLPT N2+ แนะนำ',
+    default: '⚠️ ภาษาญี่ปุ่นสำคัญมาก (JLPT N2+). Visa fees ขึ้น 500% April 2026: PR ¥100K!',
   },
   singapore: {
     software: '✅ Employment Pass — Tech hub ของ SEA, แต่กำลัง tighten',
@@ -121,6 +121,24 @@ const OCCUPATION_NOTES: Record<string, Record<string, string>> = {
     healthcare: '🔥 Nurses/doctors ขาดมาก — fast PR track',
     trades: '✅ Electrician/plumber demand ดี — เงินเดือนสูง',
     default: 'ℹ️ Skilled Worker Permit — Norwegian helpful long-term',
+  },
+  portugal: {
+    software: '✅ Web Summit hub — Lisbon tech scene growing, €25K-70K',
+    creative: '✅ Digital Nomad visa — D8 visa €3,480/mo minimum',
+    default: 'ℹ️ D7 Passive Income (€920/mo) หรือ D8 Digital Nomad',
+  },
+  korea: {
+    software: '✅ E-7 visa — Samsung, LG, Naver, Kakao. TOPIK 3-4 required',
+    engineering: '✅ Manufacturing/auto demand — Hyundai, SK, LG',
+    creative: '✅ K-pop/entertainment industry — but Korean essential',
+    default: '⚠️ Korean language essential (TOPIK 3-4) — E-7 min ₩35.2M/year',
+  },
+  switzerland: {
+    software: '💰 Highest EU salaries CHF 100K-200K+ — Zurich, Geneva',
+    engineering: '💰 Pharma/machinery engineers — CHF 95K-160K',
+    accounting: '✅ Financial center — Banking demands high',
+    healthcare: '✅ Healthcare professionals — CHF 70K-105K',
+    default: '⚠️ Non-EU quota limited — German/French helpful, 10 years to PR',
   },
 }
 

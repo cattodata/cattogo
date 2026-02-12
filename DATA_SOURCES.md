@@ -2,7 +2,7 @@
 
 ข้อมูลในแอพนี้มาจาก **official government sources** และ **verified data providers** ล่าสุดถึง **February 2026**
 
-## ✅ Verified Data (12 Countries)
+## ✅ Verified Data (16 Countries)
 
 ### 🇦🇺 Australia
 - **Visa Fees**: Home Affairs (Jan 2026)
@@ -76,13 +76,37 @@
 - **Cost of Living**: Numbeo (Feb 2026)
 - **Notes**: ⚠️ NEW Presidential Proclamation fee $100,000! (Sept 2025+) + H-1B lottery
 
+### 🇵🇹 Portugal
+- **Visa Fees**: AIMA, Jobbatical (Jan 2026)
+- **Salaries**: PayScale, Levels.fyi (Feb 2026)
+- **Cost of Living**: Numbeo (Feb 2026)
+- **Notes**: D7 Passive Income €920/mo, D8 Digital Nomad €3,480/mo. NHR 20% flat tax
+
+### 🇰🇷 South Korea
+- **Visa Fees**: Ministry of Justice Korea, Kowork (Jan 2026)
+- **Salaries**: Join Horizons, Tivazo (Jan 2026)
+- **Cost of Living**: Numbeo (Feb 2026)
+- **Notes**: E-7 visa min ₩35.2M/year (Feb 2026 increase). Korean language essential (TOPIK 3-4)
+
+### 🇨🇭 Switzerland
+- **Visa Fees**: Swiss State Secretariat (SEM), Deel (2024)
+- **Salaries**: Levels.fyi, Jobs.ch (Feb 2026)
+- **Cost of Living**: Numbeo (Feb 2026)
+- **Notes**: 💰 Highest EU salaries (CHF 100K-200K+), but most expensive. 10 years to PR for non-EU
+
+### 🇯🇵 Japan
+- **Visa Fees**: Japan Ministry of Justice (Feb 2026)
+- **Salaries**: PayScale JP, Glassdoor JP
+- **Cost of Living**: Numbeo (Feb 2026)
+- **Notes**: ⚠️ MAJOR visa fee increase April 2026: PR ¥100K (was ¥10K) = 500%+ increase! HSP fast-track PR (1-3 years)
+
 ---
 
 ## 📁 Data Files
 
 ### `src/data/country-detailed-data.ts`
-**NEW FILE** - Contains complete visa costs, salaries by occupation, cost of living breakdown, PR paths
-- 12 countries with full details
+**Complete visa costs, salaries, living costs for 16 countries**
+- 16 countries with full details (was 12, added PT, KR, CH, JP)
 - Visa costs (single, couple, family)
 - Salaries by occupation (entry, mid, senior)
 - Cost of living by city
@@ -116,9 +140,8 @@ All data verified against official sources:
 6. ✅ Software salary confirmed ($75K entry)
 
 ### 📊 Coverage
-- **Complete data**: 12 countries (AU, CA, UK, NZ, DE, SG, SE, UAE, NO, NL, IE, US)
-- **Partial data**: 4 countries (Portugal, Korea, Switzerland — scores only, no detailed data yet)
-- **Missing**: None for top migration destinations
+- **Complete data**: 16 countries (AU, CA, UK, NZ, DE, SG, SE, UAE, NO, NL, IE, US, PT, KR, CH, JP)
+- **Missing**: None for popular migration destinations
 
 ---
 
