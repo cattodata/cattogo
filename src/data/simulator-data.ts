@@ -1,10 +1,10 @@
 // ===== Migration Life Simulator Data =====
 // ข้อมูลสำหรับจำลองชีวิตหลังย้ายประเทศ
-// อ้างอิง: ATO (Jun 2025), Fair Work (Jul 2025), Home Affairs (Jul 2025),
+// อ้างอิง: ATO (Jun 2025), Fair Work (Jul 2025), Home Affairs (Jan 2026),
 //         Numbeo (Feb 2026), SEEK (Feb 2026), PayScale (Jan 2026), XE (Feb 2026)
 // อัปเดตล่าสุด: กุมภาพันธ์ 2026
 
-export const AUD_TO_THB = 22.15 // XE mid-market rate Feb 2026
+export const AUD_TO_THB = 22.10 // XE mid-market rate Feb 2026 average
 
 // ===== Australian Tax Brackets FY 2025-26 (Stage 3 Tax Cuts) =====
 export function calculateAusTax(annualGross: number): {
@@ -60,7 +60,7 @@ export function calculateThaiTax(annualGross: number): {
 // ===== Salary Data (AUD/year) =====
 export const AU_SALARIES: Record<string, { entry: number; mid: number; senior: number; label: string }> = {
   // อ้างอิง: SEEK salary data Feb 2026, PayScale AU Jan 2026
-  'software': { entry: 70000, mid: 100000, senior: 140000, label: 'Software Developer' },
+  'software': { entry: 75000, mid: 100000, senior: 140000, label: 'Software Developer' }, // PayScale 2025: 1-4yrs avg $75,630
   'data-ai': { entry: 90000, mid: 120000, senior: 150000, label: 'Data / AI Engineer' },
   'accounting': { entry: 65000, mid: 85000, senior: 115000, label: 'Accountant' },
   'engineering': { entry: 80000, mid: 100000, senior: 130000, label: 'Engineer' },
@@ -93,9 +93,9 @@ export const TH_LIVING_COSTS = {
   utilities: 2500,   // น้ำไฟ
   phone: 1000,       // เน็ตมือถือ
   entertainment: 5000,
-  insurance: 1500,   // ประกันสุขภาพ (ไม่ฟรี!)
+  insurance: 2500,   // ประกันสุขภาพที่ครอบคลุมดี (OPD+IPD)
 }
-export const TH_TOTAL_LIVING = Object.values(TH_LIVING_COSTS).reduce((a, b) => a + b, 0) // ~37,500
+export const TH_TOTAL_LIVING = Object.values(TH_LIVING_COSTS).reduce((a, b) => a + b, 0) // ~39,000
 
 // ===== Australian City Costs (AUD/month) =====
 export interface CityInfo {
@@ -113,7 +113,7 @@ export interface CityInfo {
 export const AU_CITIES: Record<string, CityInfo> = {
   'sydney': {
     id: 'sydney', name: 'Sydney', label: '🏙️ Sydney',
-    rent1br: 3440, rent2br: 4800, rentFamily: 6800, rentShare: 1400,
+    rent1br: 3440, rent2br: 4800, rentFamily: 6800, rentShare: 1400, // Inner/Mid suburbs
     utilities: 294, internet: 80,
   },
   'melbourne': {
@@ -130,17 +130,17 @@ export const AU_CITIES: Record<string, CityInfo> = {
 
 // ===== Food Costs (AUD/month) =====
 export const FOOD_COSTS: Record<string, { cost: number; label: string }> = {
-  'always': { cost: 400, label: 'ทำกินเองทุกมื้อ' },
-  'often': { cost: 550, label: 'ทำเองบ้าง ซื้อบ้าง' },
-  'sometimes': { cost: 700, label: 'ซื้อกินบ่อย' },
-  'rarely': { cost: 900, label: 'ซื้อกินเกือบทุกมื้อ' },
+  'always': { cost: 500, label: 'ทำกินเองทุกมื้อ (ไม่ฟุ่มเฟือย)' },
+  'often': { cost: 650, label: 'ทำเองบ้าง ซื้อบ้าง' },
+  'sometimes': { cost: 800, label: 'ซื้อกินบ่อย' },
+  'rarely': { cost: 1000, label: 'ซื้อกินเกือบทุกมื้อ' },
 }
 
 // ===== Transport Costs (AUD/month) =====
 export const TRANSPORT_COSTS: Record<string, { cost: number; label: string; breakdown: string }> = {
   'public': { cost: 200, label: 'รถไฟ/รถเมล์', breakdown: 'Myki/Opal monthly' },
   'mixed': { cost: 380, label: 'ผสม', breakdown: 'รถไฟ + Uber บ้าง + parking' },
-  'car': { cost: 720, label: 'ขับรถเอง', breakdown: 'ผ่อนรถ $350 + ประกัน $150 + น้ำมัน $140 + rego/parking $80' },
+  'car': { cost: 850, label: 'ขับรถเอง', breakdown: 'ผ่อนรถ $400 + ประกัน $200 + น้ำมัน $150 + rego/parking $100' }, // Insurance สูงกว่าถ้าไม่มี AU driving history
 }
 
 // ===== Savings Ranges (THB) =====
@@ -156,8 +156,8 @@ export const SAVINGS_RANGES: Record<string, { min: number; max: number; label: s
 export function calculateInitialCosts(family: string, rent: number): {
   visa: number; flight: number; bond: number; furniture: number; docs: number; total: number
 } {
-  // Home Affairs visa pricing Jul 2025 — subclass 189 base $4,910 + additional applicants
-  const visa = family === 'family' ? 9825 : family === 'couple' ? 7365 : 4910
+  // Home Affairs visa pricing Jan 2026 — subclass 189 base $4,765 + additional applicants
+  const visa = family === 'family' ? 8545 : family === 'couple' ? 7150 : 4765
   const flight = family === 'family' ? 3500 : family === 'couple' ? 2200 : 1100
   const bond = rent // 4 weeks bond ≈ 1 month
   const furniture = family === 'single' ? 2000 : 4000

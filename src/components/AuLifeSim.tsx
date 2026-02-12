@@ -73,7 +73,7 @@ export function AuLifeSim() {
   const salaryData = AU_SALARIES[profile.occupation] || AU_SALARIES['other']
 
   const preDepartureCosts = useMemo(() => {
-    const visa = profile.family === 'family' ? 9825 : profile.family === 'couple' ? 7365 : 4910
+    const visa = profile.family === 'family' ? 8545 : profile.family === 'couple' ? 7150 : 4765
     return [
       { label: '📋 Visa Application Fee', aud: visa },
       { label: '📝 Skills Assessment', aud: 1000 },
