@@ -87,13 +87,13 @@ export const AUSTRALIA: CountryDetailedData = {
   flag: '🇦🇺',
   
   visaCosts: {
-    single: 1455,
-    couple: 2910,
-    family: 3640,
+    single: 3210,
+    couple: 6420,
+    family: 7235,
     currency: 'AUD',
-    notes: '482 TSS Short-term (2 yrs): $1,455/$2,910/$3,640 | Medium-term (4 yrs): $3,035/$6,070/$7,595 | 186 ENS Direct: $4,765/$7,150/$8,545 | 186 TRT: $4,240 | 189 Skilled: $4,765/$7,150/$8,545. Most popular: 482 (employer-sponsored, no points!)',
+    notes: '482 TSS (July 1, 2025): $3,210 main + $3,210 adult dep + $805 child. STAC onshore: +$700/person. 186 ENS Direct: $4,765/$7,150/$8,545 | 186 TRT: $4,240 | 189 Skilled: $4,765/$7,150/$8,545. Most popular: 482 (employer-sponsored, no points!)',
     source: 'Home Affairs',
-    lastUpdated: 'Feb 2026',
+    lastUpdated: 'July 2025',
   },
   
   salaries: {
@@ -129,7 +129,7 @@ export const AUSTRALIA: CountryDetailedData = {
   keyChallenges: [
     'Very expensive (Sydney/Melbourne)',
     'Far from Thailand (~9 hours)',
-    '189/186 visa expensive, but 482 affordable',
+    '482 visa: $3,210+ (increased July 2025)',
     '189 Skilled: Competitive points system (65+)',
   ],
   
@@ -507,7 +507,8 @@ export const SWEDEN: CountryDetailedData = {
   ],
   
   keyChallenges: [
-    'Very high taxes (50%+)',
+    'High taxes (52-55% effective rate for high earners >SEK 643K)',
+    'Municipal tax ~32% + state tax 20% above threshold',
     'Dark & cold winters (6 hrs daylight Dec-Jan)',
     'Swedish language needed long-term',
     'Housing shortage in Stockholm',
@@ -780,11 +781,11 @@ export const USA: CountryDetailedData = {
   flag: '🇺🇸',
   
   visaCosts: {
-    single: 100000,
-    couple: 200000,
-    family: 300000,
+    single: 3500,
+    couple: 7000,
+    family: 10500,
     currency: 'USD',
-    notes: 'H-1B: NEW Presidential Proclamation fee $100,000! (Sept 2025+) + standard fees $2,645-8,145. Indians also pay $250 Visa Integrity Fee. VERY EXPENSIVE!',
+    notes: 'Standard H-1B: $2,645-8,145 (varies by company size). ⚠️ Large corps covered by Public Law 114-113: +$100,000 Presidential Proclamation fee (Sept 2025+). Indians: +$250 Visa Integrity Fee. Green Card: $1,500-7,000.',
     source: 'USCIS',
     lastUpdated: 'Jan 2026',
   },
@@ -823,7 +824,7 @@ export const USA: CountryDetailedData = {
   
   keyChallenges: [
     'H-1B lottery system (low odds)',
-    '$100K proclamation fee!',
+    '$100K proclamation fee for certain large corps',
     'Green Card backlog (10+ yrs for Indians)',
     'No universal healthcare ($300-800/mo insurance)',
     'Employer-tied visa',
@@ -994,7 +995,7 @@ export const SWITZERLAND: CountryDetailedData = {
   },
   
   costOfLiving: [
-    { city: 'Zurich', rent1BR: 2400, food: 750, transport: 120, utilities: 200, currency: 'CHF', notes: 'Most expensive! + CHF 300-500/mo mandatory health insurance' },
+    { city: 'Zurich', rent1BR: 2400, food: 750, transport: 120, utilities: 200, currency: 'CHF', notes: 'Most expensive! Mandatory health insurance CHF 393/mo avg (CHF 465 adults 26+, 2026)' },
     { city: 'Geneva', rent1BR: 2500, food: 800, transport: 130, utilities: 210, currency: 'CHF', notes: 'Slightly more expensive than Zurich' },
     { city: 'Basel', rent1BR: 1900, food: 650, transport: 100, utilities: 180, currency: 'CHF', notes: '10-20% cheaper than Zurich' },
   ],
