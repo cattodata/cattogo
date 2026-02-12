@@ -228,7 +228,7 @@ export function VisaExplorer() {
 
         {showCalc && (
           <div className="mt-4 space-y-3 animate-fade-in">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-medium text-gray-600">📅 อายุ</label>
                 <select className="form-select mt-1" value={age} onChange={e => setAge(e.target.value)}>
@@ -295,7 +295,7 @@ export function VisaExplorer() {
       {/* All Visa Categories */}
       {VISA_CATEGORIES.map(cat => (
         <div key={cat.id} className="card overflow-hidden">
-          <div className={`bg-gradient-to-r ${cat.bg} -mx-6 -mt-6 px-6 py-4 mb-4 ${cat.border} border-b`}>
+          <div className={`bg-gradient-to-r ${cat.bg} -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 px-4 sm:px-6 py-4 mb-4 ${cat.border} border-b`}>
             <h3 className="text-lg font-bold text-gray-800">{cat.title}</h3>
             <p className="text-xs text-gray-600 mt-0.5">{cat.subtitle}</p>
           </div>
@@ -353,7 +353,7 @@ export function VisaExplorer() {
                       </div>
 
                       {/* Pros & Cons */}
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="bg-green-50 rounded-lg p-2.5">
                           <div className="text-xs font-bold text-green-700 mb-1">👍 ข้อดี</div>
                           <ul className="text-xs text-green-600 space-y-0.5">

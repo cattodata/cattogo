@@ -1,0 +1,19 @@
+{
+  "name": "Life After Migration - จำลองชีวิตหลังย้ายประเทศ",
+  "short_name": "Migration",
+  "description": "จำลองชีวิตจริงหลังย้ายไปต่างประเทศ ภาษี ค่าเช่า ค่ากิน เหลือเก็บเท่าไหร่",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#E8F4FF",
+  "theme_color": "#6FA8DD",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./rainflow.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

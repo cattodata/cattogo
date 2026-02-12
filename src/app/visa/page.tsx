@@ -4,7 +4,7 @@ import { VisaExplorer } from '@/components/VisaExplorer'
 
 export default function VisaPage() {
   return (
-    <main className="min-h-screen py-4 px-4">
+    <main className="min-h-screen min-h-dvh py-3 px-3 sm:py-4 sm:px-4">
       <div className="max-w-2xl mx-auto">
         <Header />
         <VisaExplorer />

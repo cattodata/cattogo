@@ -158,7 +158,7 @@ export function AuLifeSim() {
           </div>
 
           <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="form-label">💼 อาชีพ</label>
                 <select className="form-select" value={profile.occupation} onChange={e => up('occupation', e.target.value)}>
@@ -178,7 +178,7 @@ export function AuLifeSim() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="form-label">🗣️ IELTS/PTE</label>
                 <select className="form-select" value={profile.english} onChange={e => up('english', e.target.value)}>
@@ -201,7 +201,7 @@ export function AuLifeSim() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="form-label">🎓 การศึกษา</label>
                 <select className="form-select" value={profile.education} onChange={e => up('education', e.target.value)}>
@@ -223,7 +223,7 @@ export function AuLifeSim() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="form-label">👥 ไปกับใคร</label>
                 <select className="form-select" value={profile.family} onChange={e => up('family', e.target.value)}>

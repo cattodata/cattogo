@@ -18,9 +18,9 @@ export function Header() {
   ]
 
   return (
-    <header className="mb-4 animate-fade-in">
+    <header className="mb-3 sm:mb-4 animate-fade-in">
       <div
-        className="rounded-2xl p-4 flex items-center gap-4"
+        className="rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4"
         style={{
           background: 'linear-gradient(135deg, #8BB8E8 0%, #6FA8DD 50%, #5599CC 100%)',
           boxShadow: '0 8px 30px rgba(85, 153, 204, 0.3)',
@@ -51,14 +51,14 @@ export function Header() {
       </div>
 
       {/* Navigation Tabs — 3 tabs */}
-      <div className="flex gap-1.5 mt-3">
+      <div className="flex gap-1 sm:gap-1.5 mt-2 sm:mt-3">
         {tabs.map(tab => {
           const isActive = current === tab.id || (current === 'tools' && tab.id === 'visa')
           return (
             <a
               key={tab.id}
               href={tab.href}
-              className={`flex-1 text-center py-2 px-2 rounded-xl text-xs sm:text-sm font-medium transition-all ${
+              className={`flex-1 text-center py-2.5 px-1.5 sm:px-2 rounded-xl text-[11px] sm:text-sm font-medium transition-all min-h-[44px] flex items-center justify-center ${
                 isActive
                   ? 'bg-white text-blue-700 shadow-md border-2 border-blue-200'
                   : 'bg-white/50 text-gray-500 hover:bg-white/70 hover:text-blue-600 border-2 border-transparent'
