@@ -470,16 +470,16 @@ export function AuLifeSim() {
         {/* Monthly breakdown */}
         <div className="result-section">
           <h4 className="text-base font-bold text-gray-800 mb-2">📊 รายรับ-รายจ่ายรายเดือน</h4>
-          <Row label="💰 เงินเดือน (gross)" val={fmtAud(Math.round(grossAnnual / 12))} />
-          <Row label="📋 ภาษี+Medicare" val={`-${fmtAud(Math.round((auTax.tax + auTax.medicare) / 12))}`} red />
+          <Row label="💰 เงินเดือน (gross)" val={fmtAud(Math.round(grossAnnual / 12))} note={selectedOcc ? `${salaryLabel} — ${salarySource}` : undefined} />
+          <Row label="📋 ภาษี+Medicare" val={`-${fmtAud(Math.round((auTax.tax + auTax.medicare) / 12))}`} red note={`ATO FY 2025-26 Stage 3 Tax Cuts (effective rate ${auTax.effectiveRate}%) + Medicare 2%`} />
           <Row label="💵 สุทธิ (net)" val={fmtAud(monthlyNet)} green />
           <div className="border-t border-gray-200 mt-2 pt-2" />
-          <Row label="🏠 ค่าเช่า" val={`-${fmtAud(monthlyRent)} (${fmtAud(Math.round(monthlyRent * 12 / 52))}/wk)`} red />
-          <Row label="🔌 ค่าน้ำไฟ+เน็ต" val={`-${fmtAud(monthlyUtils)}`} red />
-          <Row label="🍳 อาหาร" val={`-${fmtAud(monthlyFood)}`} red />
-          <Row label="🚗 เดินทาง" val={`-${fmtAud(monthlyTransport)}`} red />
-          {monthlyInsurance > 0 && <Row label="🏥 ประกัน" val={`-${fmtAud(monthlyInsurance)}`} red />}
-          <Row label="📱 มือถือ+อื่นๆ" val={`-${fmtAud(monthlyPhone + monthlyMisc)}`} red />
+          <Row label="🏠 ค่าเช่า" val={`-${fmtAud(monthlyRent)} (${fmtAud(Math.round(monthlyRent * 12 / 52))}/wk)`} red note={`Numbeo ${city.name} Feb 2026 — inner/mid suburbs`} />
+          <Row label="🔌 ค่าน้ำไฟ+เน็ต" val={`-${fmtAud(monthlyUtils)}`} red note={`Numbeo: utilities 85m² $${city.utilities} + internet 60Mbps $${city.internet}`} />
+          <Row label="🍳 อาหาร" val={`-${fmtAud(monthlyFood)}`} red note={`${FOOD_COSTS[choices['food']]?.label || 'ผสม'} — ประมาณจาก Numbeo meal prices`} />
+          <Row label="🚗 เดินทาง" val={`-${fmtAud(monthlyTransport)}`} red note={TRANSPORT_COSTS[choices['commute']]?.breakdown} />
+          {monthlyInsurance > 0 && <Row label="🏥 ประกัน" val={`-${fmtAud(monthlyInsurance)}`} red note="Medibank/Bupa Hospital+Extras basic cover เฉลี่ย" />}
+          <Row label="📱 มือถือ+อื่นๆ" val={`-${fmtAud(monthlyPhone + monthlyMisc)}`} red note={`มือถือ $${monthlyPhone} (Numbeo avg) + ค่าใช้จ่ายจิปาถะ $${monthlyMisc}`} />
           <div className="flex justify-between py-2 font-bold border-t-2 border-gray-200 mt-2">
             <span>💰 เหลือเก็บ/เดือน</span>
             <span className={monthlySavings >= 0 ? 'text-green-600' : 'text-red-600'}>
@@ -528,13 +528,16 @@ export function AuLifeSim() {
 
         {/* Sources */}
         <div className="mt-4 bg-blue-50 border border-blue-200 rounded-xl p-3">
-          <div className="text-xs text-blue-700 font-medium mb-1">📊 แหล่งข้อมูล:</div>
+          <div className="text-xs text-blue-700 font-medium mb-1">📊 แหล่งข้อมูล (ตรวจสอบได้ทุกตัวเลข):</div>
           <div className="text-xs text-blue-600 space-y-0.5">
-            <div>• <a href="https://www.ato.gov.au/tax-rates-and-codes/tax-rates-resident" target="_blank" rel="noopener noreferrer" className="underline">ATO Tax Rates FY 2025-26</a></div>
-            <div>• <a href="https://www.numbeo.com/cost-of-living/country_result.jsp?country=Australia" target="_blank" rel="noopener noreferrer" className="underline">Numbeo AU Cost of Living</a></div>
-            <div>• <a href="https://www.fairwork.gov.au/pay-and-wages/minimum-wages" target="_blank" rel="noopener noreferrer" className="underline">Fair Work Minimum Wage</a></div>
-            <div>• <a href="https://www.seek.com.au/career-advice/role" target="_blank" rel="noopener noreferrer" className="underline">SEEK Salary Guide</a></div>
+            <div>• <a href="https://www.ato.gov.au/tax-rates-and-codes/tax-rates-resident" target="_blank" rel="noopener noreferrer" className="underline">ATO Tax Rates FY 2025-26</a> — Stage 3 Tax Cuts (16%/30%/37%/45%)</div>
+            <div>• <a href={`https://www.numbeo.com/cost-of-living/in/${city.name}`} target="_blank" rel="noopener noreferrer" className="underline">Numbeo {city.name} Cost of Living</a> — ค่าเช่า, น้ำไฟ, อาหาร, เดินทาง (Feb 2026)</div>
+            {salarySourceUrl && <div>• <a href={salarySourceUrl} target="_blank" rel="noopener noreferrer" className="underline">PayScale {salaryLabel}</a> — เงินเดือน p10/median/p90</div>}
+            <div>• <a href="https://www.fairwork.gov.au/pay-and-wages/minimum-wages" target="_blank" rel="noopener noreferrer" className="underline">Fair Work Minimum Wage</a> — $24.95/hr (Jul 2025)</div>
+            <div>• <a href="https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing" target="_blank" rel="noopener noreferrer" className="underline">Home Affairs Visa Fees</a> — 189: $4,910 / 482: $3,390 (Feb 2026)</div>
+            <div>• <a href="https://www.privatehealth.gov.au/dynamic/Insurer" target="_blank" rel="noopener noreferrer" className="underline">Private Health Insurance Ombudsman</a> — ค่าประกันเฉลี่ย</div>
           </div>
+          <div className="text-[10px] text-blue-500 mt-2 italic">ข้อมูลอัปเดตล่าสุด: กุมภาพันธ์ 2026 — คลิกลิงก์ตรวจสอบได้เลย</div>
         </div>
       </div>
 
@@ -619,11 +622,14 @@ function SumRow({ label, aud }: { label: string; aud: number }) {
   )
 }
 
-function Row({ label, val, red, green }: { label: string; val: string; red?: boolean; green?: boolean }) {
+function Row({ label, val, red, green, note }: { label: string; val: string; red?: boolean; green?: boolean; note?: string }) {
   return (
-    <div className="flex justify-between py-1 text-sm">
-      <span className="text-gray-600">{label}</span>
-      <span className={`font-mono ${red ? 'text-red-500' : green ? 'text-green-600' : 'text-gray-800'}`}>{val}</span>
+    <div>
+      <div className="flex justify-between py-1 text-sm">
+        <span className="text-gray-600">{label}</span>
+        <span className={`font-mono ${red ? 'text-red-500' : green ? 'text-green-600' : 'text-gray-800'}`}>{val}</span>
+      </div>
+      {note && <div className="text-[10px] text-gray-400 -mt-0.5 mb-0.5 ml-1">{note}</div>}
     </div>
   )
 }

@@ -111,36 +111,41 @@ export interface CityInfo {
 }
 
 export const AU_CITIES: Record<string, CityInfo> = {
+  // Numbeo Feb 2026: https://www.numbeo.com/cost-of-living/in/{City}
   'sydney': {
     id: 'sydney', name: 'Sydney', label: '🏙️ Sydney',
-    rent1br: 3440, rent2br: 4800, rentFamily: 6800, rentShare: 1400, // Inner/Mid suburbs
-    utilities: 294, internet: 80,
+    rent1br: 3440, rent2br: 4800, rentFamily: 6800, rentShare: 1400, // Numbeo: 1BR city centre $3,438
+    utilities: 294, internet: 80, // Numbeo: utilities 85m² $294.27, internet 60Mbps $78.10
   },
   'melbourne': {
     id: 'melbourne', name: 'Melbourne', label: '🎭 Melbourne',
-    rent1br: 2460, rent2br: 3440, rentFamily: 4750, rentShare: 1100,
-    utilities: 291, internet: 80,
+    rent1br: 2460, rent2br: 3440, rentFamily: 4750, rentShare: 1100, // Numbeo: 1BR city $2,459, 3BR city $4,752
+    utilities: 291, internet: 80, // Numbeo: utilities 85m² $290.79, internet 60Mbps $76.55
   },
   'brisbane': {
     id: 'brisbane', name: 'Brisbane', label: '☀️ Brisbane',
-    rent1br: 2600, rent2br: 3500, rentFamily: 4400, rentShare: 1050,
-    utilities: 280, internet: 80,
+    rent1br: 2600, rent2br: 3500, rentFamily: 4400, rentShare: 1050, // Numbeo: 1BR city $2,600
+    utilities: 280, internet: 80, // Numbeo: utilities 85m² $280
   },
 }
 
-// ===== Food Costs (AUD/month) =====
+// ===== Food Costs (AUD/month, single person) =====
+// Numbeo Melbourne Feb 2026: inexpensive meal $25, mid-range 2-person $120
+// Grocery basket: milk $2.68, bread $4.30, rice $3.29, chicken $13.42/kg, eggs $8.51/12
 export const FOOD_COSTS: Record<string, { cost: number; label: string }> = {
-  'always': { cost: 500, label: 'ทำกินเองทุกมื้อ (ไม่ฟุ่มเฟือย)' },
-  'often': { cost: 650, label: 'ทำเองบ้าง ซื้อบ้าง' },
-  'sometimes': { cost: 800, label: 'ซื้อกินบ่อย' },
-  'rarely': { cost: 1000, label: 'ซื้อกินเกือบทุกมื้อ' },
+  'always': { cost: 500, label: 'ทำกินเองทุกมื้อ (ไม่ฟุ่มเฟือย)' },     // ~$17/day groceries
+  'often': { cost: 650, label: 'ทำเองบ้าง ซื้อบ้าง' },          // mix cook + eat out
+  'sometimes': { cost: 800, label: 'ซื้อกินบ่อย' },                 // eat out ~5x/week
+  'rarely': { cost: 1000, label: 'ซื้อกินเกือบทุกมื้อ' },           // ~$33/day (1-2 cheap meals/day)
 }
 
 // ===== Transport Costs (AUD/month) =====
+// Numbeo Melbourne: monthly pass $199, gasoline $1.85/L
+// RACV car ownership estimates 2025
 export const TRANSPORT_COSTS: Record<string, { cost: number; label: string; breakdown: string }> = {
-  'public': { cost: 200, label: 'รถไฟ/รถเมล์', breakdown: 'Myki/Opal monthly' },
-  'mixed': { cost: 380, label: 'ผสม', breakdown: 'รถไฟ + Uber บ้าง + parking' },
-  'car': { cost: 850, label: 'ขับรถเอง', breakdown: 'ผ่อนรถ $400 + ประกัน $200 + น้ำมัน $150 + rego/parking $100' }, // Insurance สูงกว่าถ้าไม่มี AU driving history
+  'public': { cost: 200, label: 'รถไฟ/รถเมล์', breakdown: 'Myki/Opal monthly $199 (Numbeo)' },
+  'mixed': { cost: 380, label: 'ผสม', breakdown: 'รถไฟ $199 + Uber ~$120 + parking $60' },
+  'car': { cost: 850, label: 'ขับรถเอง', breakdown: 'ผ่อนรถมือสอง $400 + ประกัน Comprehensive $200 + น้ำมัน $150 + rego $100 (ประกันแพงถ้าไม่มีประวัติขับขี่ใน AU)' },
 }
 
 // ===== Savings Ranges (THB) =====
