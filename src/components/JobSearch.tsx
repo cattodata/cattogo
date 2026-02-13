@@ -167,8 +167,8 @@ export function JobSearch({ value, specialization, onSelect }: JobSearchProps) {
             <div>
               <span className="text-gray-500">💰 เงินเดือน (AUD/ปี)</span>
               <p className="font-semibold text-gray-800">
-                ${selectedOcc.salaryRange.entry.toLocaleString()} – $
-                {selectedOcc.salaryRange.senior.toLocaleString()}
+                ${selectedOcc.salaryRange.p10.toLocaleString()} – $
+                {selectedOcc.salaryRange.p90.toLocaleString()}
               </p>
             </div>
             <div>
@@ -197,7 +197,7 @@ export function JobSearch({ value, specialization, onSelect }: JobSearchProps) {
           </div>
 
           <div className="mt-2 text-xs text-gray-400">
-            📊 {selectedOcc.source} | 🔗 {selectedOcc.visaSource}
+            📊 {selectedOcc.salarySource} | 📋 {selectedOcc.pointsNote}
           </div>
         </div>
       )}

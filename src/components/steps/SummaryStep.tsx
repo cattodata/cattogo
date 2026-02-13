@@ -115,7 +115,7 @@ export function SummaryStep({
     }
 
     if (parity && selectedOcc) {
-      if (selectedOcc.salaryRange.mid >= (parity.requiredAusAnnual || 0)) positives++
+      if (selectedOcc.salaryRange.median >= (parity.requiredAusAnnual || 0)) positives++
       else negatives++
     }
 
@@ -287,8 +287,8 @@ export function SummaryStep({
               <div>
                 <p className="text-xs text-gray-500">💰 เงินเดือน AUD/ปี</p>
                 <p className="font-semibold">
-                  {fmt(selectedOcc.salaryRange.entry)} –{' '}
-                  {fmt(selectedOcc.salaryRange.senior)}
+                  {fmt(selectedOcc.salaryRange.p10)} –{' '}
+                  {fmt(selectedOcc.salaryRange.p90)}
                 </p>
               </div>
               <div>

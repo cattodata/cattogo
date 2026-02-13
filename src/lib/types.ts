@@ -1,15 +1,19 @@
 // ===== Occupation Types =====
 export interface Occupation {
   title: string
+  anzsco: string              // Official ANZSCO code (e.g. '261313')
   category: string
   demand: 'สูงมาก' | 'สูง' | 'ปานกลาง' | 'ต่ำ'
-  minPoints: number
+  demandSource: string        // e.g. 'SEEK volume + Skills Priority List 2025'
+  minPoints: number           // 189 minimum from latest SkillSelect round (0 = not listed)
+  minPoints491: number | null // 491 minimum (null = N/A or not listed)
   shortageList: string
-  salaryRange: { entry: number; mid: number; senior: number }
+  salaryRange: { p10: number; median: number; p90: number }  // PayScale percentiles AUD/year
+  salarySource: string        // e.g. 'PayScale AU Jan 2026 (1262 profiles)'
+  salarySourceUrl: string     // Direct URL to salary page
   pathToPR: string
   skills: string[]
-  source: string
-  visaSource: string
+  pointsNote: string          // e.g. 'SkillSelect Nov 2025' or 'ไม่ได้ถูกเชิญในรอบ Nov 2025'
 }
 
 // ===== Form Data =====

@@ -161,7 +161,7 @@ function recommend(p: Profile): Rec[] {
         occ.demand === 'สูงมาก' || occ.demand === 'สูง'
           ? `ตลาดต้องการ ${occ.demand} — หา sponsor ง่ายกว่าปกติ`
           : `ตลาดต้องการ ${occ.demand} — ต้องเตรียมตัวหา sponsor ดีๆ`,
-        `เงินเดือนเริ่มต้น $${occ.salaryRange.entry.toLocaleString()} - $${occ.salaryRange.senior.toLocaleString()} AUD/ปี`,
+        `เงินเดือน $${occ.salaryRange.p10.toLocaleString()} - $${occ.salaryRange.p90.toLocaleString()} AUD/ปี (10th-90th percentile)`,
       ] : ['เลือกอาชีพเพื่อดูข้อมูลเจาะลึก']
 
       r.push({
@@ -731,7 +731,7 @@ export function VisaExplorer() {
                 </span>
               </div>
               <div className="text-[10px] text-gray-400 mt-1.5">
-                💰 ${selectedOcc.salaryRange.entry.toLocaleString()} - ${selectedOcc.salaryRange.senior.toLocaleString()} AUD/ปี
+                💰 ${selectedOcc.salaryRange.p10.toLocaleString()} - ${selectedOcc.salaryRange.p90.toLocaleString()} AUD/ปี
               </div>
             </div>
             <button onClick={() => { setProfile(p => ({ ...p, occupationKey: '' })); setOccSearch(''); setShowOccPicker(true) }}
@@ -843,7 +843,7 @@ export function VisaExplorer() {
       {/* Source note */}
       {selectedOcc && (
         <div className="text-[9px] text-gray-400 mt-1">
-          📊 {selectedOcc.visaSource}
+          📊 {selectedOcc.pointsNote}
         </div>
       )}
     </div>
