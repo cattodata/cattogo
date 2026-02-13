@@ -156,12 +156,13 @@ export const SAVINGS_RANGES: Record<string, { min: number; max: number; label: s
 export function calculateInitialCosts(family: string, rent: number): {
   visa: number; flight: number; bond: number; furniture: number; docs: number; total: number
 } {
-  // Home Affairs visa pricing Jan 2026 — subclass 189 base $4,765 + additional applicants
-  const visa = family === 'family' ? 8545 : family === 'couple' ? 7150 : 4765
+  // Home Affairs visa pricing Feb 2026 — subclass 189 base $4,910 + additional applicants
+  // Ref: https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/skilled-independent-189/points-tested
+  const visa = family === 'family' ? 8595 : family === 'couple' ? 7365 : 4910
   const flight = family === 'family' ? 3500 : family === 'couple' ? 2200 : 1100
   const bond = rent // 4 weeks bond ≈ 1 month
   const furniture = family === 'single' ? 2000 : 4000
-  const docs = 1500 // skills assessment, translations, etc.
+  const docs = 1500 // skills assessment (~$500-1500 varies by body), translations, police checks
   return { visa, flight, bond, furniture, docs, total: visa + flight + bond + furniture + docs }
 }
 

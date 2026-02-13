@@ -73,13 +73,13 @@ export function AuLifeSim() {
   const salaryData = AU_SALARIES[profile.occupation] || AU_SALARIES['other']
 
   const preDepartureCosts = useMemo(() => {
-    const visa = profile.family === 'family' ? 8545 : profile.family === 'couple' ? 7150 : 4765
+    const visa = profile.family === 'family' ? 8595 : profile.family === 'couple' ? 7365 : 4910
     return [
-      { label: '📋 Visa Application Fee', aud: visa },
-      { label: '📝 Skills Assessment', aud: 1000 },
-      { label: '📖 IELTS/PTE สอบภาษา', aud: 400 },
-      { label: '🏥 ตรวจสุขภาพ Medical', aud: 400 },
-      { label: '📄 เอกสาร+แปล+รับรอง', aud: 500 },
+      { label: '📋 Visa Application Fee (189)', aud: visa, source: 'Home Affairs' },
+      { label: '📝 Skills Assessment', aud: 1000, source: 'ACS/VETASSESS' },
+      { label: '📖 IELTS/PTE สอบภาษา', aud: 400, source: 'IELTS.org' },
+      { label: '🏥 ตรวจสุขภาพ Medical', aud: 400, source: 'Bupa/HAP' },
+      { label: '📄 เอกสาร+แปล+รับรอง', aud: 500, source: 'ประมาณ' },
     ]
   }, [profile.family])
   const preDepartureTotal = preDepartureCosts.reduce((s, c) => s + c.aud, 0)
@@ -327,53 +327,53 @@ export function AuLifeSim() {
                 )}
                 {simStage === 2 && (
                   <div className="space-y-2">
-                    <Opt onClick={() => pick('job', 'avg')}><div className="font-semibold">💼 {salaryData.label} — Average</div><div className="text-sm text-gray-500">{fmtAud(salaryData.mid)}/ปี</div></Opt>
-                    <Opt onClick={() => pick('job', 'top')}><div className="font-semibold">👑 Top Salary</div><div className="text-sm text-gray-500">{fmtAud(salaryData.senior)}/ปี</div></Opt>
-                    <Opt onClick={() => pick('job', 'min')}><div className="font-semibold">🏪 งาน Casual ขั้นต่ำ</div><div className="text-sm text-gray-500">{fmtAud(AU_UNSKILLED_SALARY)}/ปี ($24.10/hr)</div></Opt>
+                  <Opt onClick={() => pick('job', 'avg')}><div className="font-semibold">💼 {salaryData.label} — Average</div><div className="text-sm text-gray-500">{fmtAud(salaryData.mid)}/ปี ≈ {fmtThb(Math.round(salaryData.mid / 12 * AUD_TO_THB))}/เดือน</div></Opt>
+                  <Opt onClick={() => pick('job', 'top')}><div className="font-semibold">👑 Top Salary</div><div className="text-sm text-gray-500">{fmtAud(salaryData.senior)}/ปี</div></Opt>
+                  <Opt onClick={() => pick('job', 'min')}><div className="font-semibold">🏣 งาน Casual ขั้นต่ำ</div><div className="text-sm text-gray-500">{fmtAud(AU_UNSKILLED_SALARY)}/ปี ($24.95/hr)</div></Opt>
                   </div>
                 )}
                 {simStage === 3 && (
                   <div className="space-y-2">
-                    <Opt onClick={() => pick('flight', 'eco')}><div className="font-semibold">✈️ Economy</div><div className="text-sm text-gray-500">{fmtAud(profile.family === 'single' ? 1100 : profile.family === 'couple' ? 2200 : 3500)}</div></Opt>
-                    <Opt onClick={() => pick('flight', 'business')}><div className="font-semibold">💎 Business Class</div><div className="text-sm text-gray-500">{fmtAud(profile.family === 'single' ? 4500 : 9000)}</div></Opt>
+                    <Opt onClick={() => pick('flight', 'eco')}><div className="font-semibold">✈️ Economy</div><div className="text-sm text-gray-500">{fmtAud(profile.family === 'single' ? 1100 : profile.family === 'couple' ? 2200 : 3500)} <span className="text-gray-400">({fmtThb(Math.round((profile.family === 'single' ? 1100 : profile.family === 'couple' ? 2200 : 3500) * AUD_TO_THB))})</span></div></Opt>
+                    <Opt onClick={() => pick('flight', 'business')}><div className="font-semibold">💎 Business Class</div><div className="text-sm text-gray-500">{fmtAud(profile.family === 'single' ? 4500 : 9000)} <span className="text-gray-400">({fmtThb(Math.round((profile.family === 'single' ? 4500 : 9000) * AUD_TO_THB))})</span></div></Opt>
                     <Opt onClick={() => pick('flight', 'company')}><div className="font-semibold">🏢 บริษัทออกให้! ฟรี</div><div className="text-sm text-gray-500">$0</div></Opt>
                   </div>
                 )}
                 {simStage === 4 && (
                   <div className="space-y-2">
-                    <Opt onClick={() => pick('temp', 'airbnb')}><div className="font-semibold">🏠 Airbnb 2 สัปดาห์</div><div className="text-sm text-gray-500">~{fmtAud(2100)}</div></Opt>
-                    <Opt onClick={() => pick('temp', 'hostel')}><div className="font-semibold">🛏️ Hostel ประหยัด</div><div className="text-sm text-gray-500">~{fmtAud(700)}</div></Opt>
+                    <Opt onClick={() => pick('temp', 'airbnb')}><div className="font-semibold">🏠 Airbnb 2 สัปดาห์</div><div className="text-sm text-gray-500">~{fmtAud(2100)} <span className="text-gray-400">({fmtThb(Math.round(2100 * AUD_TO_THB))})</span></div></Opt>
+                    <Opt onClick={() => pick('temp', 'hostel')}><div className="font-semibold">🛏️ Hostel ประหยัด</div><div className="text-sm text-gray-500">~{fmtAud(700)} <span className="text-gray-400">({fmtThb(Math.round(700 * AUD_TO_THB))})</span></div></Opt>
                     <Opt onClick={() => pick('temp', 'friend')}><div className="font-semibold">🤝 อาศัยเพื่อน/ญาติ</div><div className="text-sm text-gray-500">ฟรี!</div></Opt>
                   </div>
                 )}
                 {simStage === 5 && (
                   <div className="space-y-2">
-                    <Opt onClick={() => pick('housing', 'share')}><div className="font-semibold">👥 Share House</div><div className="text-sm text-gray-500">{fmtAud(city.rentShare)}/เดือน</div></Opt>
-                    <Opt onClick={() => pick('housing', '1bed')}><div className="font-semibold">🏠 1 Bed อยู่คนเดียว</div><div className="text-sm text-gray-500">{fmtAud(city.rent1br)}/เดือน</div></Opt>
-                    <Opt onClick={() => pick('housing', '2bed')}><div className="font-semibold">🏡 {profile.family === 'family' ? 'บ้าน 3 ห้องนอน' : '2 Bed'}</div><div className="text-sm text-gray-500">{fmtAud(profile.family === 'family' ? city.rentFamily : city.rent2br)}/เดือน</div></Opt>
+                    <Opt onClick={() => pick('housing', 'share')}><div className="font-semibold">👥 Share House</div><div className="text-sm text-gray-500">{fmtAud(city.rentShare)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(city.rentShare * AUD_TO_THB))})</span></div></Opt>
+                    <Opt onClick={() => pick('housing', '1bed')}><div className="font-semibold">🏠 1 Bed อยู่คนเดียว</div><div className="text-sm text-gray-500">{fmtAud(city.rent1br)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(city.rent1br * AUD_TO_THB))})</span></div></Opt>
+                    <Opt onClick={() => pick('housing', '2bed')}><div className="font-semibold">🏡 {profile.family === 'family' ? 'บ้าน 3 ห้องนอน' : '2 Bed'}</div><div className="text-sm text-gray-500">{fmtAud(profile.family === 'family' ? city.rentFamily : city.rent2br)}/เดือน <span className="text-gray-400">({fmtThb(Math.round((profile.family === 'family' ? city.rentFamily : city.rent2br) * AUD_TO_THB))})</span></div></Opt>
                   </div>
                 )}
                 {simStage === 6 && (
                   <div className="space-y-2">
-                    <Opt onClick={() => pick('furnish', 'nice')}><div className="font-semibold">🛋️ ซื้อใหม่ดีๆ</div><div className="text-sm text-gray-500">{fmtAud(4000)}</div></Opt>
-                    <Opt onClick={() => pick('furnish', 'ikea')}><div className="font-semibold">📦 IKEA / Kmart</div><div className="text-sm text-gray-500">{fmtAud(2000)}</div></Opt>
-                    <Opt onClick={() => pick('furnish', 'second')}><div className="font-semibold">♻️ มือสอง Marketplace</div><div className="text-sm text-gray-500">{fmtAud(800)}</div></Opt>
+                    <Opt onClick={() => pick('furnish', 'nice')}><div className="font-semibold">🛋️ ซื้อใหม่ดีๆ</div><div className="text-sm text-gray-500">{fmtAud(4000)} <span className="text-gray-400">({fmtThb(Math.round(4000 * AUD_TO_THB))})</span></div></Opt>
+                    <Opt onClick={() => pick('furnish', 'ikea')}><div className="font-semibold">📦 IKEA / Kmart</div><div className="text-sm text-gray-500">{fmtAud(2000)} <span className="text-gray-400">({fmtThb(Math.round(2000 * AUD_TO_THB))})</span></div></Opt>
+                    <Opt onClick={() => pick('furnish', 'second')}><div className="font-semibold">♻️ มือสอง Marketplace</div><div className="text-sm text-gray-500">{fmtAud(800)} <span className="text-gray-400">({fmtThb(Math.round(800 * AUD_TO_THB))})</span></div></Opt>
                     <Opt onClick={() => pick('furnish', 'furnished')}><div className="font-semibold">🏠 Furnished แล้ว!</div><div className="text-sm text-gray-500">$0</div></Opt>
                   </div>
                 )}
                 {simStage === 7 && (
                   <div className="space-y-2">
-                    <Opt onClick={() => pick('commute', 'public')}><div className="font-semibold">🚇 รถไฟ/รถเมล์</div><div className="text-sm text-gray-500">{fmtAud(200)}/เดือน</div></Opt>
-                    <Opt onClick={() => pick('commute', 'mixed')}><div className="font-semibold">🚗 ผสม (รถไฟ+Uber)</div><div className="text-sm text-gray-500">{fmtAud(380)}/เดือน</div></Opt>
-                    <Opt onClick={() => pick('commute', 'car')}><div className="font-semibold">🚙 ขับรถเอง</div><div className="text-sm text-gray-500">{fmtAud(720)}/เดือน (ผ่อน+ประกัน+น้ำมัน)</div></Opt>
+                    <Opt onClick={() => pick('commute', 'public')}><div className="font-semibold">🚇 รถไฟ/รถเมล์</div><div className="text-sm text-gray-500">{fmtAud(TRANSPORT_COSTS['public'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(TRANSPORT_COSTS['public'].cost * AUD_TO_THB))})</span></div></Opt>
+                    <Opt onClick={() => pick('commute', 'mixed')}><div className="font-semibold">🚗 ผสม (รถไฟ+Uber)</div><div className="text-sm text-gray-500">{fmtAud(TRANSPORT_COSTS['mixed'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(TRANSPORT_COSTS['mixed'].cost * AUD_TO_THB))})</span></div></Opt>
+                    <Opt onClick={() => pick('commute', 'car')}><div className="font-semibold">🚙 ขับรถเอง</div><div className="text-sm text-gray-500">{fmtAud(TRANSPORT_COSTS['car'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(TRANSPORT_COSTS['car'].cost * AUD_TO_THB))})</span></div><div className="text-[10px] text-gray-400">{TRANSPORT_COSTS['car'].breakdown}</div></Opt>
                   </div>
                 )}
                 {simStage === 8 && (
                   <div className="space-y-2">
-                    <Opt onClick={() => pick('food', 'always')}><div className="font-semibold">🥗 ทำเองทุกมื้อ</div><div className="text-sm text-gray-500">{fmtAud(400)}/เดือน</div></Opt>
-                    <Opt onClick={() => pick('food', 'often')}><div className="font-semibold">🍳 ทำเอง+ซื้อบ้าง</div><div className="text-sm text-gray-500">{fmtAud(550)}/เดือน</div></Opt>
-                    <Opt onClick={() => pick('food', 'sometimes')}><div className="font-semibold">🍔 ซื้อกินบ่อย</div><div className="text-sm text-gray-500">{fmtAud(700)}/เดือน</div></Opt>
-                    <Opt onClick={() => pick('food', 'rarely')}><div className="font-semibold">🥡 ซื้อกินเกือบทุกมื้อ</div><div className="text-sm text-gray-500">{fmtAud(900)}/เดือน</div></Opt>
+                    <Opt onClick={() => pick('food', 'always')}><div className="font-semibold">🥗 ทำเองทุกมื้อ</div><div className="text-sm text-gray-500">{fmtAud(FOOD_COSTS['always'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(FOOD_COSTS['always'].cost * AUD_TO_THB))})</span></div></Opt>
+                    <Opt onClick={() => pick('food', 'often')}><div className="font-semibold">🍳 ทำเอง+ซื้อบ้าง</div><div className="text-sm text-gray-500">{fmtAud(FOOD_COSTS['often'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(FOOD_COSTS['often'].cost * AUD_TO_THB))})</span></div></Opt>
+                    <Opt onClick={() => pick('food', 'sometimes')}><div className="font-semibold">🍔 ซื้อกินบ่อย</div><div className="text-sm text-gray-500">{fmtAud(FOOD_COSTS['sometimes'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(FOOD_COSTS['sometimes'].cost * AUD_TO_THB))})</span></div></Opt>
+                    <Opt onClick={() => pick('food', 'rarely')}><div className="font-semibold">🥡 ซื้อกินเกือบทุกมื้อ</div><div className="text-sm text-gray-500">{fmtAud(FOOD_COSTS['rarely'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(FOOD_COSTS['rarely'].cost * AUD_TO_THB))})</span></div></Opt>
                   </div>
                 )}
                 {simStage === 9 && (
@@ -518,7 +518,11 @@ function Opt({ onClick, children }: { onClick: () => void; children: React.React
 function SumRow({ label, aud }: { label: string; aud: number }) {
   return (
     <div className="flex justify-between py-1.5 text-sm border-b border-gray-100">
-      <span>{label}</span><span className="font-mono text-red-500">{aud > 0 ? `-${fmtAud(aud)}` : '$0'}</span>
+      <span>{label}</span>
+      <div className="text-right">
+        <span className="font-mono text-red-500">{aud > 0 ? `-${fmtAud(aud)}` : '$0'}</span>
+        {aud > 0 && <div className="text-[10px] text-gray-400">({fmtThb(Math.round(aud * AUD_TO_THB))})</div>}
+      </div>
     </div>
   )
 }

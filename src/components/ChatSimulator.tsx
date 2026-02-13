@@ -1240,48 +1240,48 @@ export function ChatSimulator() {
               )}
               {simStage === 3 && (
                 <div className="space-y-2">
-                  <Opt onClick={() => pick('flight', 'business')}><div className="font-semibold">✈️ Business Class</div><div className="text-sm text-red-500">-{fmtAud(quickProfile.family === 'single' ? 4500 : quickProfile.family === 'couple' ? 9000 : 13500)}</div></Opt>
-                  <Opt onClick={() => pick('flight', 'economy')}><div className="font-semibold">🪑 Economy</div><div className="text-sm text-red-500">-{fmtAud(quickProfile.family === 'single' ? 1100 : quickProfile.family === 'couple' ? 2200 : 3500)}</div></Opt>
+                  <Opt onClick={() => pick('flight', 'business')}><div className="font-semibold">✈️ Business Class</div><div className="text-sm text-red-500">-{fmtAud(quickProfile.family === 'single' ? 4500 : quickProfile.family === 'couple' ? 9000 : 13500)} <span className="text-gray-400">({fmtThb(Math.round((quickProfile.family === 'single' ? 4500 : quickProfile.family === 'couple' ? 9000 : 13500) * AUD_TO_THB))})</span></div></Opt>
+                  <Opt onClick={() => pick('flight', 'economy')}><div className="font-semibold">🪑 Economy</div><div className="text-sm text-red-500">-{fmtAud(quickProfile.family === 'single' ? 1100 : quickProfile.family === 'couple' ? 2200 : 3500)} <span className="text-gray-400">({fmtThb(Math.round((quickProfile.family === 'single' ? 1100 : quickProfile.family === 'couple' ? 2200 : 3500) * AUD_TO_THB))})</span></div></Opt>
                   <Opt onClick={() => pick('flight', 'company')}><div className="font-semibold">🏢 บริษัทออกให้!</div><div className="text-sm text-green-600">ฟรี! $0</div></Opt>
                 </div>
               )}
               {simStage === 4 && (
                 <div className="space-y-2">
                   <div className="text-sm text-gray-600 mb-1">ถึง {city.name} แล้ว!</div>
-                  <Opt onClick={() => pick('temp', 'airbnb')}><div className="font-semibold">🏨 Airbnb</div><div className="text-sm text-red-500">-$2,100 (14 คืน)</div></Opt>
-                  <Opt onClick={() => pick('temp', 'hostel')}><div className="font-semibold">🛏️ Hostel</div><div className="text-sm text-red-500">-$700 (14 คืน)</div></Opt>
-                  <Opt onClick={() => pick('temp', 'friend')}><div className="font-semibold">🏠 อาศัยเพื่อน/ญาติ</div><div className="text-sm text-green-600">$0</div></Opt>
+                  <Opt onClick={() => pick('temp', 'airbnb')}><div className="font-semibold">🏨 Airbnb</div><div className="text-sm text-red-500">-$2,100 (14 คืน) <span className="text-gray-400">({fmtThb(Math.round(2100 * AUD_TO_THB))})</span></div></Opt>
+                  <Opt onClick={() => pick('temp', 'hostel')}><div className="font-semibold">🛏️ Hostel</div><div className="text-sm text-red-500">-$700 (14 คืน) <span className="text-gray-400">({fmtThb(Math.round(700 * AUD_TO_THB))})</span></div></Opt>
+                  <Opt onClick={() => pick('temp', 'friend')}><div className="font-semibold">🏠 อาศัยเพื่อน/ญาติ</div><div className="text-sm text-green-600">ฟรี!</div></Opt>
                 </div>
               )}
               {simStage === 5 && (
                 <div className="space-y-2">
                   <div className="text-sm text-gray-600 mb-1">ค่าเช่า {city.name}:</div>
-                  <Opt onClick={() => pick('housing', 'share')}><div className="font-semibold">🏠 แชร์บ้าน</div><div className="text-sm text-gray-500">มัดจำ -{fmtAud(city.rentShare)} + {fmtAud(city.rentShare)}/เดือน</div></Opt>
-                  <Opt onClick={() => pick('housing', '1bed')}><div className="font-semibold">🏢 1 ห้องนอน</div><div className="text-sm text-gray-500">มัดจำ -{fmtAud(city.rent1br)} + {fmtAud(city.rent1br)}/เดือน</div></Opt>
-                  <Opt onClick={() => pick('housing', '2bed')}><div className="font-semibold">🏢 2 ห้องนอน</div><div className="text-sm text-gray-500">มัดจำ -{fmtAud(quickProfile.family === 'family' ? city.rentFamily : city.rent2br)} + {fmtAud(quickProfile.family === 'family' ? city.rentFamily : city.rent2br)}/เดือน</div></Opt>
+                  <Opt onClick={() => pick('housing', 'share')}><div className="font-semibold">🏠 แชร์บ้าน</div><div className="text-sm text-gray-500">{fmtAud(city.rentShare)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(city.rentShare * AUD_TO_THB))})</span></div></Opt>
+                  <Opt onClick={() => pick('housing', '1bed')}><div className="font-semibold">🏢 1 ห้องนอน</div><div className="text-sm text-gray-500">{fmtAud(city.rent1br)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(city.rent1br * AUD_TO_THB))})</span></div></Opt>
+                  <Opt onClick={() => pick('housing', '2bed')}><div className="font-semibold">🏢 2 ห้องนอน</div><div className="text-sm text-gray-500">{fmtAud(quickProfile.family === 'family' ? city.rentFamily : city.rent2br)}/เดือน <span className="text-gray-400">({fmtThb(Math.round((quickProfile.family === 'family' ? city.rentFamily : city.rent2br) * AUD_TO_THB))})</span></div></Opt>
                 </div>
               )}
               {simStage === 6 && (
                 <div className="space-y-2">
-                  <Opt onClick={() => pick('furnish', 'ikea')}><div className="font-semibold">🪑 IKEA ชุดเริ่มต้น</div><div className="text-sm text-red-500">-$2,000</div></Opt>
-                  <Opt onClick={() => pick('furnish', 'nice')}><div className="font-semibold">✨ จัดเต็ม</div><div className="text-sm text-red-500">-$4,000</div></Opt>
-                  <Opt onClick={() => pick('furnish', 'second')}><div className="font-semibold">♻️ มือสอง</div><div className="text-sm text-red-500">-$800</div></Opt>
+                  <Opt onClick={() => pick('furnish', 'ikea')}><div className="font-semibold">🪑 IKEA ชุดเริ่มต้น</div><div className="text-sm text-red-500">-$2,000 <span className="text-gray-400">({fmtThb(Math.round(2000 * AUD_TO_THB))})</span></div></Opt>
+                  <Opt onClick={() => pick('furnish', 'nice')}><div className="font-semibold">✨ จัดเต็ม</div><div className="text-sm text-red-500">-$4,000 <span className="text-gray-400">({fmtThb(Math.round(4000 * AUD_TO_THB))})</span></div></Opt>
+                  <Opt onClick={() => pick('furnish', 'second')}><div className="font-semibold">♻️ มือสอง</div><div className="text-sm text-red-500">-$800 <span className="text-gray-400">({fmtThb(Math.round(800 * AUD_TO_THB))})</span></div></Opt>
                   <Opt onClick={() => pick('furnish', 'furnished')}><div className="font-semibold">🏢 Furnished ไม่ต้องซื้อ!</div><div className="text-sm text-green-600">$0</div></Opt>
                 </div>
               )}
               {simStage === 7 && (
                 <div className="space-y-2">
-                  <Opt onClick={() => pick('commute', 'car')}><div className="font-semibold">🚗 ขับรถเอง</div><div className="text-sm text-gray-500">$720/เดือน</div></Opt>
-                  <Opt onClick={() => pick('commute', 'mixed')}><div className="font-semibold">🚗🚇 ผสม</div><div className="text-sm text-gray-500">$380/เดือน</div></Opt>
-                  <Opt onClick={() => pick('commute', 'public')}><div className="font-semibold">🚇 รถไฟ/รถเมล์</div><div className="text-sm text-gray-500">$200/เดือน</div></Opt>
+                  <Opt onClick={() => pick('commute', 'car')}><div className="font-semibold">🚗 ขับรถเอง</div><div className="text-sm text-gray-500">{fmtAud(TRANSPORT_COSTS['car'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(TRANSPORT_COSTS['car'].cost * AUD_TO_THB))})</span></div><div className="text-[10px] text-gray-400">{TRANSPORT_COSTS['car'].breakdown}</div></Opt>
+                  <Opt onClick={() => pick('commute', 'mixed')}><div className="font-semibold">🚗🚇 ผสม</div><div className="text-sm text-gray-500">{fmtAud(TRANSPORT_COSTS['mixed'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(TRANSPORT_COSTS['mixed'].cost * AUD_TO_THB))})</span></div></Opt>
+                  <Opt onClick={() => pick('commute', 'public')}><div className="font-semibold">🚇 รถไฟ/รถเมล์</div><div className="text-sm text-gray-500">{fmtAud(TRANSPORT_COSTS['public'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(TRANSPORT_COSTS['public'].cost * AUD_TO_THB))})</span></div></Opt>
                 </div>
               )}
               {simStage === 8 && (
                 <div className="space-y-2">
-                  <Opt onClick={() => pick('food', 'always')}><div className="font-semibold">👨‍🍳 ทำเองทุกมื้อ</div><div className="text-sm text-gray-500">$400/เดือน</div></Opt>
-                  <Opt onClick={() => pick('food', 'often')}><div className="font-semibold">🍳 ทำเอง+ซื้อมิกซ์</div><div className="text-sm text-gray-500">$550/เดือน</div></Opt>
-                  <Opt onClick={() => pick('food', 'sometimes')}><div className="font-semibold">🥡 ซื้อกินบ่อย</div><div className="text-sm text-gray-500">$700/เดือน</div></Opt>
-                  <Opt onClick={() => pick('food', 'rarely')}><div className="font-semibold">🛵 Uber Eats ทุกมื้อ</div><div className="text-sm text-gray-500">$900/เดือน</div></Opt>
+                  <Opt onClick={() => pick('food', 'always')}><div className="font-semibold">👨‍🍳 ทำเองทุกมื้อ</div><div className="text-sm text-gray-500">{fmtAud(FOOD_COSTS['always'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(FOOD_COSTS['always'].cost * AUD_TO_THB))})</span></div></Opt>
+                  <Opt onClick={() => pick('food', 'often')}><div className="font-semibold">🍳 ทำเอง+ซื้อมิกซ์</div><div className="text-sm text-gray-500">{fmtAud(FOOD_COSTS['often'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(FOOD_COSTS['often'].cost * AUD_TO_THB))})</span></div></Opt>
+                  <Opt onClick={() => pick('food', 'sometimes')}><div className="font-semibold">🥡 ซื้อกินบ่อย</div><div className="text-sm text-gray-500">{fmtAud(FOOD_COSTS['sometimes'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(FOOD_COSTS['sometimes'].cost * AUD_TO_THB))})</span></div></Opt>
+                  <Opt onClick={() => pick('food', 'rarely')}><div className="font-semibold">🛵 Uber Eats ทุกมื้อ</div><div className="text-sm text-gray-500">{fmtAud(FOOD_COSTS['rarely'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(FOOD_COSTS['rarely'].cost * AUD_TO_THB))})</span></div></Opt>
                 </div>
               )}
               {simStage === 9 && (
@@ -1487,7 +1487,7 @@ export function ChatSimulator() {
               <div className="text-sm text-gray-700 space-y-2">
                 {choices['job'] === 'min' && <div>📈 <strong>หางาน Professional:</strong> Skilled Visa เงินเดือนสูงกว่า 2-3 เท่า</div>}
                 {choices['housing'] !== 'share' && <div>🏠 <strong>แชร์บ้านช่วง 6 เดือนแรก:</strong> ประหยัดได้ {fmtAud(monthlyRent - city.rentShare)}/เดือน</div>}
-                {choices['commute'] === 'car' && <div>🚇 <strong>ใช้รถไฟช่วงแรก:</strong> ประหยัด {fmtAud(720 - 200)}/เดือน</div>}
+                {choices['commute'] === 'car' && <div>🚇 <strong>ใช้รถไฟช่วงแรก:</strong> ประหยัด {fmtAud(TRANSPORT_COSTS['car'].cost - TRANSPORT_COSTS['public'].cost)}/เดือน</div>}
                 <div>📋 <strong>ขั้นตอน:</strong> สอบ IELTS → Skills Assessment → ยื่น EOI → Invitation → วีซ่า → บินไป!</div>
               </div>
             </div>
@@ -1499,7 +1499,7 @@ export function ChatSimulator() {
                 <div>• <a href="https://immi.homeaffairs.gov.au/visas/working-in-australia/skillselect" target="_blank" rel="noopener noreferrer" className="underline">Home Affairs SkillSelect</a> — เกณฑ์วีซ่า ค่าธรรมเนียม</div>
                 <div>• <a href="https://www.ato.gov.au/tax-rates-and-codes/tax-rates-resident" target="_blank" rel="noopener noreferrer" className="underline">ATO Tax Rates FY 2025-26</a> — อัตราภาษี Stage 3 Tax Cuts</div>
                 <div>• <a href="https://www.numbeo.com/cost-of-living/country_result.jsp?country=Australia" target="_blank" rel="noopener noreferrer" className="underline">Numbeo</a> — ค่าเช่า ค่าครองชีพ แต่ละเมือง</div>
-                <div>• <a href="https://www.fairwork.gov.au/pay-and-wages/minimum-wages" target="_blank" rel="noopener noreferrer" className="underline">Fair Work Ombudsman</a> — ค่าแรงขั้นต่ำ $24.10/hr</div>
+                <div>• <a href="https://www.fairwork.gov.au/pay-and-wages/minimum-wages" target="_blank" rel="noopener noreferrer" className="underline">Fair Work Ombudsman</a> — ค่าแรงขั้นต่ำ $24.95/hr (1 Jul 2025)</div>
                 <div>• <a href="https://www.seek.com.au/career-advice/role" target="_blank" rel="noopener noreferrer" className="underline">SEEK Salary Guide</a> — เงินเดือนตามอาชีพ</div>
               </div>
             </div>
@@ -1570,7 +1570,11 @@ function Opt({ onClick, children }: { onClick: () => void; children: React.React
 function SumRow({ label, aud }: { label: string; aud: number }) {
   return (
     <div className="flex justify-between py-1.5 text-sm border-b border-gray-100">
-      <span>{label}</span><span className="font-mono text-red-500">{aud > 0 ? `-${fmtAud(aud)}` : '$0'}</span>
+      <span>{label}</span>
+      <div className="text-right">
+        <span className="font-mono text-red-500">{aud > 0 ? `-${fmtAud(aud)}` : '$0'}</span>
+        {aud > 0 && <div className="text-[10px] text-gray-400">({fmtThb(Math.round(aud * AUD_TO_THB))})</div>}
+      </div>
     </div>
   )
 }
