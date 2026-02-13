@@ -53,18 +53,30 @@ interface Rec {
 /* ═══════════════════════════════════════════════════════════
    Occupation-Aware Recommendation Engine
    
-   % Calculation Methodology:
-   - Based on real SkillSelect data (minPoints, shortage lists)
-   - PMSOL = Priority Migration Skilled Occupation List (highest priority)
-   - MLTSSL = Medium and Long-term Strategic Skills List (eligible 189/190/491)
-   - STSOL = Short-term Skilled Occupation List (only 482, no direct skilled PR)
-   - Points compared against actual SkillSelect invitation rounds (Nov 2025)
+   Official Australian Skilled Occupation Lists (immi.homeaffairs.gov.au, Aug 2025):
+   - CSOL = Core Skills Occupation List (456 occupations, for 482/186 visas)
+   - MLTSSL = Medium and Long-term Strategic Skills List (for 189/190/485/489/491)
+   - STSOL = Short-term Skilled Occupation List (190/407/489/491/494 only)
+   - ROL = Regional Occupation List (494 only)
+   
+   Combined tags: MLTSSL;CSOL = on both lists = eligible for ALL skilled visas
+   PMSOL was discontinued Dec 2023, replaced by CSOL.
+   Points compared against actual SkillSelect invitation rounds (Nov 2025)
    ═══════════════════════════════════════════════════════════ */
-function getShortageLevel(shortageList: string): 'pmsol' | 'mltssl' | 'stsol' | 'none' {
+function getShortageLevel(shortageList: string): 'mltssl_csol' | 'mltssl' | 'stsol_csol' | 'stsol' | 'csol' | 'rol' | 'none' {
   const s = shortageList.toUpperCase()
-  if (s.includes('PMSOL')) return 'pmsol'
+  // MLTSSL;CSOL = highest: eligible for ALL skilled visas (189/190/482/186/485/489/491/494)
+  if (s.includes('MLTSSL') && s.includes('CSOL')) return 'mltssl_csol'
+  // MLTSSL only = eligible for 189/190/485/489/491 (no 482 Core Skills/186 Direct Entry)
   if (s.includes('MLTSSL')) return 'mltssl'
+  // STSOL;CSOL = eligible for 190/407/489/491/494/482/186 (no 189)
+  if (s.includes('STSOL') && s.includes('CSOL')) return 'stsol_csol'
+  // STSOL = eligible for 190/407/489/491/494 (no 189/482/186)
   if (s.includes('STSOL')) return 'stsol'
+  // CSOL only = eligible for 482/186 only
+  if (s.includes('CSOL')) return 'csol'
+  // ROL = Regional only (494)
+  if (s.includes('ROL')) return 'rol'
   return 'none'
 }
 
@@ -83,8 +95,9 @@ function recommend(p: Profile): Rec[] {
   const occ = p.occupationKey ? occupations[p.occupationKey] : null
   const shortage = occ ? getShortageLevel(occ.shortageList) : null
   const demandScore = occ ? getDemandScore(occ.demand) : 5
-  const isOnMLTSSLOrAbove = shortage === 'pmsol' || shortage === 'mltssl'
-  const isSTSOLOnly = shortage === 'stsol'
+  const isOnMLTSSL = shortage === 'mltssl_csol' || shortage === 'mltssl'
+  const isOnCSOL = shortage === 'mltssl_csol' || shortage === 'stsol_csol' || shortage === 'csol'
+  const isSTSOLOnly = shortage === 'stsol' || shortage === 'stsol_csol'
   const shortageLabel = occ?.shortageList || ''
 
   if (p.situation === 'experienced') {
@@ -98,7 +111,7 @@ function recommend(p: Profile): Rec[] {
 
       // Occupation on any list = eligible
       if (occ) {
-        const listBonus = shortage === 'pmsol' ? 25 : shortage === 'mltssl' ? 20 : shortage === 'stsol' ? 15 : 5
+        const listBonus = shortage === 'mltssl_csol' ? 25 : shortage === 'csol' ? 22 : shortage === 'stsol_csol' ? 20 : shortage === 'mltssl' ? 15 : shortage === 'stsol' ? 10 : 5
         factors.push({ label: 'Occupation List', value: listBonus, max: 25 })
         score += listBonus
 
@@ -131,8 +144,8 @@ function recommend(p: Profile): Rec[] {
     }
 
     // === 189 Skilled Independent ===
-    // ONLY if occupation is on MLTSSL or PMSOL (STSOL = NOT eligible for 189)
-    if (!occ || isOnMLTSSLOrAbove) {
+    // ONLY if occupation is on MLTSSL (MLTSSL or MLTSSL;CSOL). STSOL/CSOL-only = NOT eligible for 189
+    if (!occ || isOnMLTSSL) {
       const factors: { label: string; value: number; max: number }[] = []
 
       if (occ) {
@@ -145,7 +158,7 @@ function recommend(p: Profile): Rec[] {
         else pointsScore = 5
         factors.push({ label: `คะแนน ${pts} vs cut-off ${minPts}`, value: pointsScore, max: 35 })
 
-        const listBonus = shortage === 'pmsol' ? 25 : 20
+        const listBonus = shortage === 'mltssl_csol' ? 25 : 20
         factors.push({ label: `${shortageLabel}`, value: listBonus, max: 25 })
 
         factors.push({ label: 'ความต้องการตลาด', value: demandScore, max: 15 })
@@ -171,7 +184,7 @@ function recommend(p: Profile): Rec[] {
         // No occupation selected, show generic
         r.push({
           type: '189', name: 'Skilled Independent', pct: pts >= 90 ? 70 : pts >= 80 ? 55 : 40, emoji: '🎯',
-          tips: [`คะแนน ${pts} — เลือกอาชีพเพื่อเทียบ cut-off จริง`, 'ต้องอยู่ใน MLTSSL/PMSOL เท่านั้น', 'PR ทันที ไม่ผูกนายจ้าง/รัฐ'],
+          tips: [`คะแนน ${pts} — เลือกอาชีพเพื่อเทียบ cut-off จริง`, 'ต้องอยู่ใน MLTSSL (อาจมี CSOL ด้วย) เท่านั้น', 'PR ทันที ไม่ผูกนายจ้าง/รัฐ'],
           journey: ['Skills Assessment', 'ยื่น EOI (SkillSelect)', 'รอ Invitation', 'ยื่น Application', '🏠 ได้ PR!'],
           catId: 'skilled',
         })
@@ -182,7 +195,7 @@ function recommend(p: Profile): Rec[] {
     }
 
     // === 190 Skilled Nominated (+5 state) ===
-    if (!occ || isOnMLTSSLOrAbove) {
+    if (!occ || isOnMLTSSL) {
       const pts190 = pts + 5 // state nomination adds 5
       if (pts190 >= 65) {
         const factors: { label: string; value: number; max: number }[] = []
@@ -199,7 +212,7 @@ function recommend(p: Profile): Rec[] {
           factors.push({ label: `คะแนน ${pts}+5 vs ~${effectiveMin}`, value: pointsScore, max: 30 })
           score += pointsScore
 
-          const listBonus = shortage === 'pmsol' ? 20 : 15
+          const listBonus = shortage === 'mltssl_csol' ? 20 : 15
           factors.push({ label: shortageLabel, value: listBonus, max: 20 })
           score += listBonus
 
@@ -224,7 +237,7 @@ function recommend(p: Profile): Rec[] {
     }
 
     // === 491 Regional (+15) ===
-    if (!occ || isOnMLTSSLOrAbove) {
+    if (!occ || isOnMLTSSL) {
       const pts491 = pts + 15
       if (pts491 >= 65 && pts < 65) {
         const factors: { label: string; value: number; max: number }[] = []
@@ -232,7 +245,7 @@ function recommend(p: Profile): Rec[] {
 
         if (occ) {
           factors.push({ label: `คะแนน ${pts}+15=${pts491}`, value: 25, max: 30 })
-          const listBonus = shortage === 'pmsol' ? 20 : 15
+          const listBonus = shortage === 'mltssl_csol' ? 20 : 15
           factors.push({ label: shortageLabel, value: listBonus, max: 20 })
           score += 25 + listBonus + Math.min(demandScore, 10)
         } else {
@@ -264,7 +277,7 @@ function recommend(p: Profile): Rec[] {
             `⚠️ "${occ.title}" อยู่ใน STSOL เท่านั้น`,
             'STSOL ไม่สามารถสมัคร 189/190 ได้!',
             '482 (2ปี) → 186 PR คือเส้นทางหลัก',
-            'ลองเปลี่ยนสาย/อัพสกิลไปสายที่อยู่ MLTSSL/PMSOL',
+            'ลองเปลี่ยนสาย/อัพสกิลไปสายที่อยู่ MLTSSL;CSOL',
           ],
           journey: ['482 (STSOL, 2 ปี)', 'ต่อได้ 1 ครั้ง', '186 PR (ถ้า employer nominate)', '🏠 ได้ PR!'],
           catId: 'skilled',
@@ -293,11 +306,11 @@ function recommend(p: Profile): Rec[] {
     const studentTips = ['เริ่มต้นได้เลยไม่ต้องมีประสบการณ์', `จบแล้ว 485 ทำงานได้ ${durLabel}`, 'ได้วุฒิ AU +5 คะแนน Points']
     if (occ) {
       const shortage = getShortageLevel(occ.shortageList)
-      const listBonus = shortage === 'pmsol' ? 15 : shortage === 'mltssl' ? 10 : 5
+      const listBonus = shortage === 'mltssl_csol' ? 15 : shortage === 'mltssl' ? 10 : shortage === 'csol' || shortage === 'stsol_csol' ? 8 : 5
       studentPct = 55 + listBonus + (studyBonus > 10 ? 10 : 5) + getDemandScore(occ.demand)
       studentTips.push(`สาย "${occ.title}" — ${occ.shortageList}`)
       studentTips.push(`ตลาดต้องการ: ${occ.demand}`)
-      if (shortage === 'pmsol') studentTips.push('🔥 สายนี้ Priority — โอกาส PR สูงมาก!')
+      if (shortage === 'mltssl_csol') studentTips.push('🔥 สายนี้อยู่ใน MLTSSL;CSOL — โอกาส PR สูงมาก!')
     } else {
       studentTips.push('เลือกสายอาชีพเพื่อดูโอกาส PR')
     }
@@ -313,7 +326,7 @@ function recommend(p: Profile): Rec[] {
     let empPct = 55
     if (occ) {
       const shortage = getShortageLevel(occ.shortageList)
-      empPct = 40 + (shortage === 'pmsol' ? 25 : shortage === 'mltssl' ? 18 : 10) + getDemandScore(occ.demand)
+      empPct = 40 + (shortage === 'mltssl_csol' ? 25 : shortage === 'mltssl' ? 18 : shortage === 'csol' || shortage === 'stsol_csol' ? 15 : 10) + getDemandScore(occ.demand)
     }
     empPct = Math.min(empPct, 90)
     r.push({
@@ -373,7 +386,7 @@ function recommend(p: Profile): Rec[] {
       let whvEmpPct = 50
       if (occWhv) {
         const s = getShortageLevel(occWhv.shortageList)
-        whvEmpPct = 35 + (s === 'pmsol' ? 25 : s === 'mltssl' ? 18 : 10) + getDemandScore(occWhv.demand)
+        whvEmpPct = 35 + (s === 'mltssl_csol' ? 25 : s === 'mltssl' ? 18 : s === 'csol' || s === 'stsol_csol' ? 15 : 10) + getDemandScore(occWhv.demand)
       }
       whvEmpPct = Math.min(whvEmpPct, 85)
       r.push({
@@ -396,7 +409,7 @@ function recommend(p: Profile): Rec[] {
       let overAgeEmpPct = 60
       if (occWhv) {
         const s = getShortageLevel(occWhv.shortageList)
-        overAgeEmpPct = 40 + (s === 'pmsol' ? 25 : s === 'mltssl' ? 18 : 10) + getDemandScore(occWhv.demand)
+        overAgeEmpPct = 40 + (s === 'mltssl_csol' ? 25 : s === 'mltssl' ? 18 : s === 'csol' || s === 'stsol_csol' ? 15 : 10) + getDemandScore(occWhv.demand)
       }
       overAgeEmpPct = Math.min(overAgeEmpPct, 88)
       r.push({
@@ -674,7 +687,7 @@ export function VisaExplorer() {
               <div className="text-xs text-gray-500 mt-0.5">{selectedOcc.category}</div>
               <div className="flex flex-wrap gap-1.5 mt-2">
                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                  getShortageLevel(selectedOcc.shortageList) === 'pmsol' ? 'bg-green-100 text-green-700 border border-green-300' :
+                  getShortageLevel(selectedOcc.shortageList) === 'mltssl_csol' ? 'bg-green-100 text-green-700 border border-green-300' :
                   getShortageLevel(selectedOcc.shortageList) === 'mltssl' ? 'bg-blue-100 text-blue-700 border border-blue-300' :
                   'bg-orange-100 text-orange-700 border border-orange-300'
                 }`}>{selectedOcc.shortageList}</span>
@@ -754,10 +767,10 @@ export function VisaExplorer() {
                           </div>
                           <div className="flex gap-1 shrink-0 ml-2">
                             <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold ${
-                              sl === 'pmsol' ? 'bg-green-100 text-green-700' :
+                              sl === 'mltssl_csol' ? 'bg-green-100 text-green-700' :
                               sl === 'mltssl' ? 'bg-blue-100 text-blue-700' :
                               'bg-orange-100 text-orange-700'
-                            }`}>{sl === 'pmsol' ? 'PMSOL' : sl === 'mltssl' ? 'MLTSSL' : 'STSOL'}</span>
+                            }`}>{sl === 'mltssl_csol' ? 'MLTSSL;CSOL' : sl === 'mltssl' ? 'MLTSSL' : sl === 'stsol_csol' ? 'STSOL;CSOL' : sl === 'stsol' ? 'STSOL' : sl === 'csol' ? 'CSOL' : 'ROL'}</span>
                             <span className="text-[9px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">{o.minPoints}pts</span>
                           </div>
                         </div>
@@ -1042,7 +1055,7 @@ export function VisaExplorer() {
               {selectedOcc && (
                 <div className="flex justify-center gap-2 mt-2 flex-wrap">
                   <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold ${
-                    getShortageLevel(selectedOcc.shortageList) === 'pmsol' ? 'bg-green-100 text-green-700' :
+                    getShortageLevel(selectedOcc.shortageList) === 'mltssl_csol' ? 'bg-green-100 text-green-700' :
                     getShortageLevel(selectedOcc.shortageList) === 'mltssl' ? 'bg-blue-100 text-blue-700' :
                     'bg-orange-100 text-orange-700'
                   }`}>📋 {selectedOcc.shortageList}</span>
@@ -1324,7 +1337,7 @@ export function VisaExplorer() {
             <div>• <a href="https://immi.homeaffairs.gov.au/visas/working-in-australia/skillselect" target="_blank" rel="noopener noreferrer" className="underline">Home Affairs — SkillSelect & Points Table</a></div>
             <div>• <a href="https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing" target="_blank" rel="noopener noreferrer" className="underline">Home Affairs — Visa Listing (ค่าธรรมเนียม)</a></div>
             <div>• <a href="https://immi.homeaffairs.gov.au/what-we-do/whm-program/latest-news/thai" target="_blank" rel="noopener noreferrer" className="underline">Home Affairs — Work and Holiday 462 (ไทย)</a></div>
-            <div>• <a href="https://immi.homeaffairs.gov.au/visas/working-in-australia/skill-occupation-list" target="_blank" rel="noopener noreferrer" className="underline">Skilled Occupation List (PMSOL/MLTSSL/STSOL)</a></div>
+            <div>• <a href="https://immi.homeaffairs.gov.au/visas/working-in-australia/skill-occupation-list" target="_blank" rel="noopener noreferrer" className="underline">Skilled Occupation List (CSOL/MLTSSL/STSOL/ROL)</a></div>
             <div>• SkillSelect Invitation Rounds Nov 2025 — cut-off คะแนนอาชีพ 60+ สาย</div>
           </div>
         </div>
