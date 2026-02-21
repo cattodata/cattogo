@@ -1,10 +1,10 @@
-name = "rain-groq-proxy"
+name = "rain-typhoon-proxy"
 main = "worker.js"
 compatibility_date = "2024-01-01"
 
 # Deploy: npx wrangler deploy
-# Set secret: npx wrangler secret put GROQ_API_KEY
-# ใส่ Groq API key เมื่อ prompt ถามมา
+# Set secret: npx wrangler secret put TYPHOON_API_KEY
+# ใส่ Typhoon API key เมื่อ prompt ถามมา
 
-# Worker URL จะเป็น: https://rain-groq-proxy.<your-subdomain>.workers.dev
+# Worker URL จะเป็น: https://rain-typhoon-proxy.<your-subdomain>.workers.dev
 # เอา URL นี้ไปใส่ใน GitHub repo secret: NEXT_PUBLIC_PROXY_URL

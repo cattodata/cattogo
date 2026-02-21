@@ -5,7 +5,7 @@
 **Catto Migration Planner** (`cattogo`) is a static Next.js web app that helps Thai users analyze and plan international migration. It compares 16 countries across visa costs, salaries, cost of living, and quality-of-life metrics. The UI is primarily in Thai language.
 
 Key features:
-- AI-powered chat interface (Groq API / Llama 3.3 70B) that gathers user profile and recommends countries
+- AI-powered chat interface (Typhoon API / typhoon-v2-70b-instruct) that gathers user profile and recommends countries
 - Country matching and ranking based on user goals, occupation, income, age, and family status
 - Australia-focused points calculator (189/190/491 skilled visas) and budget simulator
 - Visa explorer with detailed costs for 16 countries
@@ -17,7 +17,7 @@ Key features:
 - **Language**: TypeScript (strict mode)
 - **UI**: React 19, Tailwind CSS 4 (via `@tailwindcss/postcss`)
 - **Fonts**: Poppins + Kanit (Google Fonts, loaded in `layout.tsx`)
-- **AI**: Groq API client in `src/lib/groq.ts` (Llama 3.3 70B model)
+- **AI**: Typhoon API client in `src/lib/typhoon.ts` (typhoon-v2-70b-instruct model)
 - **Proxy**: Cloudflare Worker in `proxy-worker/` for secure API key handling
 - **Deployment**: GitHub Pages via GitHub Actions (`deploy.yml`)
 - **Package manager**: npm (lockfile: `package-lock.json`)
@@ -61,9 +61,9 @@ src/
 └── lib/
     ├── types.ts            # TypeScript interfaces (FormData, VisaOption, etc.)
     ├── calculations.ts     # Points calculator, budget, parity calculations
-    └── groq.ts             # Groq API client (chat, analysis, country ranking)
+    └── typhoon.ts          # Typhoon API client (chat, analysis, country ranking)
 
-proxy-worker/               # Cloudflare Worker for Groq API proxy
+proxy-worker/               # Cloudflare Worker for Typhoon API proxy
 ├── worker.js               # Worker source (CORS, rate limiting, key injection)
 └── wrangler.toml           # Wrangler config
 
@@ -83,8 +83,8 @@ npm run build   # Next.js static export → outputs to out/
 The build uses these environment variables (all optional for local dev):
 - `REPO_NAME` — sets `basePath` for GitHub Pages (auto-set in CI)
 - `NEXT_PUBLIC_BASE_PATH` — base path for assets
-- `NEXT_PUBLIC_PROXY_URL` — Cloudflare Worker proxy URL for Groq API
-- `NEXT_PUBLIC_GROQ_KEY` — Direct Groq API key (fallback if no proxy)
+- `NEXT_PUBLIC_PROXY_URL` — Cloudflare Worker proxy URL for Typhoon API
+- `NEXT_PUBLIC_TYPHOON_KEY` — Direct Typhoon API key (fallback if no proxy)
 - `NEXT_PUBLIC_GA_ID` — Google Analytics ID
 
 ### Lint
@@ -106,7 +106,7 @@ npm run dev     # Starts Next.js dev server on http://localhost:3000
 The only workflow is `.github/workflows/deploy.yml`:
 - **Trigger**: Push to `main` branch or manual dispatch
 - **Steps**: `npm ci` → `npm run build` → upload `out/` → deploy to GitHub Pages
-- **Secrets needed**: `NEXT_PUBLIC_PROXY_URL` and/or `NEXT_PUBLIC_GROQ_KEY` (configured in repo Settings → Secrets → Actions)
+- **Secrets needed**: `NEXT_PUBLIC_PROXY_URL` and/or `NEXT_PUBLIC_TYPHOON_KEY` (configured in repo Settings → Secrets → Actions)
 
 ### Known CI Issues
 - A past deployment failure (Feb 16, 2026) was caused by GitHub Pages not being enabled in the repo settings. The fix was to enable Pages at `Settings → Pages → Source: GitHub Actions`. This was resolved and subsequent deployments succeeded.
@@ -114,13 +114,13 @@ The only workflow is `.github/workflows/deploy.yml`:
 ## Architecture Notes
 
 ### Data Flow
-1. `ChatSimulator` uses Groq AI to conversationally gather user profile (goals, occupation, income, age, family)
+1. `ChatSimulator` uses Typhoon AI to conversationally gather user profile (goals, occupation, income, age, family)
 2. Once enough data is gathered (`gathered.ready === true`), it calls `rankCountriesWithAI()` to get top 5 country matches
 3. Country data comes from `src/data/country-data.ts` (scores) and `src/data/country-detailed-data.ts` (detailed costs)
 4. For Australia specifically, `StepWizard` → step components use `calculations.ts` for points/budget/parity calculations
 
 ### AI Integration
-- `src/lib/groq.ts` handles all AI communication
+- `src/lib/typhoon.ts` handles all AI communication
 - Two modes: **Proxy mode** (preferred, key stays server-side via Cloudflare Worker) and **Direct mode** (key in client JS bundle)
 - The proxy worker (`proxy-worker/worker.js`) enforces CORS, rate limiting (20 req/min/IP), and injects the API key server-side
 - AI responses are expected as JSON; `extractJSON()` handles cases where the model wraps JSON in markdown
@@ -136,7 +136,7 @@ The app uses `output: 'export'` in `next.config.ts`, meaning all pages are stati
 - **Language in code**: Comments and UI text are in Thai. Variable names and code structure are in English.
 - **Components**: Functional React components with hooks. All components use `'use client'` where browser APIs are needed.
 - **Styling**: Tailwind CSS utility classes. Custom theme colors defined in `globals.css` under `@theme` (e.g., `--color-primary`, `--color-accent`).
-- **No ESLint config file** exists yet — only `// eslint-disable-next-line` comments are used inline in `groq.ts`.
+- **No ESLint config file** exists yet — only `// eslint-disable-next-line` comments are used inline in `typhoon.ts`.
 - **Data files** in `src/data/` contain hardcoded country data with source attributions in comments. When updating data, always include the source and date.
 - **Currency handling**: Always use specific currency symbols (A$, C$, €, £, etc.), never bare `$`. Exchange rates to THB are defined in `country-data.ts`.
 
@@ -154,5 +154,5 @@ The app uses `output: 'export'` in `next.config.ts`, meaning all pages are stati
 - Visa options are generated in `calculateFeasibility()` based on total points
 
 ### Updating Exchange Rates
-- Static rates in `src/data/country-data.ts` (`CURRENCY_TO_THB`) and `src/lib/groq.ts` (`CURRENCY_TO_THB`)
+- Static rates in `src/data/country-data.ts` (`CURRENCY_TO_THB`) and `src/lib/typhoon.ts` (`CURRENCY_TO_THB`)
 - Live rate fetched in `src/hooks/useExchangeRate.ts` (AUD/THB only)

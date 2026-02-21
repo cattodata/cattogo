@@ -1,16 +1,16 @@
-// ===== Groq API Client (Llama 3.3 70B — free tier) =====
+// ===== Typhoon API Client (typhoon-v2-70b-instruct) =====
 // ถ้ามี PROXY_URL → เรียกผ่าน Cloudflare Worker (key ซ่อนใน server)
-// ถ้าไม่มี → ใช้ GROQ_KEY จาก env var (build-time inject)
+// ถ้าไม่มี → ใช้ TYPHOON_KEY จาก env var (build-time inject)
 
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
-const MODEL = 'llama-3.3-70b-versatile'
+const TYPHOON_API_URL = 'https://api.opentyphoon.ai/v1/chat/completions'
+const MODEL = 'typhoon-v2-70b-instruct'
 
 // Config จาก env var (inject ตอน build ผ่าน NEXT_PUBLIC_*)
 const PROXY_URL = process.env.NEXT_PUBLIC_PROXY_URL || '' // Cloudflare Worker URL
-const ENV_KEY = process.env.NEXT_PUBLIC_GROQ_KEY || ''    // Fallback: direct key
+const ENV_KEY = process.env.NEXT_PUBLIC_TYPHOON_KEY || '' // Fallback: direct key
 
-/** เรียก Groq API — ผ่าน proxy ถ้ามี, ไม่งั้นใช้ key ตรง */
-async function callGroq(body: Record<string, unknown>): Promise<Response> {
+/** เรียก Typhoon API — ผ่าน proxy ถ้ามี, ไม่งั้นใช้ key ตรง */
+async function callTyphoon(body: Record<string, unknown>): Promise<Response> {
   if (PROXY_URL) {
     // Proxy mode: key อยู่ฝั่ง server ไม่ส่ง Authorization header
     return fetch(PROXY_URL, {
@@ -21,8 +21,8 @@ async function callGroq(body: Record<string, unknown>): Promise<Response> {
   }
   // Direct mode: ใช้ key จาก env var
   const key = getStoredApiKey()
-  if (!key) throw new Error('ไม่มี API key — กรุณาตั้งค่า NEXT_PUBLIC_GROQ_KEY หรือ NEXT_PUBLIC_PROXY_URL')
-  return fetch(GROQ_API_URL, {
+  if (!key) throw new Error('ไม่มี API key — กรุณาตั้งค่า NEXT_PUBLIC_TYPHOON_KEY หรือ NEXT_PUBLIC_PROXY_URL')
+  return fetch(TYPHOON_API_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -51,13 +51,13 @@ export interface AIResponse {
   gathered: GatheredData // ข้อมูลที่เก็บได้จนถึงตอนนี้
 }
 
-/** ส่งข้อความไป Groq แล้วได้ AIResponse กลับมา */
-export async function chatWithGroq(
+/** ส่งข้อความไป Typhoon แล้วได้ AIResponse กลับมา */
+export async function chatWithTyphoon(
   _apiKey: string,
   messages: ChatMessage[],
   _retry = 0,
 ): Promise<AIResponse> {
-  const res = await callGroq({
+  const res = await callTyphoon({
     model: MODEL,
     messages,
     temperature: 0.7,
@@ -66,14 +66,14 @@ export async function chatWithGroq(
 
   if (!res.ok) {
     const errBody = await res.text().catch(() => '')
-    if (res.status === 401) throw new Error('API key ไม่ถูกต้อง — ตรวจสอบ Groq API key อีกครั้ง')
+    if (res.status === 401) throw new Error('API key ไม่ถูกต้อง — ตรวจสอบ Typhoon API key อีกครั้ง')
     if (res.status === 429) throw new Error('เรียก API ถี่เกินไป — รอสักครู่แล้วลองใหม่')
     // Retry once on 400/500
     if (_retry < 1 && (res.status === 400 || res.status >= 500)) {
       await new Promise(r => setTimeout(r, 1000))
-      return chatWithGroq('', messages, _retry + 1)
+      return chatWithTyphoon('', messages, _retry + 1)
     }
-    throw new Error(`Groq API error ${res.status}: ${errBody.slice(0, 200)}`)
+    throw new Error(`Typhoon API error ${res.status}: ${errBody.slice(0, 200)}`)
   }
 
   const data = await res.json()
@@ -145,7 +145,7 @@ export async function analyzeResults(
     },
   ]
 
-  const res = await callGroq({
+  const res = await callTyphoon({
     model: MODEL,
     messages,
     temperature: 0.6,
@@ -271,7 +271,7 @@ ${countrySummaries}
     },
   ]
 
-  const res = await callGroq({
+  const res = await callTyphoon({
     model: MODEL,
     messages,
     temperature: 0.4,
@@ -314,7 +314,7 @@ export function getStoredApiKey(): string {
   if (ENV_KEY) return ENV_KEY
   // 3. User ใส่เอง (localStorage)
   if (typeof window !== 'undefined') {
-    return localStorage.getItem('groq_key') || ''
+    return localStorage.getItem('typhoon_key') || ''
   }
   return ''
 }
@@ -322,14 +322,14 @@ export function getStoredApiKey(): string {
 /** เก็บ API key ใน localStorage */
 export function storeApiKey(key: string) {
   if (typeof window !== 'undefined') {
-    localStorage.setItem('groq_key', key)
+    localStorage.setItem('typhoon_key', key)
   }
 }
 
 /** ลบ API key จาก localStorage */
 export function clearApiKey() {
   if (typeof window !== 'undefined') {
-    localStorage.removeItem('groq_key')
+    localStorage.removeItem('typhoon_key')
   }
 }
 

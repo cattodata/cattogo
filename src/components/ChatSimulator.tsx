@@ -16,10 +16,10 @@ import {
 import { searchOccupations } from '@/data/occupations'
 import { getCountryDetails, type OccupationSalaries, type SalaryRange } from '@/data/country-detailed-data'
 import {
-  chatWithGroq, analyzeResults, rankCountriesWithAI,
+  chatWithTyphoon, analyzeResults, rankCountriesWithAI,
   getStoredApiKey,
   type ChatMessage, type GatheredData,
-} from '@/lib/groq'
+} from '@/lib/typhoon'
 import { ShareButtons } from './ShareButtons'
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
@@ -206,7 +206,7 @@ export function ChatSimulator() {
     setAiChatHistory(newHistory)
 
     try {
-      const aiRes = await chatWithGroq(apiKey, newHistory)
+      const aiRes = await chatWithTyphoon(apiKey, newHistory)
       // Merge gathered: keep previously confirmed data, add new data from AI
       const merged: GatheredData = {
         goals: aiRes.gathered.goals.length > 0
