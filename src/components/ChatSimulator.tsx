@@ -51,7 +51,7 @@ const fmtThb = (n: number) => `฿${fmt(n)}`
 const OCC_TO_SALARY_KEY: Record<string, keyof OccupationSalaries> = {
   'software': 'softwareDev',
   'engineering': 'engineer',
-  'creative': 'softwareDev', // creative uses softwareDev salary as closest proxy (UX/UI overlap)
+  'creative': 'softwareDev', // No dedicated creative salary data available; uses softwareDev as proxy (UX/UI overlap). Actual creative salaries may be lower for roles like graphic design or photography.
   'accounting': 'accountant',
   'healthcare': 'nurse',
   'chef': 'trades', // chef uses trades salary range as closest proxy

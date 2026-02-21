@@ -216,6 +216,9 @@ export async function rankCountriesWithAI(
       `jobMkt:${c.scores.jobMarket} climate:${c.scores.climate} thaiComm:${c.thaiCommunity}`
   }).join('\n')
 
+  // Descriptive labels per occupation ID — used in AI prompt for context
+  // Intentionally more detailed than OCCUPATIONS.labelTH in country-data.ts
+  // to give the AI model enough keywords to tailor its recommendations
   const OCC_LABELS: Record<string, string> = {
     software: 'IT/Tech/Data/AI',
     engineering: 'วิศวกร/ช่างเทคนิค',
