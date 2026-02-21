@@ -69,10 +69,11 @@ export interface MatchResult {
 export const OCCUPATIONS = [
   { id: 'software', label: '💻 IT / Tech / AI', labelTH: 'ไอที / เทค', matchIds: ['software', 'data-ai'] },
   { id: 'engineering', label: '⚙️ วิศวกร / ช่างเทคนิค', labelTH: 'วิศวกร / ช่าง', matchIds: ['engineering', 'trades'] },
-  { id: 'accounting', label: '💰 บัญชี / การเงิน / บริหาร', labelTH: 'บัญชี / บริหาร', matchIds: ['accounting', 'business', 'marketing'] },
+  { id: 'creative', label: '🎨 ครีเอทีฟ / ดีไซน์ / สื่อ', labelTH: 'ครีเอทีฟ / ดีไซน์', matchIds: ['creative', 'marketing'] },
+  { id: 'accounting', label: '💰 บัญชี / การเงิน / บริหาร', labelTH: 'บัญชี / บริหาร', matchIds: ['accounting', 'business'] },
   { id: 'healthcare', label: '🏥 แพทย์ / พยาบาล', labelTH: 'แพทย์ / สุขภาพ', matchIds: ['healthcare'] },
   { id: 'chef', label: '🍳 เชฟ / Hospitality', labelTH: 'เชฟ / บริการ', matchIds: ['chef'] },
-  { id: 'other', label: '📋 สายอื่นๆ', labelTH: 'อื่นๆ', matchIds: ['other', 'teaching', 'creative'] },
+  { id: 'other', label: '📋 สายอื่นๆ', labelTH: 'อื่นๆ', matchIds: ['other', 'teaching'] },
 ] as const
 
 // ===== GOALS (combined motivation + priority — ถามทีเดียว เลือก 1-3) =====
@@ -101,6 +102,7 @@ const OCCUPATION_NOTES: Record<string, Record<string, string>> = {
     accounting: '✅ อยู่ใน Skill List — CPA Australia ต้องเทียบวุฒิ',
     healthcare: '🔥 พยาบาลขาดหนักมาก — fast track visa',
     chef: '✅ Chef อยู่ใน shortage list — 482 visa ได้',
+    creative: 'ℹ️ Graphic Design/UX อยู่ใน ANZSCO — 482 employer sponsor ได้, freelance ยาก',
     other: 'ℹ️ ตรวจสอบ Skill Shortage List ที่ Home Affairs',
   },
   canada: {
@@ -116,11 +118,13 @@ const OCCUPATION_NOTES: Record<string, Record<string, string>> = {
   uk: {
     software: '✅ Skilled Worker visa — Tech Nation endorsement',
     healthcare: '🔥 NHS ขาดแคลนหนัก — fast track',
+    creative: '✅ London เป็น creative hub ระดับโลก — Global Talent visa สาย Arts & Culture',
     default: 'ℹ️ ใช้ Points-based system post-Brexit',
   },
   germany: {
     software: '✅ EU Blue Card — ไม่ต้องพูดเยอรมันก็ได้ช่วงแรก',
     engineering: '🔥 วิศวกรเป็นที่ต้องการมาก — auto/manufacturing',
+    creative: '✅ Berlin เป็น creative hub — ค่าครองชีพถูกกว่า London/Paris, freelance visa ได้',
     default: 'ℹ️ EU Blue Card หรือ Job Seeker visa',
   },
   japan: {
@@ -131,6 +135,7 @@ const OCCUPATION_NOTES: Record<string, Record<string, string>> = {
   singapore: {
     software: '✅ Employment Pass — Tech hub ของ SEA, แต่กำลัง tighten',
     accounting: '✅ Financial hub — บัญชี/บริหารมี demand',
+    creative: 'ℹ️ Creative sector กำลังโต — แต่ Employment Pass min $5,000/mo',
     default: 'ℹ️ Employment Pass ขั้นต่ำ $5,000/เดือน',
   },
   uae: {
@@ -138,6 +143,7 @@ const OCCUPATION_NOTES: Record<string, Record<string, string>> = {
     engineering: '✅ Construction/Oil & Gas demand สูง — tax-free income',
     accounting: '✅ Financial hub — บัญชี/บริหารมี demand',
     healthcare: '✅ Nurses & doctors ขาด — salary competitive',
+    creative: '✅ Dubai Media City/Design District — creative demand สูง, tax-free',
     default: 'ℹ️ Employment Visa 2 ปี หรือ Golden Visa 10 ปี',
   },
   norway: {
@@ -149,13 +155,13 @@ const OCCUPATION_NOTES: Record<string, Record<string, string>> = {
   },
   portugal: {
     software: '✅ Web Summit hub — Lisbon tech scene growing, €25K-70K',
-    creative: '✅ Digital Nomad visa — D8 visa €3,480/mo minimum',
+    creative: '✅ Digital Nomad visa D8 — ดีไซน์/freelance เหมาะมาก, ค่าครองชีพถูก',
     default: 'ℹ️ D7 Passive Income (€920/mo) หรือ D8 Digital Nomad',
   },
   korea: {
     software: '✅ E-7 visa — Samsung, LG, Naver, Kakao. TOPIK 3-4 required',
     engineering: '✅ Manufacturing/auto demand — Hyundai, SK, LG',
-    creative: '✅ K-pop/entertainment industry — but Korean essential',
+    creative: '✅ K-content/entertainment industry กำลังบูม — แต่ Korean จำเป็น',
     default: '⚠️ Korean language essential (TOPIK 3-4) — E-7 min ₩35.2M/year',
   },
   switzerland: {
@@ -164,6 +170,11 @@ const OCCUPATION_NOTES: Record<string, Record<string, string>> = {
     accounting: '✅ Financial center — Banking demands high',
     healthcare: '✅ Healthcare professionals — CHF 70K-105K',
     default: '⚠️ Non-EU quota limited — German/French helpful, 10 years to PR',
+  },
+  netherlands: {
+    software: '✅ Highly Skilled Migrant — Amsterdam tech hub, พูดอังกฤษได้',
+    creative: '✅ Amsterdam/Rotterdam เป็น design hub — DAFT visa สำหรับ freelancer ได้',
+    default: 'ℹ️ Highly Skilled Migrant หรือ DAFT visa (freelancer)',
   },
 }
 
@@ -230,7 +241,7 @@ export const COUNTRIES: Country[] = [
     id: 'uk', name: 'United Kingdom', nameTH: 'อังกฤษ', flag: '🇬🇧',
     scores: { costOfLiving: 3, safety: 7, healthcare: 8, education: 9, workLifeBalance: 7, taxFriendliness: 4, immigrationEase: 5, jobMarket: 7, climate: 4, politicalStability: 8 },
     avgSalaryUSD: 55000, costIndex: 211, currency: 'GBP',
-    hotJobs: ['software', 'data-ai', 'healthcare', 'engineering', 'accounting'],
+    hotJobs: ['software', 'data-ai', 'healthcare', 'engineering', 'accounting', 'creative'],
     visaPaths: ['Skilled Worker', 'Global Talent', 'Youth Mobility'],
     pros: ['ตลาดงานใหญ่', 'NHS universal healthcare', 'Oxford/Cambridge', 'Annual leave 28 วัน'],
     cons: ['London แพงมาก', 'อากาศทึม ฝนเยอะ 🌧️', 'ภาษีสูง'],
@@ -240,7 +251,7 @@ export const COUNTRIES: Country[] = [
     id: 'germany', name: 'Germany', nameTH: 'เยอรมนี', flag: '🇩🇪',
     scores: { costOfLiving: 6, safety: 8, healthcare: 9, education: 10, workLifeBalance: 9, taxFriendliness: 3, immigrationEase: 5, jobMarket: 7, climate: 4, politicalStability: 9 },
     avgSalaryUSD: 58000, costIndex: 169, currency: 'EUR',
-    hotJobs: ['software', 'engineering', 'data-ai', 'healthcare'],
+    hotJobs: ['software', 'engineering', 'data-ai', 'healthcare', 'creative'],
     visaPaths: ['EU Blue Card', 'Job Seeker Visa', 'Skilled Worker'],
     pros: ['มหาวิทยาลัยฟรี! 🆓', 'Work-life ดีมาก', 'กฎหมายแรงงานเข้ม', 'Berlin ค่าครองชีพพอรับได้'],
     cons: ['ภาษาเยอรมันจำเป็น', 'ภาษี+ประกันสังคมสูง ~42%', 'อากาศทึม ❄️'],
@@ -270,7 +281,7 @@ export const COUNTRIES: Country[] = [
     id: 'netherlands', name: 'Netherlands', nameTH: 'เนเธอร์แลนด์', flag: '🇳🇱',
     scores: { costOfLiving: 4, safety: 8, healthcare: 9, education: 9, workLifeBalance: 9, taxFriendliness: 4, immigrationEase: 5, jobMarket: 7, climate: 4, politicalStability: 9 },
     avgSalaryUSD: 55000, costIndex: 200, currency: 'EUR',
-    hotJobs: ['software', 'data-ai', 'engineering', 'business'],
+    hotJobs: ['software', 'data-ai', 'engineering', 'business', 'creative'],
     visaPaths: ['Highly Skilled Migrant', 'DAFT (สำหรับ freelancer)', 'EU Blue Card'],
     pros: ['Work-life balance ดีมาก', 'ปั่นจักรยานทุกที่ 🚲', 'พูดอังกฤษได้ทั่ว', 'เปิดกว้าง'],
     cons: ['อากาศฝน ลมแรง', 'หาบ้านยากมาก', 'ภาษีสูง'],
@@ -290,7 +301,7 @@ export const COUNTRIES: Country[] = [
     id: 'uae', name: 'UAE (Dubai)', nameTH: 'ดูไบ', flag: '🇦🇪',
     scores: { costOfLiving: 5, safety: 9, healthcare: 8, education: 7, workLifeBalance: 5, taxFriendliness: 10, immigrationEase: 7, jobMarket: 8, climate: 4, politicalStability: 8 },
     avgSalaryUSD: 55000, costIndex: 149, currency: 'AED',
-    hotJobs: ['software', 'data-ai', 'engineering', 'accounting', 'healthcare'],
+    hotJobs: ['software', 'data-ai', 'engineering', 'accounting', 'healthcare', 'creative'],
     visaPaths: ['Employment Visa 2-year', 'Golden Visa 10-year'],
     pros: ['ไม่มีภาษีเงินได้! 🎉', 'เก็บเงินได้เยอะ', 'ปลอดภัยมาก', 'ใกล้ไทย 6 ชม.', 'ทันสมัย'],
     cons: ['ร้อนมาก 45°C+ ☀️', 'วีซ่าผูกกับนายจ้าง', 'ไม่มี PR แบบปกติ', 'ค่าครองชีพสูงถ้าใช้ชีวิต western'],
