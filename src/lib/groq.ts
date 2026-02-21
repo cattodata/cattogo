@@ -216,6 +216,20 @@ export async function rankCountriesWithAI(
       `jobMkt:${c.scores.jobMarket} climate:${c.scores.climate} thaiComm:${c.thaiCommunity}`
   }).join('\n')
 
+  // Descriptive labels per occupation ID — used in AI prompt for context
+  // Intentionally more detailed than OCCUPATIONS.labelTH in country-data.ts
+  // to give the AI model enough keywords to tailor its recommendations
+  const OCC_LABELS: Record<string, string> = {
+    software: 'IT/Tech/Data/AI',
+    engineering: 'วิศวกร/ช่างเทคนิค',
+    creative: 'ครีเอทีฟ/ดีไซน์/กราฟิก/สื่อ/มาร์เก็ตติ้ง',
+    accounting: 'บัญชี/การเงิน/บริหาร',
+    healthcare: 'แพทย์/พยาบาล/สาธารณสุข',
+    chef: 'เชฟ/Hospitality',
+    other: 'อาชีพอื่นๆ',
+  }
+  const occLabel = OCC_LABELS[userProfile.occupation] || userProfile.occupation
+
   const messages: ChatMessage[] = [
     {
       role: 'system',
@@ -223,10 +237,12 @@ export async function rankCountriesWithAI(
 
 วิเคราะห์ว่าประเทศไหนเหมาะกับ user ที่สุด พิจารณา:
 - เป้าหมาย user (สำคัญที่สุด)
-- อาชีพตรงกับ hotJobs ไหม
+- อาชีพตรงกับ hotJobs ไหม — ต้องวิเคราะห์จากอาชีพจริงของ user ไม่ใช่ default เป็น engineer
 - เงินเดือนปัจจุบันเทียบค่าครองชีพปลายทาง
 - อายุกับความง่ายในการขอวีซ่า (45+ อาจมีข้อจำกัด)
 - ไปกับใคร (ครอบครัว→ดู education+healthcare มากขึ้น)
+
+สำคัญมาก: ให้คำแนะนำเฉพาะเจาะจงตามอาชีพของ user เช่น ถ้าเป็น creative/ดีไซน์ ให้แนะนำเกี่ยวกับตลาดงาน creative ไม่ใช่ engineering
 
 ให้คะแนน matchPct (15-97) ตามความเหมาะสมจริงๆ ห้ามให้สูงทุกประเทศ
 เลือก Top 5 เท่านั้น
@@ -243,7 +259,7 @@ export async function rankCountriesWithAI(
       role: 'user',
       content: `ข้อมูลของฉัน:
 - เป้าหมาย: ${userGoals}
-- อาชีพ: ${userProfile.occupation}
+- อาชีพ: ${occLabel}
 - เงินเดือนปัจจุบัน: ${userProfile.monthlyIncome.toLocaleString()} บาท/เดือน
 - อายุ: ${userProfile.age}
 - ไปกับ: ${userProfile.family === 'single' ? 'คนเดียว' : userProfile.family === 'couple' ? 'คนรัก' : 'ครอบครัว'}

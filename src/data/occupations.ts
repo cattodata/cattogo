@@ -991,7 +991,7 @@ const CATEGORY_TO_OCC_ID: Record<string, string> = {
   'Business & Finance': 'accounting',
   'Legal': 'accounting',
   'Education': 'other',
-  'Architecture & Design': 'other',
+  'Architecture & Design': 'creative',
   'Science & Research': 'other',
   'Agriculture & Environment': 'other',
   'Community Services': 'other',

@@ -51,6 +51,7 @@ const fmtThb = (n: number) => `฿${fmt(n)}`
 const OCC_TO_SALARY_KEY: Record<string, keyof OccupationSalaries> = {
   'software': 'softwareDev',
   'engineering': 'engineer',
+  'creative': 'softwareDev', // No dedicated creative salary data available; uses softwareDev as proxy (UX/UI overlap). Actual creative salaries may be lower for roles like graphic design or photography.
   'accounting': 'accountant',
   'healthcare': 'nurse',
   'chef': 'trades', // chef uses trades salary range as closest proxy
@@ -104,7 +105,7 @@ Flow:
 2. หลัง user เล่า: ตอบรับเนื้อหาจริงๆ + สรุปสิ่งที่จับได้ + ถาม "มีอะไรอยากเสริมไหม?"
 3. เก็บข้อมูลที่ขาด ทีละเรื่อง (ลำดับยืดหยุ่นได้):
    - goals (1-3): money-job | balance | family | stable | lifestyle
-   - occupation: software | engineering | accounting | healthcare | chef | other
+   - occupation: software | engineering | creative | accounting | healthcare | chef | other
    - age: "18-24" | "25-32" | "33-39" | "40-44" | "45+"
    - family: "single" | "couple" | "family"
    - monthlyIncome: number (บาท)
@@ -113,10 +114,11 @@ Flow:
 Mapping อาชีพ:
 - IT/software/dev/data/programmer → "software"
 - วิศวกร/engineer/mechanical/civil/electrical → "engineering"
+- กราฟิก/graphic designer/ดีไซน์/UI/UX/creative/สื่อ/media/photographer/ช่างภาพ/animator/illustrator/marketing → "creative"
 - บัญชี/finance/accountant → "accounting"
 - พยาบาล/nurse/หมอ/doctor/สาธารณสุข/เภสัช → "healthcare"
 - เชฟ/chef/cook/ครัว/barista → "chef"
-- อื่นๆ/ครู/teacher/marketing/design → "other"
+- อื่นๆ/ครู/teacher → "other"
 
 ตอบเป็น JSON:
 {"message": "...", "gathered": {"goals": [], "occupation": "", "monthlyIncome": 0, "age": "", "family": "", "ready": false}}`
@@ -323,6 +325,7 @@ export function ChatSimulator() {
     { label: '🤖 AI / ML', text: 'AI / Machine Learning Engineer', occId: 'software' },
     { label: '🔒 Cybersecurity', text: 'Cybersecurity Analyst', occId: 'software' },
     { label: '⚙️ วิศวกร', text: 'วิศวกร', occId: 'engineering' },
+    { label: '🎨 ดีไซน์ / ครีเอทีฟ', text: 'Graphic Designer / ดีไซเนอร์', occId: 'creative' },
     { label: '🏥 สาธารณสุข', text: 'แพทย์ / พยาบาล', occId: 'healthcare' },
     { label: '📋 บัญชี', text: 'บัญชี / การเงิน', occId: 'accounting' },
     { label: '👨‍🍳 เชฟ', text: 'เชฟ / ครัว', occId: 'chef' },
