@@ -1,9 +1,9 @@
-// ===== Cloudflare Worker: Groq API Proxy =====
+// ===== Cloudflare Worker: Typhoon API Proxy =====
 // Key อยู่ใน Cloudflare env secret (ไม่ส่งไป browser)
 // Deploy: npx wrangler deploy
-// Set key: npx wrangler secret put GROQ_API_KEY
+// Set key: npx wrangler secret put TYPHOON_API_KEY
 
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
+const TYPHOON_API_URL = 'https://api.opentyphoon.ai/v1/chat/completions'
 
 // อนุญาตเฉพาะ domain ของเรา
 const ALLOWED_ORIGINS = [
@@ -78,7 +78,7 @@ export default {
     }
 
     // Check API key is configured
-    if (!env.GROQ_API_KEY) {
+    if (!env.TYPHOON_API_KEY) {
       return new Response(JSON.stringify({ error: 'API key not configured' }), {
         status: 500,
         headers: { ...cors, 'Content-Type': 'application/json' },
@@ -86,29 +86,29 @@ export default {
     }
 
     try {
-      // Forward request to Groq (inject key server-side)
+      // Forward request to Typhoon (inject key server-side)
       const body = await request.json()
 
       // Sanitize: only allow expected fields
       const safeBody = {
-        model: body.model || 'llama-3.3-70b-versatile',
+        model: body.model || 'typhoon-v2-70b-instruct',
         messages: body.messages,
         temperature: Math.min(2, Math.max(0, Number(body.temperature) || 0.7)),
         max_tokens: Math.min(4096, Math.max(1, Number(body.max_tokens) || 1024)),
       }
 
-      const groqRes = await fetch(GROQ_API_URL, {
+      const typhoonRes = await fetch(TYPHOON_API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${env.GROQ_API_KEY}`,
+          'Authorization': `Bearer ${env.TYPHOON_API_KEY}`,
         },
         body: JSON.stringify(safeBody),
       })
 
-      const data = await groqRes.text()
+      const data = await typhoonRes.text()
       return new Response(data, {
-        status: groqRes.status,
+        status: typhoonRes.status,
         headers: {
           ...cors,
           'Content-Type': 'application/json',

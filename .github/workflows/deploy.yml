@@ -32,7 +32,7 @@ jobs:
           REPO_NAME: ${{ github.event.repository.name }}
           NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
           NEXT_PUBLIC_PROXY_URL: ${{ secrets.NEXT_PUBLIC_PROXY_URL }}
-          NEXT_PUBLIC_GROQ_KEY: ${{ secrets.NEXT_PUBLIC_GROQ_KEY }}
+          NEXT_PUBLIC_TYPHOON_KEY: ${{ secrets.NEXT_PUBLIC_TYPHOON_KEY }}
           NEXT_PUBLIC_GA_ID: G-H2FX3V1CK6
         run: npm run build
 
