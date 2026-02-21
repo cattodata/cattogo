@@ -3,7 +3,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import {
   AUD_TO_THB, calculateAusTax, calculateThaiTax,
-  AU_UNSKILLED_SALARY, TH_TOTAL_LIVING, TH_LIVING_COSTS,
+  AU_UNSKILLED_SALARY, TH_LIVING_COSTS,
   AU_CITIES, FOOD_COSTS, TRANSPORT_COSTS,
   calculateSimpleVisaScore,
 } from '@/data/simulator-data'
@@ -52,6 +52,8 @@ export function AuLifeSim() {
   const [initialAUD, setInitialAUD] = useState(0)
   const [choices, setChoices] = useState<Record<string, string>>({})
   const [occSearch, setOccSearch] = useState('')
+  const [thaiCosts, setThaiCosts] = useState({ ...TH_LIVING_COSTS })
+  const [editingThaiCosts, setEditingThaiCosts] = useState(false)
 
   const bottomRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -117,7 +119,8 @@ export function AuLifeSim() {
   const thaiSalary = parseInt(profile.thaiSalary) || 50000
   const thaiTax = calculateThaiTax(thaiSalary * 12)
   const thaiNetMonthly = thaiTax.netMonthly
-  const thaiMonthlySavings = thaiNetMonthly - TH_TOTAL_LIVING
+  const thaiTotalLiving = Object.values(thaiCosts).reduce((a, b) => a + b, 0)
+  const thaiMonthlySavings = thaiNetMonthly - thaiTotalLiving
 
   const visa = calculateSimpleVisaScore(profile.age, profile.english, profile.experience, profile.education, choices['job'] === 'min' ? 'unskilled' : 'skilled')
   const finalOneTime = preDepartureTotal + flightCost + tempCost + bond + furnishCost
@@ -131,7 +134,7 @@ export function AuLifeSim() {
   const advanceStage = () => setSimStage(s => s + 1)
   const pick = (stageId: string, optionId: string) => { setChoices(prev => ({ ...prev, [stageId]: optionId })); setSimStage(s => s + 1) }
   const allDone = simStage >= TOTAL_STAGES
-  const restart = () => { setPhase('profile'); setSimStage(0); setSavingsInput(''); setIsMotherLord(false); setInitialAUD(0); setChoices({}) }
+  const restart = () => { setPhase('profile'); setSimStage(0); setSavingsInput(''); setIsMotherLord(false); setInitialAUD(0); setChoices({}); setThaiCosts({ ...TH_LIVING_COSTS }); setEditingThaiCosts(false) }
 
   // When all stages done → show results
   useEffect(() => {
@@ -493,11 +496,53 @@ export function AuLifeSim() {
         <div className="result-section" style={{ background: '#FFF7ED', borderColor: '#FDBA74' }}>
           <h4 className="text-base font-bold text-gray-800 mb-2">🇹🇭 vs 🇦🇺 เปรียบเทียบ</h4>
           <Row label="เงินเดือนไทย (net)" val={fmtThb(thaiNetMonthly)} />
-          <Row label="ค่าใช้จ่ายไทย" val={`-${fmtThb(TH_TOTAL_LIVING)}`} />
-          <div className="text-[10px] text-gray-500 ml-1 -mt-1 mb-1">
-            เช่า ฿{fmt(TH_LIVING_COSTS.rent)} + อาหาร ฿{fmt(TH_LIVING_COSTS.food)} + เดินทาง ฿{fmt(TH_LIVING_COSTS.transport)} + น้ำไฟ ฿{fmt(TH_LIVING_COSTS.utilities)} + มือถือ ฿{fmt(TH_LIVING_COSTS.phone)} + สังสรรค์ ฿{fmt(TH_LIVING_COSTS.entertainment)} + ประกัน ฿{fmt(TH_LIVING_COSTS.insurance)}
-            <div className="text-gray-400 mt-0.5">(สมมติ: คอนโดใกล้ BTS กทม., กินข้าวแกงผสม delivery, ประกัน OPD+IPD)</div>
+          <div className="flex justify-between items-center py-1 text-sm">
+            <span className="text-gray-600">ค่าใช้จ่ายไทย</span>
+            <span className="font-mono text-red-500">-{fmtThb(thaiTotalLiving)}</span>
           </div>
+          <div className="text-[10px] text-gray-500 ml-1 -mt-1 mb-1">
+            เช่า ฿{fmt(thaiCosts.rent)} + อาหาร ฿{fmt(thaiCosts.food)} + เดินทาง ฿{fmt(thaiCosts.transport)} + น้ำไฟ ฿{fmt(thaiCosts.utilities)} + มือถือ ฿{fmt(thaiCosts.phone)} + สังสรรค์ ฿{fmt(thaiCosts.entertainment)} + ประกัน ฿{fmt(thaiCosts.insurance)}
+            <button onClick={() => setEditingThaiCosts(e => !e)} className="ml-2 text-orange-600 underline hover:text-orange-800">
+              {editingThaiCosts ? 'ปิด' : '✏️ แก้ไข'}
+            </button>
+          </div>
+          {editingThaiCosts && (
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-2.5 my-1.5 space-y-1.5">
+              <div className="text-xs font-medium text-orange-700 mb-1">ปรับค่าใช้จ่ายรายเดือน (฿/เดือน)</div>
+              {([
+                { key: 'rent', label: '🏠 ค่าเช่า' },
+                { key: 'food', label: '🍜 อาหาร' },
+                { key: 'transport', label: '🚇 เดินทาง' },
+                { key: 'utilities', label: '💡 น้ำไฟ' },
+                { key: 'phone', label: '📱 มือถือ' },
+                { key: 'entertainment', label: '🎉 สังสรรค์' },
+                { key: 'insurance', label: '🏥 ประกัน' },
+              ] as const).map(({ key, label }) => (
+                <div key={key} className="flex items-center gap-2">
+                  <label htmlFor={`th-cost-${key}`} className="text-xs text-gray-600 w-24">{label}</label>
+                  <input
+                    id={`th-cost-${key}`}
+                    type="number"
+                    min={0}
+                    className="flex-1 px-2 py-1 text-xs border border-orange-200 rounded bg-white text-right font-mono"
+                    value={thaiCosts[key] || ''}
+                    onBlur={e => { if (e.target.value === '') setThaiCosts(prev => ({ ...prev, [key]: 0 })) }}
+                    onChange={e => setThaiCosts(prev => ({ ...prev, [key]: Math.max(0, parseInt(e.target.value) || 0) }))}
+                  />
+                </div>
+              ))}
+              <div className="flex justify-between items-center pt-1.5 border-t border-orange-200 text-xs font-semibold text-orange-800">
+                <span>รวม</span>
+                <span>฿{fmt(thaiTotalLiving)}</span>
+              </div>
+              <button onClick={() => setThaiCosts({ ...TH_LIVING_COSTS })} className="text-[10px] text-orange-500 underline hover:text-orange-700">
+                รีเซ็ตเป็นค่าเริ่มต้น
+              </button>
+            </div>
+          )}
+          {!editingThaiCosts && (
+            <div className="text-[10px] text-gray-400 ml-1 mb-1">(สมมติ: คอนโดใกล้ BTS กทม., กินข้าวแกงผสม delivery, ประกัน OPD+IPD)</div>
+          )}
           <Row label="เหลือเก็บ (ไทย)" val={fmtThb(thaiMonthlySavings)} />
           <div className="border-t border-gray-200 my-2" />
           <Row label="เหลือเก็บ (ออส)" val={fmtThb(monthlySavingsTHB)} />
