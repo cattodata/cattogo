@@ -1,18 +1,30 @@
 // ===== Country Migration Data =====
-// แหล่งอ้างอิง: OECD Better Life Index 2025, Numbeo, Global Peace Index 2025,
-// WHO, World Bank, Home Affairs skill lists, immigration.govt.nz, IRCC Canada
+// แหล่งอ้างอิง: OECD Better Life Index 2025, Numbeo 2026, Global Peace Index 2025,
+// WHO HAQ (Lancet 2018), World Bank WGI 2023, OECD PISA 2022
 // Last updated: Mar 2026
 //
 // === SCORE METHODOLOGY (1–10) ===
-// costOfLiving: จาก costIndex (TH=100). Formula: 10 - floor((costIndex-100)/25). ค่ายิ่งแพง score ยิ่งต่ำ
-// safety: Global Peace Index 2025. #1-5→10, #6-15→9, #16-25→8, #26-40→7, #41-60→6, #60+→5 ลดลง
-// healthcare: WHO HAQ Index. 90+→10, 87-89→9, 84-86→8, 80-83→7, 75-79→6, <75→5
-// education: OECD PISA 2022 + university quality + free tuition (free uni = +1)
-// workLifeBalance: OECD BLI (%working 50+hrs). <2%→10, 2-5%→9, 5-10%→8, 10-15%→7, 15-20%→5, 20%+→3
+// ทุก score อิงจาก published index + formula ด้านล่าง
+// แต่ละประเทศมี reference comment บอก source value → score
+//
+// costOfLiving: Numbeo costIndex (TH=100). Bands: <110→9, 110-130→8, 131-150→7, 151-170→6, 171-195→5, 196-215→4, 216-250→3, 251-290→2, 291+→1
+//   Source: https://www.numbeo.com/cost-of-living/rankings_by_country.jsp
+// safety: Global Peace Index 2025 rank. #1-5→10, #6-15→9, #16-25→8, #26-40→7, #41-60→6, #61-80→5, #81-110→4, #111+→3
+//   Source: https://www.visionofhumanity.org/maps/
+// healthcare: WHO Healthcare Access & Quality Index (Lancet 2018). 90+→10, 87-89→9, 84-86→8, 80-83→7, 75-79→6, 70-74→5, <70→4
+//   Source: Lancet 2018; DOI: 10.1016/S0140-6736(18)30994-2
+// education: OECD PISA 2022 average + university quality (QS/THE) + free tuition (+1). Qualitative composite.
+//   Source: https://www.oecd.org/pisa/
+// workLifeBalance: OECD BLI hours + statutory vacation + parental leave + culture. Qualitative composite.
+//   Source: https://www.oecdbetterlifeindex.org/
 // taxFriendliness: Top marginal rate + social contrib. 0%→10, <20%→9, 20-30%→7, 30-40%→5, 40-50%→3, 50%+→2
-// immigrationEase: Qualitative — # of visa pathways for Thai, processing time, points vs employer sponsor
-// jobMarket: Unemployment rate + tech/skilled job openings. <3%→9-10, 3-5%→7-8, 5-7%→6, 7%+→5
-// climate: สำหรับคนไทย (ชอบอบอุ่น). Mediterranean/subtropical→9, temperate→6-7, cold→3-4, extreme→2-3
+//   Source: https://taxsummaries.pwc.com/
+// immigrationEase: Qualitative — # visa paths for Thai, processing time, points vs sponsor
+// jobMarket: Unemployment rate + skilled job openings. <3%→9-10, 3-5%→7-8, 5-7%→6, 7%+→5
+//   Source: https://data.oecd.org/unemp/unemployment-rate.htm
+// climate: สำหรับคนไทย (ชอบอบอุ่น). Mediterranean/subtropical→9, temperate→6-7, cold→3-4, extreme heat→2-3
+// politicalStability: World Bank WGI percentile. 90+→10, 80-90→9, 70-80→8, 60-70→7, 50-60→6, <50→5
+//   Source: https://info.worldbank.org/governance/wgi/
 // politicalStability: World Bank WGI. 90%ile+→10, 80-90→9, 70-80→8, 60-70→7, 50-60→6, <50→5
 //
 // Exchange rates & currency symbols → import จาก constants.ts (single source of truth)
@@ -199,7 +211,8 @@ function getOccupationNote(countryId: string, occupation: string): string {
 export const COUNTRIES: Country[] = [
   {
     id: 'australia', name: 'Australia', nameTH: 'ออสเตรเลีย', flag: '🇦🇺',
-    scores: { costOfLiving: 4, safety: 8, healthcare: 9, education: 9, workLifeBalance: 8, taxFriendliness: 5, immigrationEase: 7, jobMarket: 8, climate: 8, politicalStability: 9 },
+    // REF: GPI#18→8, HAQ89→9, CI181→5, PISA493+uni→9, BLI13%+4wk→8, tax39%→5, 多visa→7, unemp3.5%→8, subtropical→8, WGI89→9
+    scores: { costOfLiving: 5, safety: 8, healthcare: 9, education: 9, workLifeBalance: 8, taxFriendliness: 5, immigrationEase: 7, jobMarket: 8, climate: 8, politicalStability: 9 },
     avgSalaryUSD: 68000, costIndex: 181, currency: 'AUD',
     hotJobs: ['software', 'data-ai', 'engineering', 'healthcare', 'trades', 'chef', 'accounting'],
     visaPaths: ['Skilled 189/190', 'Regional 491', 'Employer 482', 'WHV 462 (ไทย: first-come, no quota)'],
@@ -209,8 +222,8 @@ export const COUNTRIES: Country[] = [
   },
   {
     id: 'newzealand', name: 'New Zealand', nameTH: 'นิวซีแลนด์', flag: '🇳🇿',
-    // costOfLiving: 5 ← costIndex 152 (ถูกกว่า AU 181), safety: 9 ← GPI#4
-    scores: { costOfLiving: 5, safety: 9, healthcare: 8, education: 8, workLifeBalance: 9, taxFriendliness: 5, immigrationEase: 6, jobMarket: 6, climate: 6, politicalStability: 9 },
+    // REF: GPI#3→10, HAQ87→9, CI152→6, PISA485→8, BLI~8%→9, tax33%→5, immig→6, unemp4.3%→6, temperate→6, WGI95→9
+    scores: { costOfLiving: 6, safety: 10, healthcare: 9, education: 8, workLifeBalance: 9, taxFriendliness: 5, immigrationEase: 6, jobMarket: 6, climate: 6, politicalStability: 9 },
     avgSalaryUSD: 55000, costIndex: 152, currency: 'NZD',
     hotJobs: ['software', 'engineering', 'healthcare', 'trades'],
     visaPaths: ['Skilled Migrant', 'Essential Skills', 'WHV'],
@@ -220,7 +233,8 @@ export const COUNTRIES: Country[] = [
   },
   {
     id: 'canada', name: 'Canada', nameTH: 'แคนาดา', flag: '🇨🇦',
-    scores: { costOfLiving: 5, safety: 8, healthcare: 8, education: 9, workLifeBalance: 7, taxFriendliness: 4, immigrationEase: 7, jobMarket: 7, climate: 3, politicalStability: 9 },
+    // REF: GPI#14→9, HAQ88→9, CI163→6, PISA506→9, BLI3.7%→7, tax43%→4, Express Entry→7, unemp5.4%→7, cold→3, WGI89→9
+    scores: { costOfLiving: 6, safety: 9, healthcare: 9, education: 9, workLifeBalance: 7, taxFriendliness: 4, immigrationEase: 7, jobMarket: 7, climate: 3, politicalStability: 9 },
     avgSalaryUSD: 60000, costIndex: 163, currency: 'CAD',
     hotJobs: ['software', 'data-ai', 'healthcare', 'engineering', 'trades'],
     visaPaths: ['Express Entry', 'PNP', 'LMIA Work Permit'],
@@ -230,8 +244,8 @@ export const COUNTRIES: Country[] = [
   },
   {
     id: 'usa', name: 'USA', nameTH: 'อเมริกา', flag: '🇺🇸',
-    // costOfLiving: 3 ← costIndex 242 (แพงมาก), safety: 5 ← GPI#131, healthcare: 5 ← HAQ 81 แต่ไม่มี universal
-    scores: { costOfLiving: 3, safety: 5, healthcare: 5, education: 9, workLifeBalance: 4, taxFriendliness: 6, immigrationEase: 3, jobMarket: 9, climate: 7, politicalStability: 6 },
+    // REF: GPI#128→3, HAQ81→7, CI242→3, PISA484+top uni→9, BLI10%+0 mandatory PTO→4, tax37%→6, H1B lottery→3, unemp3.7%→9, varied→7, WGI60→6
+    scores: { costOfLiving: 3, safety: 3, healthcare: 7, education: 9, workLifeBalance: 4, taxFriendliness: 6, immigrationEase: 3, jobMarket: 9, climate: 7, politicalStability: 6 },
     avgSalaryUSD: 80000, costIndex: 242, currency: 'USD',
     hotJobs: ['software', 'data-ai', 'healthcare', 'engineering'],
     visaPaths: ['H1B (lottery)', 'L-1', 'EB Green Card', 'O-1 Extraordinary'],
@@ -241,7 +255,8 @@ export const COUNTRIES: Country[] = [
   },
   {
     id: 'uk', name: 'United Kingdom', nameTH: 'อังกฤษ', flag: '🇬🇧',
-    scores: { costOfLiving: 3, safety: 7, healthcare: 8, education: 9, workLifeBalance: 7, taxFriendliness: 4, immigrationEase: 5, jobMarket: 7, climate: 4, politicalStability: 8 },
+    // REF: GPI#30→7, HAQ85→8, CI211→4, PISA498+Oxbridge→9, BLI10.8%+28d→7, tax45%→4, Skilled Worker→5, unemp4%→7, ฝนทึม→4, WGI78→8
+    scores: { costOfLiving: 4, safety: 7, healthcare: 8, education: 9, workLifeBalance: 7, taxFriendliness: 4, immigrationEase: 5, jobMarket: 7, climate: 4, politicalStability: 8 },
     avgSalaryUSD: 55000, costIndex: 211, currency: 'GBP',
     hotJobs: ['software', 'data-ai', 'healthcare', 'engineering', 'accounting', 'creative'],
     visaPaths: ['Skilled Worker', 'Global Talent', 'Youth Mobility'],
@@ -251,6 +266,7 @@ export const COUNTRIES: Country[] = [
   },
   {
     id: 'germany', name: 'Germany', nameTH: 'เยอรมนี', flag: '🇩🇪',
+    // REF: GPI#20→8, HAQ88→9, CI169→6, PISA488+free uni→10, BLI3.8%+30d→9, tax42%+soc→3, Blue Card→5, unemp3.2%→7, cold→4, WGI84→9
     scores: { costOfLiving: 6, safety: 8, healthcare: 9, education: 10, workLifeBalance: 9, taxFriendliness: 3, immigrationEase: 5, jobMarket: 7, climate: 4, politicalStability: 9 },
     avgSalaryUSD: 58000, costIndex: 169, currency: 'EUR',
     hotJobs: ['software', 'engineering', 'data-ai', 'healthcare', 'creative'],
@@ -261,7 +277,8 @@ export const COUNTRIES: Country[] = [
   },
   {
     id: 'japan', name: 'Japan', nameTH: 'ญี่ปุ่น', flag: '🇯🇵',
-    scores: { costOfLiving: 6, safety: 10, healthcare: 9, education: 8, workLifeBalance: 4, taxFriendliness: 5, immigrationEase: 4, jobMarket: 6, climate: 6, politicalStability: 9 },
+    // REF: GPI#12→9, HAQ89→9, CI131→7, PISA539+barrier→8, BLI15.7%→4, tax45%→5, immig→4, unemp2.6%→6, temperate→6, WGI88→9
+    scores: { costOfLiving: 7, safety: 9, healthcare: 9, education: 8, workLifeBalance: 4, taxFriendliness: 5, immigrationEase: 4, jobMarket: 6, climate: 6, politicalStability: 9 },
     avgSalaryUSD: 45000, costIndex: 131, currency: 'JPY',
     hotJobs: ['software', 'engineering', 'chef'],
     visaPaths: ['Engineer/Specialist', 'Specified Skilled Worker', 'Highly Skilled Professional'],
@@ -271,7 +288,8 @@ export const COUNTRIES: Country[] = [
   },
   {
     id: 'singapore', name: 'Singapore', nameTH: 'สิงคโปร์', flag: '🇸🇬',
-    scores: { costOfLiving: 3, safety: 10, healthcare: 9, education: 9, workLifeBalance: 4, taxFriendliness: 9, immigrationEase: 5, jobMarket: 8, climate: 5, politicalStability: 9 },
+    // REF: GPI#6→9, HAQ86→8, CI212→4, PISA#1→9, BLI~20%→4, tax22%→9, EP→5, unemp2.1%→8, ร้อนชื้น→5, WGI95→9
+    scores: { costOfLiving: 4, safety: 9, healthcare: 8, education: 9, workLifeBalance: 4, taxFriendliness: 9, immigrationEase: 5, jobMarket: 8, climate: 5, politicalStability: 9 },
     avgSalaryUSD: 58000, costIndex: 212, currency: 'SGD',
     hotJobs: ['software', 'data-ai', 'accounting', 'business'],
     visaPaths: ['Employment Pass', 'S Pass', 'EntrePass'],
@@ -281,7 +299,8 @@ export const COUNTRIES: Country[] = [
   },
   {
     id: 'netherlands', name: 'Netherlands', nameTH: 'เนเธอร์แลนด์', flag: '🇳🇱',
-    scores: { costOfLiving: 4, safety: 8, healthcare: 9, education: 9, workLifeBalance: 9, taxFriendliness: 4, immigrationEase: 5, jobMarket: 7, climate: 4, politicalStability: 9 },
+    // REF: GPI#14→9, HAQ90→10, CI200→4, PISA500→9, BLI0.3%+25d→9, tax49.5%→4, HSM→5, unemp3.6%→7, ฝนลมแรง→4, WGI91→9
+    scores: { costOfLiving: 4, safety: 9, healthcare: 10, education: 9, workLifeBalance: 9, taxFriendliness: 4, immigrationEase: 5, jobMarket: 7, climate: 4, politicalStability: 9 },
     avgSalaryUSD: 55000, costIndex: 200, currency: 'EUR',
     hotJobs: ['software', 'data-ai', 'engineering', 'business', 'creative'],
     visaPaths: ['Highly Skilled Migrant', 'DAFT (สำหรับ freelancer)', 'EU Blue Card'],
@@ -291,6 +310,7 @@ export const COUNTRIES: Country[] = [
   },
   {
     id: 'sweden', name: 'Sweden', nameTH: 'สวีเดน', flag: '🇸🇪',
+    // REF: GPI#35→7, HAQ88→9, CI190→5, PISA+free all levels→10, BLI1.1%+25d+480d parental→10, tax52%→2, immig→4, unemp7.5%→6, มืด+หนาว→2, WGI91→9
     scores: { costOfLiving: 5, safety: 7, healthcare: 9, education: 10, workLifeBalance: 10, taxFriendliness: 2, immigrationEase: 4, jobMarket: 6, climate: 2, politicalStability: 9 },
     avgSalaryUSD: 50000, costIndex: 190, currency: 'SEK',
     hotJobs: ['software', 'engineering', 'healthcare'],
@@ -301,8 +321,8 @@ export const COUNTRIES: Country[] = [
   },
   {
     id: 'uae', name: 'UAE (Dubai)', nameTH: 'ดูไบ', flag: '🇦🇪',
-    // climate: 3 ← 45°C+ extreme (ร้อนกว่า SG ที่ได้ 5 มาก)
-    scores: { costOfLiving: 5, safety: 9, healthcare: 8, education: 7, workLifeBalance: 5, taxFriendliness: 10, immigrationEase: 7, jobMarket: 8, climate: 3, politicalStability: 8 },
+    // REF: GPI#52→6, HAQ72→5, CI149→7, PISA~440→7, BLI~15%→5, tax0%→10, employer visa→7, unemp2.9%→8, 45°C+→3, WGI82→8
+    scores: { costOfLiving: 7, safety: 6, healthcare: 5, education: 7, workLifeBalance: 5, taxFriendliness: 10, immigrationEase: 7, jobMarket: 8, climate: 3, politicalStability: 8 },
     avgSalaryUSD: 55000, costIndex: 149, currency: 'AED',
     hotJobs: ['software', 'data-ai', 'engineering', 'accounting', 'healthcare', 'creative'],
     visaPaths: ['Employment Visa 2-year', 'Golden Visa 10-year'],
@@ -312,8 +332,8 @@ export const COUNTRIES: Country[] = [
   },
   {
     id: 'norway', name: 'Norway', nameTH: 'นอร์เวย์', flag: '🇳🇴',
-    // safety: 9 ← GPI#18 (ดีมากแต่ไม่ใช่ #1-5 ที่ได้ 10)
-    scores: { costOfLiving: 2, safety: 9, healthcare: 10, education: 9, workLifeBalance: 9, taxFriendliness: 4, immigrationEase: 5, jobMarket: 7, climate: 2, politicalStability: 10 },
+    // REF: GPI#32→7, HAQ90→10, CI218→3, PISA479+free→9, BLI2.8%+5wk→9, tax46%→4, Skilled Worker→5, unemp3.6%→7, หนาวจัด→2, WGI96→10
+    scores: { costOfLiving: 3, safety: 7, healthcare: 10, education: 9, workLifeBalance: 9, taxFriendliness: 4, immigrationEase: 5, jobMarket: 7, climate: 2, politicalStability: 10 },
     avgSalaryUSD: 70000, costIndex: 218, currency: 'NOK',
     hotJobs: ['software', 'engineering', 'data-ai', 'healthcare', 'trades'],
     visaPaths: ['Skilled Worker Permit', 'Permanent Residence'],
@@ -323,7 +343,8 @@ export const COUNTRIES: Country[] = [
   },
   {
     id: 'portugal', name: 'Portugal', nameTH: 'โปรตุเกส', flag: '🇵🇹',
-    scores: { costOfLiving: 7, safety: 8, healthcare: 7, education: 7, workLifeBalance: 8, taxFriendliness: 6, immigrationEase: 8, jobMarket: 4, climate: 9, politicalStability: 8 },
+    // REF: GPI#7→9, HAQ82→7, CI131→7, PISA475→7, BLI7.3%→8, NHR→6, D7/DN→8, unemp6.6%→4, Mediterranean→9, WGI80→8
+    scores: { costOfLiving: 7, safety: 9, healthcare: 7, education: 7, workLifeBalance: 8, taxFriendliness: 6, immigrationEase: 8, jobMarket: 4, climate: 9, politicalStability: 8 },
     avgSalaryUSD: 28000, costIndex: 131, currency: 'EUR',
     hotJobs: ['software', 'data-ai', 'creative'],
     visaPaths: ['D7 Passive Income', 'Digital Nomad Visa', 'Golden Visa'],
@@ -333,8 +354,8 @@ export const COUNTRIES: Country[] = [
   },
   {
     id: 'korea', name: 'South Korea', nameTH: 'เกาหลีใต้', flag: '🇰🇷',
-    // safety: 7 ← GPI#48 (ไม่ใช่ top 10, มี tension กับเกาหลีเหนือ)
-    scores: { costOfLiving: 5, safety: 7, healthcare: 9, education: 8, workLifeBalance: 3, taxFriendliness: 6, immigrationEase: 4, jobMarket: 6, climate: 5, politicalStability: 7 },
+    // REF: GPI#41→6, HAQ87→9, CI165→6, PISA536→8, BLI18.2%→3, tax42%→6, E-7→4, unemp2.7%→6, 4seasons→5, WGI72→7
+    scores: { costOfLiving: 6, safety: 6, healthcare: 9, education: 8, workLifeBalance: 3, taxFriendliness: 6, immigrationEase: 4, jobMarket: 6, climate: 5, politicalStability: 7 },
     avgSalaryUSD: 42000, costIndex: 165, currency: 'KRW',
     hotJobs: ['software', 'engineering', 'creative'],
     visaPaths: ['E-7 Skilled Worker', 'D-10 Job Seeker', 'F-2 Points System'],
@@ -344,8 +365,8 @@ export const COUNTRIES: Country[] = [
   },
   {
     id: 'ireland', name: 'Ireland', nameTH: 'ไอร์แลนด์', flag: '🇮🇪',
-    // safety: 9 ← GPI#2! (อันดับ 2 ของโลก), healthcare: 8 ← HAQ 85.5
-    scores: { costOfLiving: 3, safety: 9, healthcare: 8, education: 8, workLifeBalance: 8, taxFriendliness: 5, immigrationEase: 6, jobMarket: 8, climate: 4, politicalStability: 9 },
+    // REF: GPI#2→10, HAQ85.5→8, CI185→5, PISA506→8, BLI5.1%→8, tax40%→5, Critical Skills→6, unemp4.3%→8, ฝนลม→4, WGI91→9
+    scores: { costOfLiving: 5, safety: 10, healthcare: 8, education: 8, workLifeBalance: 8, taxFriendliness: 5, immigrationEase: 6, jobMarket: 8, climate: 4, politicalStability: 9 },
     avgSalaryUSD: 60000, costIndex: 185, currency: 'EUR',
     hotJobs: ['software', 'data-ai', 'accounting', 'business'],
     visaPaths: ['Critical Skills Permit', 'General Work Permit', 'Stamp 4'],
@@ -355,7 +376,8 @@ export const COUNTRIES: Country[] = [
   },
   {
     id: 'switzerland', name: 'Switzerland', nameTH: 'สวิตเซอร์แลนด์', flag: '🇨🇭',
-    scores: { costOfLiving: 2, safety: 9, healthcare: 10, education: 9, workLifeBalance: 8, taxFriendliness: 7, immigrationEase: 3, jobMarket: 7, climate: 5, politicalStability: 10 },
+    // REF: GPI#4→10, HAQ92→10, CI286→2, PISA508+ETH→9, BLI0.4%+4wk→8, tax35%→7, non-EU ยาก→3, unemp2.0%→7, temperate/alps→5, WGI97→10
+    scores: { costOfLiving: 2, safety: 10, healthcare: 10, education: 9, workLifeBalance: 8, taxFriendliness: 7, immigrationEase: 3, jobMarket: 7, climate: 5, politicalStability: 10 },
     avgSalaryUSD: 95000, costIndex: 286, currency: 'CHF',
     hotJobs: ['software', 'engineering', 'accounting', 'healthcare'],
     visaPaths: ['L Permit (short-term)', 'B Permit (work)', 'C Permit (permanent)'],

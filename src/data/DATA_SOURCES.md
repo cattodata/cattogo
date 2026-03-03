@@ -141,7 +141,164 @@ Look up any code at: https://www.abs.gov.au/statistics/classifications/anzsco-au
 
 ---
 
-## 8. Known Limitations
+## 8. Country Score Reference Data (criteria scores 1–10)
+
+> **Purpose**: Every country score in `country-data.ts` must trace back to a published index value.
+> Each country has a `// REF:` comment showing `sourceValue→score` per criteria.
+
+### 8.1 Source URLs
+
+| Criteria | Index | URL | Data Year |
+|---|---|---|---|
+| costOfLiving | Numbeo Cost of Living Index (TH=100) | https://www.numbeo.com/cost-of-living/rankings_by_country.jsp | 2026 |
+| safety | Global Peace Index (IEP) | https://www.visionofhumanity.org/maps/ | 2025 |
+| healthcare | WHO Healthcare Access & Quality Index | Lancet 2018; DOI: 10.1016/S0140-6736(18)30994-2 | 2019 |
+| education | OECD PISA 2022 + QS/THE uni rankings | https://www.oecd.org/pisa/ | 2022 |
+| workLifeBalance | OECD Better Life Index (hours + leave) | https://www.oecdbetterlifeindex.org/ | 2024 |
+| taxFriendliness | PwC Tax Summaries / KPMG | https://taxsummaries.pwc.com/ | 2025 |
+| immigrationEase | Qualitative (multiple sources) | Various immigration agency sites | 2025 |
+| jobMarket | OECD Unemployment Rate | https://data.oecd.org/unemp/unemployment-rate.htm | 2024 |
+| climate | Subjective (Thai comfort) | Climate-Data.org | - |
+| politicalStability | World Bank WGI | https://info.worldbank.org/governance/wgi/ | 2023 |
+
+### 8.2 Scoring Formulas
+
+**costOfLiving** (from costIndex, TH=100):
+| costIndex Range | Score |
+|---|---|
+| < 110 | 9 |
+| 110–130 | 8 |
+| 131–150 | 7 |
+| 151–170 | 6 |
+| 171–195 | 5 |
+| 196–215 | 4 |
+| 216–250 | 3 |
+| 251–290 | 2 |
+| 291+ | 1 |
+
+**safety** (GPI 2025 rank):
+| GPI Rank | Score |
+|---|---|
+| #1–5 | 10 |
+| #6–15 | 9 |
+| #16–25 | 8 |
+| #26–40 | 7 |
+| #41–60 | 6 |
+| #61–80 | 5 |
+| #81–110 | 4 |
+| #111+ | 3 |
+
+**healthcare** (WHO HAQ score):
+| HAQ Score | Score |
+|---|---|
+| 90+ | 10 |
+| 87–89 | 9 |
+| 84–86 | 8 |
+| 80–83 | 7 |
+| 75–79 | 6 |
+| 70–74 | 5 |
+| < 70 | 4 |
+
+**politicalStability** (WGI percentile):
+| WGI %ile | Score |
+|---|---|
+| 90+ | 10 |
+| 80–90 | 9 |
+| 70–80 | 8 |
+| 60–70 | 7 |
+| 50–60 | 6 |
+| < 50 | 5 |
+
+### 8.3 Safety — GPI 2025 Raw Data (verified Mar 2026)
+
+Source: https://www.visionofhumanity.org/maps/ (Global Peace Index 2025)
+
+| Country | GPI Rank | GPI Score | → Our Score |
+|---|---|---|---|
+| Ireland 🇮🇪 | #2 | 1.260 | 10 |
+| New Zealand 🇳🇿 | #3 | 1.282 | 10 |
+| Switzerland 🇨🇭 | #4 | 1.294 | 10 |
+| Singapore 🇸🇬 | #6 | 1.357 | 9 |
+| Portugal 🇵🇹 | #7 | 1.371 | 9 |
+| Japan 🇯🇵 | #12 | 1.440 | 9 |
+| Canada 🇨🇦 | #14 | 1.491 | 9 |
+| Netherlands 🇳🇱 | #14 | 1.491 | 9 |
+| Australia 🇦🇺 | #18 | 1.505 | 8 |
+| Germany 🇩🇪 | #20 | 1.533 | 8 |
+| United Kingdom 🇬🇧 | #30 | 1.634 | 7 |
+| Norway 🇳🇴 | #32 | 1.644 | 7 |
+| Sweden 🇸🇪 | #35 | 1.709 | 7 |
+| South Korea 🇰🇷 | #41 | 1.736 | 6 |
+| UAE 🇦🇪 | #52 | 1.812 | 6 |
+| USA 🇺🇸 | #128 | 2.443 | 3 |
+
+> **Note**: GPI measures "peacefulness" including militarisation and conflict involvement, not just crime safety.
+> UAE (#52) has near-zero crime but low GPI due to military spending/regional involvement.
+> Japan (#12) has near-zero violent crime (Numbeo Crime Index 22.8).
+> USA (#128) is penalised by military spending, gun violence, and incarceration rate.
+
+### 8.4 Healthcare — WHO HAQ Raw Data
+
+Source: GBD 2016 Healthcare Access and Quality Index (Lancet, 2018)
+
+| Country | HAQ Score | → Our Score |
+|---|---|---|
+| Switzerland 🇨🇭 | 92 | 10 |
+| Norway 🇳🇴 | 90 | 10 |
+| Netherlands 🇳🇱 | 90 | 10 |
+| Australia 🇦🇺 | 89 | 9 |
+| Japan 🇯🇵 | 89 | 9 |
+| Sweden 🇸🇪 | 88 | 9 |
+| Germany 🇩🇪 | 88 | 9 |
+| Canada 🇨🇦 | 88 | 9 |
+| South Korea 🇰🇷 | 87 | 9 |
+| New Zealand 🇳🇿 | 87 | 9 |
+| Singapore 🇸🇬 | 86 | 8 |
+| Ireland 🇮🇪 | 85.5 | 8 |
+| United Kingdom 🇬🇧 | 85 | 8 |
+| Portugal 🇵🇹 | 82 | 7 |
+| USA 🇺🇸 | 81 | 7 |
+| UAE 🇦🇪 | 72 | 5 |
+
+> **Note**: WHO HAQ measures health outcomes (amenable mortality), not user experience.
+> UAE (72) has improved significantly since 2016 (Cleveland Clinic Abu Dhabi etc.) — HAQ data may understate current quality.
+> USA (81) has high quality IF insured, but no universal coverage reduces overall outcomes.
+> Numbeo Healthcare Index 2026 differs: S.Korea #2 (82.9), Japan #4 (80.1), UK #20 (72.7), USA (67.0), Canada (68.6).
+
+### 8.5 Cost of Living — costIndex Verification
+
+costIndex formula: `(Numbeo Country CLI / Bangkok CLI) × 100` where Bangkok CLI ≈ 41.4 on NYC=100 scale.
+
+| Country | costIndex | Band | → Our Score |
+|---|---|---|---|
+| Portugal 🇵🇹 | 131 | 131–150 | 7 |
+| Japan 🇯🇵 | 131 | 131–150 | 7 |
+| UAE 🇦🇪 | 149 | 131–150 | 7 |
+| New Zealand 🇳🇿 | 152 | 151–170 | 6 |
+| Canada 🇨🇦 | 163 | 151–170 | 6 |
+| South Korea 🇰🇷 | 165 | 151–170 | 6 |
+| Germany 🇩🇪 | 169 | 151–170 | 6 |
+| Australia 🇦🇺 | 181 | 171–195 | 5 |
+| Ireland 🇮🇪 | 185 | 171–195 | 5 |
+| Sweden 🇸🇪 | 190 | 171–195 | 5 |
+| Netherlands 🇳🇱 | 200 | 196–215 | 4 |
+| United Kingdom 🇬🇧 | 211 | 196–215 | 4 |
+| Singapore 🇸🇬 | 212 | 196–215 | 4 |
+| Norway 🇳🇴 | 218 | 216–250 | 3 |
+| USA 🇺🇸 | 242 | 216–250 | 3 |
+| Switzerland 🇨🇭 | 286 | 251–290 | 2 |
+
+### 8.6 How to Verify Scores
+
+1. **safety**: Open https://www.visionofhumanity.org/maps/ → find country rank → apply formula
+2. **healthcare**: Search "GBD healthcare access quality index [country]" or check Lancet paper
+3. **costOfLiving**: Check `costIndex` in code → apply band formula above
+4. **politicalStability**: Open https://info.worldbank.org/governance/wgi/ → select country → Political Stability percentile → apply formula
+5. **Other criteria**: See `// REF:` comment above each country in `country-data.ts`
+
+---
+
+## 9. Known Limitations
 
 - SkillSelect doesn't always publish per-occupation data for ALL occupations in each round
 - ICT occupations frequently hit ceiling early in the program year
@@ -151,3 +308,6 @@ Look up any code at: https://www.abs.gov.au/statistics/classifications/anzsco-au
 - Trades p10 values from PayScale include apprentice/trainee rates (may be below minimum wage)
 - Cost of living data is crowdsourced (Numbeo) — sample sizes vary by city
 - Brisbane transport costs dramatically reduced by 50¢ flat fare policy (Aug 2024) — may change
+- WHO HAQ data is from 2016/2018 — some countries (UAE, Singapore) may have improved significantly
+- GPI measures "peacefulness" not "personal safety" — includes military/conflict factors
+- workLifeBalance, education, immigrationEase, climate are qualitative composites (not single-index derived)
