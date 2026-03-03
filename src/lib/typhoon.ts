@@ -1,11 +1,11 @@
-// ===== Typhoon API Client (typhoon-v2-70b-instruct) =====
+// ===== Typhoon API Client (typhoon-v2.1-12b-instruct) =====
 // ถ้ามี PROXY_URL → เรียกผ่าน Cloudflare Worker (key ซ่อนใน server)
 // ถ้าไม่มี → ใช้ TYPHOON_KEY จาก env var (build-time inject)
 
 import { CURRENCY_TO_THB, CURRENCY_SYMBOLS } from '@/data/constants'
 
 const TYPHOON_API_URL = 'https://api.opentyphoon.ai/v1/chat/completions'
-const MODEL = 'typhoon-v2-70b-instruct'
+const MODEL = 'typhoon-v2.1-12b-instruct'
 
 // Config จาก env var (inject ตอน build ผ่าน NEXT_PUBLIC_*)
 const PROXY_URL = process.env.NEXT_PUBLIC_PROXY_URL || '' // Cloudflare Worker URL
