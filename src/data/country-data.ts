@@ -370,13 +370,15 @@ export function matchCountries(params: MatchParams): MatchResult[] {
     }
   }
 
-  // Ensure baseline weights for all criteria (so nothing is ignored)
+  // Only score criteria that are relevant to user's goals
+  // (no baseline weights — forces results to actually differ based on choices)
+  // Add small baseline for safety + politicalStability since everyone cares a little
   const allCriteria: (keyof CountryScores)[] = [
     'costOfLiving', 'safety', 'healthcare', 'education', 'workLifeBalance',
     'taxFriendliness', 'immigrationEase', 'jobMarket', 'climate', 'politicalStability'
   ]
   for (const c of allCriteria) {
-    if (!weights[c]) weights[c] = 1
+    if (!weights[c]) weights[c] = 0
   }
 
   // 2. Score each country
@@ -391,14 +393,15 @@ export function matchCountries(params: MatchParams): MatchResult[] {
     }
 
     // 3. Occupation demand bonus (ใช้ matchIds จับคู่กับ hotJobs)
-    const occDef = OCCUPATIONS.find(o => o.id === params.occupation)
+    // Look up by id OR matchIds (handles 'data-ai' which maps to software group)
+    const occDef = OCCUPATIONS.find(o => o.id === params.occupation || (o.matchIds as readonly string[]).includes(params.occupation))
     const isHotJob = occDef
       ? occDef.matchIds.some(mid => country.hotJobs.includes(mid))
       : country.hotJobs.includes(params.occupation)
     if (isHotJob) {
-      score *= 1.12
+      score *= 1.10 // was 1.12 — reduced to prevent hotJob-heavy countries from dominating
     } else {
-      score *= 0.92
+      score *= 0.95 // was 0.92 — reduced penalty for non-hotJob
     }
 
     // 4. Income feasibility adjustment
@@ -500,7 +503,7 @@ function generateHighlights(country: Country, params: MatchParams): string[] {
   }
 
   // Add occupation note if it's a hot job
-  const occDef = OCCUPATIONS.find(o => o.id === params.occupation)
+  const occDef = OCCUPATIONS.find(o => o.id === params.occupation || (o.matchIds as readonly string[]).includes(params.occupation))
   const isHotJob = occDef
     ? occDef.matchIds.some(mid => country.hotJobs.includes(mid))
     : country.hotJobs.includes(params.occupation)
