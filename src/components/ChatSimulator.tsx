@@ -81,9 +81,10 @@ const STAGE_META = [
 const TOTAL_STAGES = STAGE_META.length
 
 // ===== AI SYSTEM PROMPT =====
-const AI_SYSTEM_PROMPT = `คุณชื่อ "Catto" 🐱 ผู้ช่วยวิเคราะห์การย้ายประเทศ คุยสั้นๆ เป็นกันเอง ใช้ emoji นิดหน่อย ตอบภาษาไทยเท่านั้น
+const AI_SYSTEM_PROMPT = `คุณชื่อ "Catto" 🐱 ผู้ช่วยวิเคราะห์การย้ายประเทศ คุยสั้นๆ เป็นกันเอง ใช้ emoji นิดหน่อย
 
 กฎ:
+- ตอบภาษาไทยเท่านั้น ห้ามใช้ภาษาจีน ญี่ปุ่น เกาหลี หรืออักษรอื่นเด็ดขาด
 - ตอบสั้น 1-3 ประโยค จบด้วยคำถาม 1 ข้อ
 - ถามทีละเรื่อง ห้ามถามหลายเรื่องพร้อมกัน
 - ตอบรับสิ่งที่ user พูดจริงๆ ไม่ใช่แค่ "เข้าใจ!"
@@ -170,6 +171,10 @@ export function ChatSimulator() {
   }, [])
 
   // ===== AI HANDLERS =====
+  /** Strip CJK characters (Chinese/Japanese/Korean) from AI output — safety net for weak model */
+  const stripCJK = (text: string): string =>
+    text.replace(/[\u2E80-\u9FFF\uF900-\uFAFF\u3040-\u309F\u30A0-\u30FF\uAC00-\uD7AF\u3100-\u312F\u31A0-\u31BF]+/g, '').replace(/\s{2,}/g, ' ').trim()
+
   /** Client-side extraction: parse user text for structured data as fallback when AI doesn't return JSON */
   const extractUserData = (text: string): Partial<GatheredData> => {
     const result: Partial<GatheredData> = {}
@@ -237,6 +242,8 @@ export function ChatSimulator() {
       // Pass current gathered state so typhoon.ts can inject it as a system hint
       const currentState = aiGathered
       const aiRes = await chatWithTyphoon(apiKey, newHistory, currentState)
+      // Strip any CJK characters the weak model may have leaked
+      aiRes.message = stripCJK(aiRes.message)
       setAiMessages(prev => [...prev, { role: 'bot', text: aiRes.message }])
 
       // Client-side extraction: parse user text for age, income, family as fallback
@@ -249,12 +256,12 @@ export function ChatSimulator() {
           goals: aiRes.gathered.goals.length > 0
             ? [...new Set([...prev.goals, ...aiRes.gathered.goals])]
             : prev.goals,
-          // IMPORTANT: prefer directly-set value (prev) over client-side extraction over AI response
-          // Client-side regex is more reliable than the weak AI model for occupation mapping
-          occupation: prev.occupation || clientExtracted.occupation || aiRes.gathered.occupation || '',
-          monthlyIncome: prev.monthlyIncome || clientExtracted.monthlyIncome || aiRes.gathered.monthlyIncome || 0,
-          age: prev.age || clientExtracted.age || aiRes.gathered.age || '',
-          family: prev.family || clientExtracted.family || aiRes.gathered.family || '',
+          // Client-side regex from CURRENT message takes priority (user just typed it)
+          // Then fall back to previously-set value, then AI response
+          occupation: clientExtracted.occupation || prev.occupation || aiRes.gathered.occupation || '',
+          monthlyIncome: clientExtracted.monthlyIncome || prev.monthlyIncome || aiRes.gathered.monthlyIncome || 0,
+          age: clientExtracted.age || prev.age || aiRes.gathered.age || '',
+          family: clientExtracted.family || prev.family || aiRes.gathered.family || '',
           ready: false, // will be overridden below
         }
         // Auto-detect ready: if all fields are filled, we're done
