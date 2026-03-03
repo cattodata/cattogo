@@ -53,15 +53,38 @@ export interface AIResponse {
   gathered: GatheredData // ข้อมูลที่เก็บได้จนถึงตอนนี้
 }
 
-/** ส่งข้อความไป Typhoon แล้วได้ AIResponse กลับมา */
+/** ส่งข้อความไป Typhoon แล้วได้ AIResponse กลับมา
+ * currentGathered: client-side state ปัจจุบัน — inject เข้า system message เพื่อช่วย model ที่อ่อนๆ
+ */
 export async function chatWithTyphoon(
   _apiKey: string,
   messages: ChatMessage[],
+  currentGathered?: GatheredData,
   _retry = 0,
 ): Promise<AIResponse> {
+  // Inject current state as a system hint before the last user message
+  // so the model knows what's already collected and what's still missing
+  let finalMessages = messages
+  if (currentGathered) {
+    const missing: string[] = []
+    if (currentGathered.goals.length === 0) missing.push('goals')
+    if (!currentGathered.occupation) missing.push('occupation')
+    if (currentGathered.monthlyIncome === 0) missing.push('monthlyIncome')
+    if (!currentGathered.age) missing.push('age')
+    if (!currentGathered.family) missing.push('family')
+    const stateHint = `[STATE] ข้อมูลที่เก็บได้แล้ว: ${JSON.stringify(currentGathered)}\nยังขาด: ${missing.length > 0 ? missing.join(', ') : 'ครบแล้ว! set ready: true'}`
+    // Insert state hint as system message right before the last user message
+    const lastIdx = finalMessages.length - 1
+    finalMessages = [
+      ...finalMessages.slice(0, lastIdx),
+      { role: 'system' as const, content: stateHint },
+      finalMessages[lastIdx],
+    ]
+  }
+
   const res = await callTyphoon({
     model: MODEL,
-    messages,
+    messages: finalMessages,
     temperature: 0.7,
     max_tokens: 4096,
   })
@@ -73,7 +96,7 @@ export async function chatWithTyphoon(
     // Retry once on 400/500
     if (_retry < 1 && (res.status === 400 || res.status >= 500)) {
       await new Promise(r => setTimeout(r, 1000))
-      return chatWithTyphoon('', messages, _retry + 1)
+      return chatWithTyphoon('', messages, currentGathered, _retry + 1)
     }
     throw new Error(`Typhoon API error ${res.status}: ${errBody.slice(0, 200)}`)
   }
@@ -97,7 +120,7 @@ export async function chatWithTyphoon(
     }
   }
 
-  // Fallback: plain text, no gathered data
+  // Fallback: plain text — return empty gathered (client-side will merge with existing state)
   return {
     message: content || 'ขอข้อมูลเพิ่มหน่อยนะ 😊',
     gathered: { goals: [], occupation: '', monthlyIncome: 0, age: '', family: '', ready: false },
@@ -112,13 +135,33 @@ function extractJSON(text: string): any | null {
     const obj = JSON.parse(text)
     if (obj && typeof obj === 'object') return obj
   } catch { /* not pure JSON */ }
-  // Find JSON block in text
+
+  // Strip markdown code fences: ```json ... ``` or ``` ... ```
+  const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/)
+  if (fenceMatch) {
+    try {
+      const obj = JSON.parse(fenceMatch[1].trim())
+      if (obj && typeof obj === 'object') return obj
+    } catch { /* malformed inside fence */ }
+  }
+
+  // Find JSON block that has both "message" and "gathered"
   const match = text.match(/\{[\s\S]*"message"[\s\S]*"gathered"[\s\S]*\}/)
   if (match) {
     try {
       return JSON.parse(match[0])
     } catch { /* malformed */ }
   }
+
+  // Last resort: find any JSON object in the text
+  const anyJson = text.match(/\{[\s\S]*\}/)
+  if (anyJson) {
+    try {
+      const obj = JSON.parse(anyJson[0])
+      if (obj && typeof obj === 'object' && (obj.message || obj.gathered)) return obj
+    } catch { /* not valid */ }
+  }
+
   return null
 }
 

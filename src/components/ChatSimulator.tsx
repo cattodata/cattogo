@@ -188,12 +188,34 @@ export function ChatSimulator() {
   }, [])
 
   // ===== AI HANDLERS =====
+  /** Client-side extraction: parse user text for structured data as fallback when AI doesn't return JSON */
+  const extractUserData = (text: string): Partial<GatheredData> => {
+    const result: Partial<GatheredData> = {}
+    // Income: numbers with optional commas, followed by optional "บาท"
+    const incomeMatch = text.match(/(\d[\d,]{2,})\s*(?:บาท|baht)?/i)
+    if (incomeMatch) {
+      const num = Number(incomeMatch[1].replace(/,/g, ''))
+      if (num >= 10000 && num <= 10000000) result.monthlyIncome = num
+    }
+    // Age ranges
+    if (/18[\s-]*24|อายุ.*18/.test(text)) result.age = '18-24'
+    else if (/25[\s-]*32|อายุ.*2[5-9]|อายุ.*3[0-2]/.test(text)) result.age = '25-32'
+    else if (/33[\s-]*39|อายุ.*3[3-9]/.test(text)) result.age = '33-39'
+    else if (/40[\s-]*44|อายุ.*4[0-4]/.test(text)) result.age = '40-44'
+    else if (/45\+|อายุ.*4[5-9]|อายุ.*5\d/.test(text)) result.age = '45+'
+    // Family
+    if (/คนเดียว|โสด|single|ไม่มีครอบครัว/.test(text)) result.family = 'single'
+    else if (/คู่|แฟน|สามี|ภรรยา|couple|แต่งงาน/.test(text)) result.family = 'couple'
+    else if (/ครอบครัว|ลูก|family|มีลูก/.test(text)) result.family = 'family'
+    return result
+  }
+
   const startAiChat = () => {
     setAiMode(true)
     setPhase('aiChat')
     const greeting = 'เหมียว! 🐱 ฉันชื่อ Catto — ผู้ช่วยวิเคราะห์ว่าคุณเหมาะจะย้ายไปประเทศไหน\n\nเล่าให้ฟังหน่อยสิ ตอนนี้ทำอะไรอยู่ แล้วทำไมถึงคิดอยากย้าย? 🌍'
     setAiMessages([{ role: 'bot', text: greeting }])
-    setAiChatHistory([{ role: 'system', content: AI_SYSTEM_PROMPT }, { role: 'assistant', content: JSON.stringify({ message: greeting, gathered: { goals: [], occupation: '', monthlyIncome: 0, age: '', family: '', ready: false } }) }])
+    setAiChatHistory([{ role: 'system', content: AI_SYSTEM_PROMPT }, { role: 'assistant', content: greeting }])
   }
 
   const sendMessage = async (text: string) => {
@@ -206,12 +228,20 @@ export function ChatSimulator() {
     setAiMessages(prev => [...prev, { role: 'user', text: text.trim() }])
     setAiLoading(true)
 
+    // Build history with plain-text assistant messages (not JSON — confuses weak model)
     const newHistory: ChatMessage[] = [...aiChatHistory, { role: 'user', content: text.trim() }]
     setAiChatHistory(newHistory)
 
     try {
-      const aiRes = await chatWithTyphoon(apiKey, newHistory)
+      // Pass current gathered state so typhoon.ts can inject it as a system hint
+      const currentState = aiGathered
+      const aiRes = await chatWithTyphoon(apiKey, newHistory, currentState)
       setAiMessages(prev => [...prev, { role: 'bot', text: aiRes.message }])
+
+      // Client-side extraction: parse user text for age, income, family as fallback
+      const userText = text.trim()
+      const clientExtracted = extractUserData(userText)
+
       // Use functional updater to read LATEST state (avoids stale closure from chip/search setters)
       setAiGathered(prev => {
         const merged: GatheredData = {
@@ -219,13 +249,23 @@ export function ChatSimulator() {
             ? [...new Set([...prev.goals, ...aiRes.gathered.goals])]
             : prev.goals,
           // IMPORTANT: prefer directly-set value (prev) over AI response — prevents AI from overriding chip/search selection
-          occupation: prev.occupation || aiRes.gathered.occupation,
-          monthlyIncome: prev.monthlyIncome || aiRes.gathered.monthlyIncome,
-          age: prev.age || aiRes.gathered.age,
-          family: prev.family || aiRes.gathered.family,
-          ready: aiRes.gathered.ready,
+          // Then try AI response, then client-side extraction
+          occupation: prev.occupation || aiRes.gathered.occupation || clientExtracted.occupation || '',
+          monthlyIncome: prev.monthlyIncome || aiRes.gathered.monthlyIncome || clientExtracted.monthlyIncome || 0,
+          age: prev.age || aiRes.gathered.age || clientExtracted.age || '',
+          family: prev.family || aiRes.gathered.family || clientExtracted.family || '',
+          ready: false, // will be overridden below
         }
-        setAiChatHistory(h => [...h, { role: 'assistant', content: JSON.stringify({ message: aiRes.message, gathered: merged }) }])
+        // Auto-detect ready: if all fields are filled, we're done
+        merged.ready = aiRes.gathered.ready || (
+          merged.goals.length > 0 &&
+          merged.occupation !== '' &&
+          merged.monthlyIncome > 0 &&
+          merged.age !== '' &&
+          merged.family !== ''
+        )
+        // Store only the bot's TEXT in history (not full JSON) — cleaner for weak model
+        setAiChatHistory(h => [...h, { role: 'assistant', content: aiRes.message }])
         return merged
       })
     } catch (err) {
