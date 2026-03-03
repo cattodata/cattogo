@@ -191,6 +191,25 @@ export function ChatSimulator() {
   /** Client-side extraction: parse user text for structured data as fallback when AI doesn't return JSON */
   const extractUserData = (text: string): Partial<GatheredData> => {
     const result: Partial<GatheredData> = {}
+    const lower = text.toLowerCase()
+
+    // Occupation: match keywords to IDs (same mapping as AI system prompt)
+    if (/data\s*engineer|data\s*analyst|data\s*scien|machine\s*learn|ml\s*engineer|ดาต้า|วิทย.*ข้อมูล/i.test(text)) {
+      result.occupation = 'data-ai'
+    } else if (/พยาบาล|nurse|หมอ|doctor|แพทย์|สาธารณสุข|เภสัช|pharmacist|ทันตแพทย์|dentist/i.test(text)) {
+      result.occupation = 'healthcare'
+    } else if (/วิศวกร|engineer|mechanical|civil|electrical|ช่าง/i.test(text) && !/software|data|devops|cloud|ml/i.test(text)) {
+      result.occupation = 'engineering'
+    } else if (/software|dev|programmer|โปรแกรมเมอร์|fullstack|frontend|backend|web.*dev|mobile.*dev|devops|cloud|cyber|security|IT|ไอที/i.test(text)) {
+      result.occupation = 'software'
+    } else if (/บัญชี|account|finance|การเงิน|auditor/i.test(text)) {
+      result.occupation = 'accounting'
+    } else if (/กราฟิก|graphic|design|ดีไซน์|UI|UX|creative|สื่อ|media|market|photographer|ช่างภาพ|animator|illustrator/i.test(text)) {
+      result.occupation = 'creative'
+    } else if (/เชฟ|chef|cook|ครัว|barista|พ่อครัว|แม่ครัว/i.test(text)) {
+      result.occupation = 'chef'
+    }
+
     // Income: numbers with optional commas, followed by optional "บาท"
     const incomeMatch = text.match(/(\d[\d,]{2,})\s*(?:บาท|baht)?/i)
     if (incomeMatch) {
@@ -204,9 +223,9 @@ export function ChatSimulator() {
     else if (/40[\s-]*44|อายุ.*4[0-4]/.test(text)) result.age = '40-44'
     else if (/45\+|อายุ.*4[5-9]|อายุ.*5\d/.test(text)) result.age = '45+'
     // Family
-    if (/คนเดียว|โสด|single|ไม่มีครอบครัว/.test(text)) result.family = 'single'
-    else if (/คู่|แฟน|สามี|ภรรยา|couple|แต่งงาน/.test(text)) result.family = 'couple'
-    else if (/ครอบครัว|ลูก|family|มีลูก/.test(text)) result.family = 'family'
+    if (/คนเดียว|โสด|single|ไม่มีครอบครัว/.test(lower)) result.family = 'single'
+    else if (/คู่|แฟน|สามี|ภรรยา|couple|แต่งงาน/.test(lower)) result.family = 'couple'
+    else if (/ครอบครัว|ลูก|family|มีลูก/.test(lower)) result.family = 'family'
     return result
   }
 
@@ -248,12 +267,12 @@ export function ChatSimulator() {
           goals: aiRes.gathered.goals.length > 0
             ? [...new Set([...prev.goals, ...aiRes.gathered.goals])]
             : prev.goals,
-          // IMPORTANT: prefer directly-set value (prev) over AI response — prevents AI from overriding chip/search selection
-          // Then try AI response, then client-side extraction
-          occupation: prev.occupation || aiRes.gathered.occupation || clientExtracted.occupation || '',
-          monthlyIncome: prev.monthlyIncome || aiRes.gathered.monthlyIncome || clientExtracted.monthlyIncome || 0,
-          age: prev.age || aiRes.gathered.age || clientExtracted.age || '',
-          family: prev.family || aiRes.gathered.family || clientExtracted.family || '',
+          // IMPORTANT: prefer directly-set value (prev) over client-side extraction over AI response
+          // Client-side regex is more reliable than the weak AI model for occupation mapping
+          occupation: prev.occupation || clientExtracted.occupation || aiRes.gathered.occupation || '',
+          monthlyIncome: prev.monthlyIncome || clientExtracted.monthlyIncome || aiRes.gathered.monthlyIncome || 0,
+          age: prev.age || clientExtracted.age || aiRes.gathered.age || '',
+          family: prev.family || clientExtracted.family || aiRes.gathered.family || '',
           ready: false, // will be overridden below
         }
         // Auto-detect ready: if all fields are filled, we're done
