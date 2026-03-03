@@ -96,19 +96,27 @@ export const AUSTRALIA: CountryDetailedData = {
     lastUpdated: 'July 2025',
   },
   
+  // Salaries: derived from PayScale AU p10/median/p90 (Jan-Feb 2026)
+  // Source of truth = occupations.ts → aggregated in constants.ts AU_SALARY_BY_CATEGORY
+  // ห้ามแก้ตัวเลขที่นี่โดยไม่อัพเดท occupations.ts ด้วย
   salaries: {
-    softwareDev: { entry: 75000, mid: 95000, senior: 140000, currency: 'AUD' },
-    dataAI: { entry: 90000, mid: 120000, senior: 150000, currency: 'AUD' },
-    nurse: { entry: 75000, mid: 85000, senior: 105000, currency: 'AUD' },
-    engineer: { entry: 80000, mid: 100000, senior: 130000, currency: 'AUD' },
-    accountant: { entry: 65000, mid: 80000, senior: 110000, currency: 'AUD' },
-    trades: { entry: 65000, mid: 85000, senior: 130000, currency: 'AUD' },
+    softwareDev: { entry: 65000, mid: 90000, senior: 127000, currency: 'AUD' },  // softwareEngineer PayScale (1,262 profiles)
+    dataAI: { entry: 79000, mid: 113000, senior: 155000, currency: 'AUD' },      // avg(dataEng, dataSci, mlEng)
+    nurse: { entry: 61000, mid: 76000, senior: 95000, currency: 'AUD' },          // registeredNurse PayScale (1,825 profiles, hourly×1,976)
+    engineer: { entry: 63000, mid: 85000, senior: 126000, currency: 'AUD' },      // avg(civil, mech, elec) PayScale
+    accountant: { entry: 52000, mid: 68000, senior: 90000, currency: 'AUD' },     // accountant PayScale (1,830 profiles)
+    trades: { entry: 43000, mid: 66000, senior: 93000, currency: 'AUD' },         // avg(electrician, plumber, carpenter, welder) PayScale (hourly×1,976)
   },
   
+  // Cost of Living: Numbeo Feb-Mar 2026 — https://www.numbeo.com/cost-of-living/
+  // rent1BR = 1 Bedroom Apartment in City Centre
+  // food = estimated single-person monthly groceries (cooking at home)
+  // transport = Numbeo distribution model (public transport + occasional ride-share)
+  // utilities = Basic Utilities for 85m2 apartment
   costOfLiving: [
-    { city: 'Sydney', rent1BR: 3440, food: 500, transport: 850, utilities: 294, currency: 'AUD', notes: 'Inner/Mid suburbs' },
-    { city: 'Melbourne', rent1BR: 2460, food: 450, transport: 750, utilities: 291, currency: 'AUD' },
-    { city: 'Brisbane', rent1BR: 2200, food: 400, transport: 700, utilities: 250, currency: 'AUD' },
+    { city: 'Sydney', rent1BR: 3700, food: 500, transport: 670, utilities: 294, currency: 'AUD', notes: 'Numbeo Mar 2026 (1,520 entries) — 1BR city centre A$3,695' },
+    { city: 'Melbourne', rent1BR: 2460, food: 450, transport: 630, utilities: 310, currency: 'AUD', notes: 'Numbeo Feb 2026 (1,711 entries) — 1BR city centre A$2,459' },
+    { city: 'Brisbane', rent1BR: 2580, food: 400, transport: 400, utilities: 280, currency: 'AUD', notes: 'Numbeo Feb 2026 (1,431 entries) — 50¢ flat fare since Aug 2024' },
   ],
   
   prPath: {

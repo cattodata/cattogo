@@ -13,6 +13,7 @@ export interface Occupation {
   salarySourceUrl: string     // Direct URL to salary page
   pathToPR: string
   skills: string[]
+  aliases?: string[]           // Alternative job titles / Thai keywords for search (e.g. 'solution architect', 'โปรแกรมเมอร์')
   pointsNote: string          // e.g. 'SkillSelect Nov 2025' or 'ไม่ได้ถูกเชิญในรอบ Nov 2025'
 }
 

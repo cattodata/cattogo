@@ -2,6 +2,8 @@
 // ถ้ามี PROXY_URL → เรียกผ่าน Cloudflare Worker (key ซ่อนใน server)
 // ถ้าไม่มี → ใช้ TYPHOON_KEY จาก env var (build-time inject)
 
+import { CURRENCY_TO_THB, CURRENCY_SYMBOLS } from '@/data/constants'
+
 const TYPHOON_API_URL = 'https://api.opentyphoon.ai/v1/chat/completions'
 const MODEL = 'typhoon-v2-70b-instruct'
 
@@ -192,16 +194,7 @@ export async function rankCountriesWithAI(
   }
   const userGoals = userProfile.goals.map(g => goalLabels[g] || g).join(', ')
 
-  const CURRENCY_SYMBOLS: Record<string, string> = {
-    AUD: 'A$', NZD: 'NZ$', CAD: 'C$', USD: 'US$', GBP: '£',
-    EUR: '€', JPY: '¥', SGD: 'S$', CHF: 'CHF', AED: 'AED',
-    NOK: 'NOK', SEK: 'SEK', KRW: '₩',
-  }
-  const CURRENCY_TO_THB: Record<string, number> = {
-    AUD: 22.10, NZD: 20.00, CAD: 24.50, USD: 34.50, GBP: 43.50,
-    EUR: 37.50, JPY: 0.23, SGD: 25.80, CHF: 39.50, AED: 9.40,
-    NOK: 3.25, SEK: 3.30, KRW: 0.025,
-  }
+  // CURRENCY_TO_THB + CURRENCY_SYMBOLS imported from @/data/constants at top of file
 
   const countrySummaries = countries.map(c => {
     const sym = CURRENCY_SYMBOLS[c.currency] || c.currency

@@ -31,6 +31,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Data_Engineer/Salary',
     pathToPR: 'ยาก — ICT ไม่ถูกเชิญในรอบ Nov 2025 ต้อง 90+',
     skills: ['Python', 'SQL', 'AWS/Azure', 'Spark', 'Airflow'],
+    aliases: ['วิศวกรข้อมูล', 'data platform', 'etl developer', 'bi developer', 'analytics engineer', 'data pipeline'],
     pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
   },
   dataScientist: {
@@ -43,6 +44,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.seek.com.au/career-advice/role/data-scientist/salary',
     pathToPR: 'ยาก — แข่งสูง ต้อง 90+',
     skills: ['Python', 'R', 'ML/DL', 'Statistics', 'SQL'],
+    aliases: ['นักวิทยาศาสตร์ข้อมูล', 'data analyst', 'นักวิเคราะห์ข้อมูล', 'research scientist', 'quantitative analyst'],
     pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
   },
   softwareEngineer: {
@@ -55,6 +57,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Software_Engineer/Salary',
     pathToPR: 'ยาก — ICT แข่งสูงมาก ต้อง 90+',
     skills: ['JavaScript/Python/Java', 'React/Node', 'APIs', 'Git', 'CI/CD'],
+    aliases: ['โปรแกรมเมอร์', 'programmer', 'developer', 'software developer', 'full stack', 'fullstack', 'backend developer', 'backend', 'solution architect', 'tech lead', 'technical lead', 'application developer', 'mobile developer', 'ios developer', 'android developer', 'java developer', 'python developer', 'senior developer', 'lead developer', 'software architect', 'coder', 'sde'],
     pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
   },
   mlEngineer: {
@@ -67,6 +70,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.seek.com.au/career-advice/role/machine-learning-engineer/salary',
     pathToPR: 'ยาก — ต้อง 90+ แต่ demand สูง หา sponsor ง่ายกว่า',
     skills: ['Python', 'TensorFlow/PyTorch', 'MLOps', 'Cloud', 'Docker/K8s'],
+    aliases: ['ai engineer', 'deep learning', 'nlp engineer', 'computer vision', 'machine learning', 'วิศวกร ai', 'prompt engineer', 'llm engineer'],
     pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
   },
   devopsEngineer: {
@@ -79,6 +83,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.seek.com.au/career-advice/role/devops-engineer/salary',
     pathToPR: 'ยาก — ต้อง 90+ แต่ employer sponsor (482) เป็นทางเลือกดี',
     skills: ['AWS/Azure/GCP', 'Docker/Kubernetes', 'CI/CD', 'Terraform', 'Linux'],
+    aliases: ['sre', 'site reliability', 'platform engineer', 'infrastructure engineer', 'cloud engineer', 'cloud architect', 'release engineer', 'sysops'],
     pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
   },
   cybersecurityAnalyst: {
@@ -91,6 +96,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.seek.com.au/career-advice/role/cyber-security-analyst/salary',
     pathToPR: 'ยาก — ต้อง 90+ แต่ demand สูงมาก หา sponsor ง่าย',
     skills: ['Network Security', 'SIEM', 'Penetration Testing', 'ISO 27001', 'Incident Response'],
+    aliases: ['cybersecurity', 'security analyst', 'information security', 'infosec', 'penetration tester', 'pentest', 'soc analyst', 'security engineer'],
     pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
   },
   ictBusinessAnalyst: {
@@ -103,6 +109,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Business_Analyst%2C_IT/Salary',
     pathToPR: 'ยาก — ต้อง 90+',
     skills: ['Requirements Analysis', 'Stakeholder Management', 'Agile/Scrum', 'SQL', 'JIRA'],
+    aliases: ['business analyst', 'ba', 'นักวิเคราะห์ธุรกิจ', 'requirements analyst', 'product owner', 'functional analyst', 'systems consultant'],
     pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
   },
   databaseAdmin: {
@@ -115,6 +122,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Database_Administrator_(DBA)/Salary',
     pathToPR: 'ยากมาก — ต้อง 90+ และ demand ลดลง',
     skills: ['SQL Server/Oracle/PostgreSQL', 'Database Tuning', 'Backup/Recovery', 'Cloud DBaaS'],
+    aliases: ['dba', 'database engineer', 'data architect', 'database developer', 'sql developer'],
     pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025',
   },
   systemsAnalyst: {
@@ -127,6 +135,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Systems_Analyst/Salary',
     pathToPR: 'ยากมาก — ต้อง 90+',
     skills: ['Systems Analysis', 'UML', 'Business Process Modeling', 'Technical Documentation'],
+    aliases: ['systems engineer', 'technical analyst', 'enterprise architect', 'it analyst'],
     pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025',
   },
   webDeveloper: {
@@ -139,6 +148,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Web_Developer/Salary',
     pathToPR: 'ยากมาก — ต้อง 90+ และเงินเดือนต่ำกว่าสาย SE',
     skills: ['HTML/CSS/JS', 'React/Vue/Angular', 'Node.js', 'REST APIs', 'Git'],
+    aliases: ['frontend developer', 'frontend', 'react developer', 'javascript developer', 'ui developer', 'เว็บโปรแกรมเมอร์', 'web designer', 'wordpress developer'],
     pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025',
   },
   networkEngineer: {
@@ -151,6 +161,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Network_Engineer/Salary',
     pathToPR: 'ยาก — ต้อง 90+',
     skills: ['Cisco/Juniper', 'Network Design', 'Firewall', 'Cloud Networking', 'CCNP/CCIE'],
+    aliases: ['network admin', 'network administrator', 'system admin', 'sysadmin', 'infrastructure', 'it infrastructure', 'network specialist'],
     pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025',
   },
   ictProjectManager: {
@@ -163,6 +174,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.seek.com.au/career-advice/role/it-project-manager/salary',
     pathToPR: 'ยาก — ต้อง 90+',
     skills: ['Project Management', 'Agile/Scrum', 'Stakeholder Management', 'PMP/PRINCE2', 'Budget Management'],
+    aliases: ['it manager', 'project manager', 'program manager', 'delivery manager', 'scrum master', 'product manager', 'agile coach', 'engineering manager', 'cto', 'it director', 'head of engineering', 'vp engineering'],
     pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025',
   },
   multimediaDeveloper: {
@@ -175,6 +187,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.seek.com.au/career-advice/role/multimedia-designer/salary',
     pathToPR: 'ยากมาก — demand ต่ำ + ต้อง 90+',
     skills: ['UI/UX Design', 'Adobe Creative Suite', 'Motion Graphics', 'Video Production'],
+    aliases: ['ux designer', 'ui designer', 'product designer', 'graphic designer', 'ดีไซเนอร์', 'กราฟิก', 'motion designer', 'visual designer', 'ux researcher', 'interaction designer', 'creative designer'],
     pointsNote: 'SkillSelect Nov 2025: 90 (189)',
   },
   telecommunicationsEngineer: {
@@ -187,6 +200,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.seek.com.au/career-advice/role/telecommunications-engineer/salary',
     pathToPR: 'ยากมาก — SkillSelect requires 90+',
     skills: ['Telecommunications Engineering', 'Network Design', '5G/LTE', 'Engineers Australia'],
+    aliases: ['telco engineer', 'rf engineer', 'network planner', 'telecom'],
     pointsNote: 'SkillSelect Nov 2025: 90 (189)',
   },
   // ICT Sales Representative — on STSOL only, NOT for 189
@@ -200,6 +214,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.seek.com.au/career-advice/role/ict-sales/salary',
     pathToPR: '❌ STSOL เท่านั้น — ไม่สามารถสมัคร 189 ได้ ต้องไป 482→186',
     skills: ['IT Sales', 'Account Management', 'Solution Selling', 'CRM'],
+    aliases: ['pre-sales', 'presales', 'sales engineer', 'tech sales', 'account executive', 'it sales'],
     pointsNote: '⚠️ อยู่ใน STSOL — ไม่ได้อยู่ใน MLTSSL สมัคร 189/190 ไม่ได้',
   },
 
@@ -211,11 +226,12 @@ export const occupations: Record<string, Occupation> = {
     demand: 'สูงมาก', demandSource: 'SEEK: 8,000+ listings, Skills Priority List "National Shortage"',
     minPoints: 75, minPoints491: 75,
     shortageList: 'MLTSSL;CSOL',
-    salaryRange: { p10: 60000, median: 78000, p90: 95000 },
-    salarySource: 'PayScale + Nursing agencies AU Jan 2026',
-    salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Registered_Nurse_(RN)/Salary',
+    salaryRange: { p10: 61000, median: 76000, p90: 95000 },
+    salarySource: 'PayScale AU Jan 2026 (1,825 profiles) — $30.81/$38.39/$48.01 per hr × 1,976 hrs',
+    salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Registered_Nurse_(RN)/Hourly_Rate',
     pathToPR: 'ง่าย — 75 คะแนน ถูกเชิญทุกรอบ',
     skills: ['AHPRA Registration', 'ANMAC Assessment', 'Clinical Skills', 'IELTS 7.0 (all bands)'],
+    aliases: ['พยาบาล', 'nurse', 'rn', 'พยาบาลวิชาชีพ', 'staff nurse', 'clinical nurse'],
     pointsNote: 'SkillSelect Nov 2025: 75 (189), 75 (491)',
   },
   midwife: {
@@ -228,6 +244,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Midwife/Salary',
     pathToPR: 'ง่าย — 75 คะแนน ถูกเชิญทุกรอบ',
     skills: ['AHPRA Registration', 'ANMAC Assessment', 'Midwifery Skills', 'IELTS 7.0'],
+    aliases: ['ผดุงครรภ์', 'สูติแพทย์', 'midwifery'],
     pointsNote: 'SkillSelect Nov 2025: 75 (189), 75 (491)',
   },
   medLabScientist: {
@@ -240,6 +257,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Medical_Laboratory_Scientist/Salary',
     pathToPR: 'ปานกลาง — SkillSelect ต้อง 85 ในรอบ Nov 2025',
     skills: ['AIMS Assessment', 'Laboratory Skills', 'Pathology', 'Quality Control'],
+    aliases: ['นักเทคนิคการแพทย์', 'medical technologist', 'lab scientist', 'pathologist'],
     pointsNote: 'SkillSelect Nov 2025: 85 (189), N/A (491)',
   },
   pharmacist: {
@@ -252,6 +270,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Pharmacist/Salary',
     pathToPR: 'ปานกลาง — ต้อง 80 คะแนน',
     skills: ['AHPRA Registration', 'APC Assessment', 'Dispensing', 'Clinical Pharmacy'],
+    aliases: ['เภสัชกร', 'เภสัช', 'pharmacy', 'ร้านยา'],
     pointsNote: 'คาดจาก Aug 2025 round: ~80 (189)',
   },
   physiotherapist: {
@@ -264,6 +283,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Physiotherapist/Salary',
     pathToPR: 'ง่าย — 75 คะแนน ถูกเชิญ',
     skills: ['AHPRA Registration', 'APC Assessment', 'Manual Therapy', 'Exercise Prescription'],
+    aliases: ['กายภาพบำบัด', 'นักกายภาพบำบัด', 'physio', 'physical therapy', 'pt'],
     pointsNote: 'SkillSelect Nov 2025: 75 (189), 75 (491)',
   },
 
@@ -280,6 +300,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Physician_%2F_Doctor%2C_General_Practice/Salary',
     pathToPR: 'ง่าย — 75 คะแนน แต่ 491 ต้อง 85',
     skills: ['AHPRA Registration', 'AMC Exam', 'FRACGP', 'Primary Care'],
+    aliases: ['หมอ', 'แพทย์', 'doctor', 'gp', 'หมอทั่วไป', 'physician', 'family doctor', 'family medicine'],
     pointsNote: 'SkillSelect Nov 2025: 75 (189), 85 (491)',
   },
   psychiatrist: {
@@ -292,6 +313,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Psychiatrist/Salary',
     pathToPR: 'ง่าย — 75 คะแนน (specialist ขาดแคลน)',
     skills: ['AHPRA Specialist Registration', 'FRANZCP', 'Mental Health', 'Psychopharmacology'],
+    aliases: ['จิตแพทย์', 'mental health doctor', 'หมอจิตเวช'],
     pointsNote: 'SkillSelect Nov 2025: 75 (189), N/A (491)',
   },
   surgeon: {
@@ -304,6 +326,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Surgeon/Salary',
     pathToPR: 'ง่าย-ปานกลาง — ต้อง 80 คะแนน',
     skills: ['AHPRA Specialist Registration', 'FRACS', 'Surgical Procedures', 'Perioperative Care'],
+    aliases: ['ศัลยแพทย์', 'หมอผ่าตัด', 'surgical'],
     pointsNote: 'SkillSelect Nov 2025: 80 (189), N/A (491)',
   },
   cardiologist: {
@@ -316,6 +339,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Cardiologist/Salary',
     pathToPR: 'ง่าย — 80 คะแนน ถูกเชิญทั้ง 189 และ 491',
     skills: ['AHPRA Specialist Registration', 'FRACP', 'Cardiac Care', 'Interventional Procedures'],
+    aliases: ['หัวใจ', 'หมอหัวใจ', 'heart doctor', 'heart specialist'],
     pointsNote: 'SkillSelect Nov 2025: 80 (189), 80 (491)',
   },
   dermatologist: {
@@ -328,6 +352,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Dermatologist/Salary',
     pathToPR: 'ยากมาก — SkillSelect ต้อง 100 คะแนน!',
     skills: ['AHPRA Specialist Registration', 'FACD', 'Dermatology', 'Skin Cancer Treatment'],
+    aliases: ['หมอผิวหนัง', 'ผิวหนัง', 'skin doctor'],
     pointsNote: 'SkillSelect Nov 2025: 100 (189) — สูงที่สุดในทุกอาชีพ',
   },
   emergencyMedicine: {
@@ -340,6 +365,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Emergency_Medicine_Physician/Salary',
     pathToPR: 'ง่าย — 75 คะแนน ขาดแคลนมาก',
     skills: ['AHPRA Specialist Registration', 'ACEM Fellowship', 'Emergency Care', 'Trauma Management'],
+    aliases: ['หมอฉุกเฉิน', 'er doctor', 'emergency doctor', 'ห้องฉุกเฉิน'],
     pointsNote: 'SkillSelect Nov 2025: 75 (189), N/A (491)',
   },
   radiologist: {
@@ -376,6 +402,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Pediatrician/Salary',
     pathToPR: 'ง่าย — 75 คะแนน',
     skills: ['AHPRA Specialist Registration', 'FRACP (Paediatrics)', 'Child Health', 'Developmental Medicine'],
+    aliases: ['กุมารแพทย์', 'หมอเด็ก', 'pediatrician', 'children doctor'],
     pointsNote: 'SkillSelect Nov 2025: 75 (189), N/A (491)',
   },
 
@@ -392,6 +419,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Occupational_Therapist_(OT)/Salary',
     pathToPR: 'ง่าย-ปานกลาง — 75 (189), 80 (491)',
     skills: ['AHPRA Registration', 'Rehabilitation', 'ADL Training', 'Assistive Technology'],
+    aliases: ['ot', 'นักกิจกรรมบำบัด', 'occupational therapy'],
     pointsNote: 'SkillSelect Nov 2025: 75 (189), 80 (491)',
   },
   audiologist: {
@@ -428,6 +456,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Clinical_Psychologist/Salary',
     pathToPR: 'ปานกลาง — ต้อง 80 คะแนน',
     skills: ['AHPRA Registration (Psychology)', 'Clinical Assessment', 'Therapy', 'Mental Health Treatment'],
+    aliases: ['นักจิตวิทยา', 'psychologist', 'จิตวิทยา', 'นักจิต', 'therapist', 'counselor'],
     pointsNote: 'SkillSelect Nov 2025: 80 (189), N/A (491)',
   },
   medicalRadiographer: {
@@ -463,11 +492,12 @@ export const occupations: Record<string, Occupation> = {
     demand: 'สูง', demandSource: 'SEEK: 3,000+ listings, Engineers Australia data',
     minPoints: 85, minPoints491: null,
     shortageList: 'MLTSSL;CSOL',
-    salaryRange: { p10: 62000, median: 85000, p90: 125000 },
-    salarySource: 'Engineers Australia + PayScale AU Jan 2026',
+    salaryRange: { p10: 63000, median: 85000, p90: 122000 },
+    salarySource: 'PayScale AU Jan 2026 (880 profiles)',
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Civil_Engineer/Salary',
     pathToPR: 'ปานกลาง — SkillSelect ต้อง 85',
     skills: ['Structural Analysis', 'AutoCAD', 'Project Management', 'Engineers Australia Assessment'],
+    aliases: ['วิศวกรโยธา', 'structural engineer', 'วิศวกรโครงสร้าง'],
     pointsNote: 'SkillSelect Nov 2025: 85 (189), N/A (491)',
   },
   mechanicalEngineer: {
@@ -475,11 +505,12 @@ export const occupations: Record<string, Occupation> = {
     demand: 'สูง', demandSource: 'SEEK: 2,000+ listings, Engineers Australia data',
     minPoints: 85, minPoints491: null,
     shortageList: 'MLTSSL;CSOL',
-    salaryRange: { p10: 60000, median: 84000, p90: 120000 },
-    salarySource: 'Engineers Australia + PayScale AU Jan 2026',
+    salaryRange: { p10: 63000, median: 83000, p90: 125000 },
+    salarySource: 'PayScale AU Jan 2026 (1,074 profiles)',
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Mechanical_Engineer/Salary',
     pathToPR: 'ปานกลาง — SkillSelect ต้อง 85',
     skills: ['CAD/SolidWorks', 'Thermodynamics', 'Manufacturing', 'Engineers Australia Assessment'],
+    aliases: ['วิศวกรเครื่องกล', 'วิศวกรยานยนต์', 'mech eng', 'automotive engineer'],
     pointsNote: 'SkillSelect Nov 2025: 85 (189), N/A (491)',
   },
   electricalEngineer: {
@@ -487,11 +518,12 @@ export const occupations: Record<string, Occupation> = {
     demand: 'สูง', demandSource: 'SEEK: 2,500+ listings',
     minPoints: 85, minPoints491: null,
     shortageList: 'MLTSSL;CSOL',
-    salaryRange: { p10: 62000, median: 88000, p90: 128000 },
-    salarySource: 'Engineers Australia + SEEK AU Jan 2026',
+    salaryRange: { p10: 64000, median: 87000, p90: 130000 },
+    salarySource: 'PayScale AU Jan 2026 (703 profiles)',
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Electrical_Engineer/Salary',
     pathToPR: 'ปานกลาง — SkillSelect ต้อง 85',
     skills: ['Power Systems', 'Control Systems', 'PLC', 'Engineers Australia Assessment'],
+    aliases: ['วิศวกรไฟฟ้า', 'วิศวกรอิเลกทรอนิกส์', 'electronics engineer'],
     pointsNote: 'SkillSelect Nov 2025: 85 (189), N/A (491)',
   },
   chemicalEngineer: {
@@ -540,6 +572,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Engineering_Manager/Salary',
     pathToPR: 'ปานกลาง — SkillSelect ต้อง 85',
     skills: ['Engineering Degree + Management', 'Project Management', 'Team Leadership', 'Engineers Australia'],
+    aliases: ['ผู้จัดการวิศวกรรม', 'head of engineering', 'vp engineering', 'director of engineering'],
     pointsNote: 'SkillSelect Nov 2025: 85 (189), N/A (491)',
   },
   constructionProjectManager: {
@@ -552,6 +585,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Construction_Project_Manager/Salary',
     pathToPR: 'ปานกลาง — SkillSelect ต้อง 85',
     skills: ['Construction/Engineering Degree', 'Project Management', 'Construction Planning', 'AIPM/PMP'],
+    aliases: ['ผู้จัดการก่อสร้าง', 'site manager', 'construction manager', 'หัวหน้าโครงการ'],
     pointsNote: 'SkillSelect Nov 2025: 85 (189), N/A (491)',
   },
   materialsEngineer: {
@@ -575,11 +609,12 @@ export const occupations: Record<string, Occupation> = {
     demand: 'สูงมาก', demandSource: 'Skills Priority List "National Shortage", SEEK 5,000+',
     minPoints: 65, minPoints491: 65,
     shortageList: 'MLTSSL;CSOL',
-    salaryRange: { p10: 52000, median: 72000, p90: 95000 },
-    salarySource: 'Trades organizations + SEEK AU Jan 2026',
-    salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Electrician/Salary',
+    salaryRange: { p10: 49000, median: 73000, p90: 99000 },
+    salarySource: 'PayScale AU Jan 2026 (845 profiles) — $24.63/$36.77/$50.21 per hr × 1,976 hrs',
+    salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Electrician/Hourly_Rate',
     pathToPR: 'ง่ายมาก — 65 คะแนน! ต่ำที่สุดที่ถูกเชิญ',
     skills: ['Trade Certificate III/IV', 'Electrical License', 'Installation', 'Maintenance'],
+    aliases: ['ช่างไฟฟ้า', 'ช่างไฟ', 'sparky', 'electrical technician'],
     pointsNote: 'SkillSelect Nov 2025: 65 (189), 65 (491) ✅ ต่ำสุด',
   },
   plumber: {
@@ -587,11 +622,12 @@ export const occupations: Record<string, Occupation> = {
     demand: 'สูงมาก', demandSource: 'Skills Priority List "National Shortage"',
     minPoints: 65, minPoints491: 70,
     shortageList: 'MLTSSL;CSOL',
-    salaryRange: { p10: 50000, median: 70000, p90: 92000 },
-    salarySource: 'Trades organizations + SEEK AU Jan 2026',
-    salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Plumber/Salary',
+    salaryRange: { p10: 36000, median: 64000, p90: 97000 },
+    salarySource: 'PayScale AU Jan 2026 (435 profiles) — $18.14/$32.64/$49.23 per hr × 1,976 hrs',
+    salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Plumber/Hourly_Rate',
     pathToPR: 'ง่ายมาก — 65 คะแนน!',
     skills: ['Trade Certificate III/IV', 'Plumbing License', 'Pipe Fitting', 'Gas Fitting'],
+    aliases: ['ช่างประปา', 'ช่างท่อ', 'pipe fitter'],
     pointsNote: 'SkillSelect Nov 2025: 65 (189), 70 (491)',
   },
   carpenter: {
@@ -599,11 +635,12 @@ export const occupations: Record<string, Occupation> = {
     demand: 'สูง', demandSource: 'Construction boom, SEEK 2,000+',
     minPoints: 65, minPoints491: 65,
     shortageList: 'MLTSSL;CSOL',
-    salaryRange: { p10: 48000, median: 65000, p90: 85000 },
-    salarySource: 'Trades organizations + SEEK AU Jan 2026',
-    salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Carpenter/Salary',
+    salaryRange: { p10: 43000, median: 67000, p90: 100000 },
+    salarySource: 'PayScale AU Jan 2026 (1,454 profiles) — $21.96/$33.84/$50.80 per hr × 1,976 hrs',
+    salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Carpenter/Hourly_Rate',
     pathToPR: 'ง่ายมาก — 65 คะแนน!',
     skills: ['Trade Certificate III/IV', 'Carpentry License', 'Framework', 'Finishing'],
+    aliases: ['ช่างไม้', 'ช่างเฟอร์นิเจอร์', 'woodworker', 'ช่างก่อสร้าง'],
     pointsNote: 'SkillSelect Nov 2025: 65 (189), 65 (491)',
   },
   bricklayer: {
@@ -659,11 +696,12 @@ export const occupations: Record<string, Occupation> = {
     demand: 'ปานกลาง', demandSource: 'Manufacturing sector',
     minPoints: 85, minPoints491: null,
     shortageList: 'MLTSSL;CSOL',
-    salaryRange: { p10: 50000, median: 70000, p90: 95000 },
-    salarySource: 'Trades organizations + SEEK AU Jan 2026',
-    salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Welder/Salary',
+    salaryRange: { p10: 45000, median: 59000, p90: 76000 },
+    salarySource: 'PayScale AU Dec 2025 (252 profiles) — $22.92/$29.86/$38.70 per hr × 1,976 hrs',
+    salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Welder/Hourly_Rate',
     pathToPR: 'ยาก — SkillSelect ต้อง 85 สูงกว่า trades อื่น',
     skills: ['Trade Certificate III/IV', 'Welding License', 'TIG/MIG/Arc Welding', 'Metal Fabrication'],
+    aliases: ['ช่างเชื่อม', 'welding', 'ช่างเชื่อมโลหะ'],
     pointsNote: 'SkillSelect Nov 2025: 85 (189), N/A (491)',
   },
   wallFloorTiler: {
@@ -716,6 +754,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=High_School_Teacher/Salary',
     pathToPR: 'ง่าย-ปานกลาง — 75 (189) แต่ 491 ต้อง 85',
     skills: ['Teaching Qualification', 'AITSL Assessment', 'Subject Specialization', 'IELTS 7.5+'],
+    aliases: ['ครู', 'อาจารย์', 'teacher', 'ครูมัธยม', 'high school teacher'],
     pointsNote: 'SkillSelect Nov 2025: 75 (189), 85 (491)',
   },
   earlyChildhoodTeacher: {
@@ -728,6 +767,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Early_Childhood_Teacher/Salary',
     pathToPR: 'ยาก — SkillSelect ต้อง 85 (189), 90 (491)',
     skills: ['Early Childhood Education Degree', 'AITSL Assessment', 'IELTS 7.5+'],
+    aliases: ['ครูอนุบาล', 'ครูปฐมวัย', 'kindergarten teacher', 'preschool teacher', 'พี่เลี้ยงเด็ก'],
     pointsNote: 'SkillSelect Nov 2025: 85 (189), 90 (491)',
   },
 
@@ -808,6 +848,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Solicitor/Salary',
     pathToPR: 'ยาก — SkillSelect ต้อง 85',
     skills: ['Law Degree', 'Admission to Practice', 'Legal Research', 'State Law Society'],
+    aliases: ['ทนายความ', 'lawyer', 'นักกฎหมาย', 'attorney', 'legal counsel'],
     pointsNote: 'SkillSelect Nov 2025: 85 (189), N/A (491)',
   },
   barrister: {
@@ -827,11 +868,12 @@ export const occupations: Record<string, Occupation> = {
     demand: 'ปานกลาง', demandSource: 'SEEK: 5,000+ listings — high supply too',
     minPoints: 85, minPoints491: null,
     shortageList: 'MLTSSL;CSOL',
-    salaryRange: { p10: 52000, median: 72000, p90: 105000 },
-    salarySource: 'CPA Australia + PayScale AU Jan 2026',
+    salaryRange: { p10: 52000, median: 68000, p90: 90000 },
+    salarySource: 'PayScale AU Jan 2026 (1,830 profiles)',
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Accountant/Salary',
     pathToPR: 'ยากมาก — แข่งสูงที่สุด ต้อง 85+ และ CPA/CA',
     skills: ['CPA/CA Australia', 'Financial Reporting', 'Tax', 'Audit'],
+    aliases: ['นักบัญชี', 'บัญชี', 'สอบบัญชี', 'auditor', 'tax accountant', 'cpa', 'bookkeeper', 'financial accountant'],
     pointsNote: 'SkillSelect Nov 2025: 85 (189) — แข่งสูงมาก',
   },
   managementConsultant: {
@@ -844,6 +886,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Management_Consultant/Salary',
     pathToPR: 'ยาก — SkillSelect ต้อง 85',
     skills: ['Business Degree/MBA', 'Strategy Development', 'Business Analysis', 'VETASSESS'],
+    aliases: ['ที่ปรึกษา', 'consultant', 'strategy consultant', 'mba'],
     pointsNote: 'SkillSelect Nov 2025: 85 (189), N/A (491)',
   },
   economist: {
@@ -924,6 +967,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Architect/Salary',
     pathToPR: 'ยาก — SkillSelect ต้อง 85',
     skills: ['AACA Assessment', 'AutoCAD/Revit', 'Design', 'Building Codes'],
+    aliases: ['สถาปนิก', 'อาคิเทค', 'building architect', 'building designer'],
     pointsNote: 'SkillSelect Nov 2025: 85 (189), N/A (491)',
   },
   landscapeArchitect: {
@@ -952,6 +996,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Social_Worker/Salary',
     pathToPR: 'ง่าย — 75 (189) แต่ 491 ต้อง 85',
     skills: ['AASW Assessment', 'Case Management', 'Counseling', 'Community Services'],
+    aliases: ['นักสังคมสงเคราะห์', 'community worker', 'พัฒนาสังคม', 'welfare worker', 'case worker', 'case manager'],
     pointsNote: 'SkillSelect Nov 2025: 75 (189), 85 (491)',
   },
 }
@@ -997,7 +1042,7 @@ const CATEGORY_TO_OCC_ID: Record<string, string> = {
   'Community Services': 'other',
 }
 
-/** ค้นหาอาชีพจากชื่อ, ANZSCO code, หรือ category (case-insensitive) */
+/** ค้นหาอาชีพจากชื่อ, aliases, ANZSCO code, หรือ category (case-insensitive) */
 export function searchOccupations(query: string): { key: string; title: string; category: string; occId: string }[] {
   if (!query || query.length < 1) return []
   const q = query.toLowerCase()
@@ -1006,6 +1051,7 @@ export function searchOccupations(query: string): { key: string; title: string; 
       o.title.toLowerCase().includes(q) ||
       o.category.toLowerCase().includes(q) ||
       o.anzsco.includes(q) ||
+      (o.aliases && o.aliases.some(a => a.toLowerCase().includes(q))) ||
       (q === 'nurse' && o.title.toLowerCase().includes('nurse')) ||
       (q === 'doctor' && (o.category === 'Medical Specialists' || o.title.toLowerCase().includes('practitioner')))
     )

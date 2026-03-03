@@ -1,6 +1,6 @@
-# 📊 Occupation Data Sources & Audit Trail
+# 📊 Data Sources & Audit Trail
 
-> **Last Updated:** Feb 2026
+> **Last Verified:** March 2026
 > **Maintained by:** Manual verification against official sources
 > **Review cycle:** Every SkillSelect invitation round (typically every 3-6 months)
 
@@ -47,9 +47,23 @@ Based on Aug 2025 round + migration agent community data, ICT generally requires
 ### Verified occupations (PayScale, Jan-Feb 2026):
 | Occupation | p10 | Median | p90 | Sample Size | Source |
 |---|---|---|---|---|---|
-| Software Engineer | $65k | $90k | $127k | 1,262 profiles | PayScale Jan 2026 |
+| Software Engineer | $65k | $90k | $127k | 1,262 profiles | PayScale Feb 2026 |
+| Data Engineer | $71k | $104k | $146k | 244 profiles | PayScale Feb 2026 |
+| Civil Engineer | $63k | $85k | $122k | 880 profiles | PayScale Jan 2026 |
+| Mechanical Engineer | $63k | $83k | $125k | 1,074 profiles | PayScale Jan 2026 |
+| Electrical Engineer | $64k | $87k | $130k | 703 profiles | PayScale Jan 2026 |
+| Accountant | $52k | $68k | $90k | 1,830 profiles | PayScale Jan 2026 |
+| Registered Nurse | $61k | $76k | $95k | 1,825 profiles | PayScale Jan 2026 (hourly×1,976) |
+| Electrician | $49k | $73k | $99k | 845 profiles | PayScale Jan 2026 (hourly×1,976) |
+| Plumber | $36k | $64k | $97k | 435 profiles | PayScale Jan 2026 (hourly×1,976) |
+| Carpenter | $43k | $67k | $100k | 1,454 profiles | PayScale Jan 2026 (hourly×1,976) |
+| Welder | $45k | $59k | $76k | 252 profiles | PayScale Dec 2025 (hourly×1,976) |
 | Network Engineer | $61k | $88k | $127k | 187 profiles | PayScale Jan 2026 |
-| Data Engineer | $71k | $104k | $146k | ~244 profiles | PayScale Feb 2026 |
+
+### Hourly → Annual conversion:
+For trades and nursing occupations, PayScale reports hourly rates. Annual salary is calculated as:
+`hourly rate × 38 hrs/week × 52 weeks = hourly × 1,976`
+(38 hours = Australian standard full-time work week per Fair Work Act)
 
 ### Other occupations:
 Salary data for occupations without direct PayScale verification uses:
@@ -91,14 +105,34 @@ Salary data for occupations without direct PayScale verification uses:
 
 ---
 
-## 5. ANZSCO Codes
+## 5. Cost of Living Data
+
+**Source:** Numbeo (https://www.numbeo.com/cost-of-living/)
+- Verified: Feb-Mar 2026
+- Data is crowdsourced with contributor counts noted per city
+
+### Australian cities (Numbeo Feb-Mar 2026):
+| City | 1BR Rent (City) | Utilities (85m²) | Contributors | Last Update |
+|---|---|---|---|---|
+| Sydney | A$3,695 | A$294 | 1,520 entries | Mar 2026 |
+| Melbourne | A$2,459 | A$309 | 1,711 entries | Feb 2026 |
+| Brisbane | A$2,584 | A$281 | 1,431 entries | Feb 2026 |
+
+### Transport notes:
+- Sydney: Opal card, no monthly pass — weekly cap system ~A$50/week
+- Melbourne: Myki monthly pass A$199
+- Brisbane: 50¢ flat fare since Aug 2024 — monthly cap ~A$30
+
+---
+
+## 6. ANZSCO Codes
 
 Each occupation includes the official ANZSCO code for unambiguous identification.
 Look up any code at: https://www.abs.gov.au/statistics/classifications/anzsco-australian-and-new-zealand-standard-classification-occupations
 
 ---
 
-## 6. How to Verify / Update
+## 7. How to Verify / Update
 
 1. **Cut-off points**: Check latest SkillSelect round at the URL above
 2. **Salary**: Search PayScale AU for the occupation title, note p10/median/p90
@@ -107,10 +141,13 @@ Look up any code at: https://www.abs.gov.au/statistics/classifications/anzsco-au
 
 ---
 
-## 7. Known Limitations
+## 8. Known Limitations
 
 - SkillSelect doesn't always publish per-occupation data for ALL occupations in each round
 - ICT occupations frequently hit ceiling early in the program year
 - Salary data varies significantly by city (Sydney/Melbourne +10-20% vs regional)
 - PayScale sample sizes vary; smaller samples = less reliable
 - Cut-off points change each round — treat as "latest known" not "guaranteed"
+- Trades p10 values from PayScale include apprentice/trainee rates (may be below minimum wage)
+- Cost of living data is crowdsourced (Numbeo) — sample sizes vary by city
+- Brisbane transport costs dramatically reduced by 50¢ flat fare policy (Aug 2024) — may change

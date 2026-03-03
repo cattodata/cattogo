@@ -50,8 +50,9 @@ const fmtThb = (n: number) => `฿${fmt(n)}`
 // Map user occupation ID → key in OccupationSalaries
 const OCC_TO_SALARY_KEY: Record<string, keyof OccupationSalaries> = {
   'software': 'softwareDev',
+  'data-ai': 'dataAI',
   'engineering': 'engineer',
-  'creative': 'softwareDev', // No dedicated creative salary data available; uses softwareDev as proxy (UX/UI overlap). Actual creative salaries may be lower for roles like graphic design or photography.
+  'creative': 'trades', // No dedicated creative salary data; trades is a safer generic proxy than softwareDev
   'accounting': 'accountant',
   'healthcare': 'nurse',
   'chef': 'trades', // chef uses trades salary range as closest proxy
@@ -61,7 +62,7 @@ const OCC_TO_SALARY_KEY: Record<string, keyof OccupationSalaries> = {
 function getOccSalary(countryId: string, occId: string): SalaryRange | null {
   const details = getCountryDetails(countryId)
   if (!details) return null
-  const key = OCC_TO_SALARY_KEY[occId] || 'softwareDev'
+  const key = OCC_TO_SALARY_KEY[occId] || 'trades' // safe generic default instead of softwareDev
   return details.salaries[key] || null
 }
 
@@ -105,20 +106,23 @@ Flow:
 2. หลัง user เล่า: ตอบรับเนื้อหาจริงๆ + สรุปสิ่งที่จับได้ + ถาม "มีอะไรอยากเสริมไหม?"
 3. เก็บข้อมูลที่ขาด ทีละเรื่อง (ลำดับยืดหยุ่นได้):
    - goals (1-3): money-job | balance | family | stable | lifestyle
-   - occupation: software | engineering | creative | accounting | healthcare | chef | other
+   - occupation: healthcare | engineering | accounting | software | data-ai | creative | chef | other
    - age: "18-24" | "25-32" | "33-39" | "40-44" | "45+"
    - family: "single" | "couple" | "family"
    - monthlyIncome: number (บาท)
 4. พอครบ → set ready: true + สรุปสั้น 1 บรรทัด
 
 Mapping อาชีพ:
-- IT/software/dev/data/programmer → "software"
-- วิศวกร/engineer/mechanical/civil/electrical → "engineering"
-- กราฟิก/graphic designer/ดีไซน์/UI/UX/creative/สื่อ/media/photographer/ช่างภาพ/animator/illustrator/marketing → "creative"
-- บัญชี/finance/accountant → "accounting"
 - พยาบาล/nurse/หมอ/doctor/สาธารณสุข/เภสัช → "healthcare"
+- วิศวกร/engineer/mechanical/civil/electrical → "engineering"
+- บัญชี/finance/accountant → "accounting"
+- IT/software/dev/programmer/web/mobile/fullstack → "software"
+- data/AI/ML/data engineer/data analyst/machine learning → "data-ai"
+- กราฟิก/graphic designer/ดีไซน์/UI/UX/creative/สื่อ/media/photographer/ช่างภาพ/animator/illustrator/marketing → "creative"
 - เชฟ/chef/cook/ครัว/barista → "chef"
 - อื่นๆ/ครู/teacher → "other"
+
+⚠️ สำคัญมาก: ต้อง map อาชีพให้ตรงตามรายการข้างบน ห้ามใช้ "software" เป็น default — ถ้าไม่แน่ใจว่าอาชีพตรงไหน ให้ใช้ "other"
 
 ตอบเป็น JSON:
 {"message": "...", "gathered": {"goals": [], "occupation": "", "monthlyIncome": 0, "age": "", "family": "", "ready": false}}`
@@ -207,20 +211,23 @@ export function ChatSimulator() {
 
     try {
       const aiRes = await chatWithTyphoon(apiKey, newHistory)
-      // Merge gathered: keep previously confirmed data, add new data from AI
-      const merged: GatheredData = {
-        goals: aiRes.gathered.goals.length > 0
-          ? [...new Set([...aiGathered.goals, ...aiRes.gathered.goals])]
-          : aiGathered.goals,
-        occupation: aiRes.gathered.occupation || aiGathered.occupation,
-        monthlyIncome: aiRes.gathered.monthlyIncome || aiGathered.monthlyIncome,
-        age: aiRes.gathered.age || aiGathered.age,
-        family: aiRes.gathered.family || aiGathered.family,
-        ready: aiRes.gathered.ready,
-      }
       setAiMessages(prev => [...prev, { role: 'bot', text: aiRes.message }])
-      setAiChatHistory(prev => [...prev, { role: 'assistant', content: JSON.stringify({ message: aiRes.message, gathered: merged }) }])
-      setAiGathered(merged)
+      // Use functional updater to read LATEST state (avoids stale closure from chip/search setters)
+      setAiGathered(prev => {
+        const merged: GatheredData = {
+          goals: aiRes.gathered.goals.length > 0
+            ? [...new Set([...prev.goals, ...aiRes.gathered.goals])]
+            : prev.goals,
+          // IMPORTANT: prefer directly-set value (prev) over AI response — prevents AI from overriding chip/search selection
+          occupation: prev.occupation || aiRes.gathered.occupation,
+          monthlyIncome: prev.monthlyIncome || aiRes.gathered.monthlyIncome,
+          age: prev.age || aiRes.gathered.age,
+          family: prev.family || aiRes.gathered.family,
+          ready: aiRes.gathered.ready,
+        }
+        setAiChatHistory(h => [...h, { role: 'assistant', content: JSON.stringify({ message: aiRes.message, gathered: merged }) }])
+        return merged
+      })
     } catch (err) {
       setAiError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาด ลองพิมพ์ใหม่นะ')
     }
@@ -320,9 +327,9 @@ export function ChatSimulator() {
   // Quick occupation chip mapping → proper AI-expected IDs
   const OCC_CHIP_MAP: { label: string; text: string; occId: string }[] = [
     { label: '💻 Software Dev', text: 'Software Developer / โปรแกรมเมอร์', occId: 'software' },
-    { label: '📊 Data / Analytics', text: 'Data Engineer / Analyst', occId: 'software' },
+    { label: '📊 Data / Analytics', text: 'Data Engineer / Analyst', occId: 'data-ai' },
     { label: '☁️ DevOps / Cloud', text: 'DevOps / Cloud Engineer', occId: 'software' },
-    { label: '🤖 AI / ML', text: 'AI / Machine Learning Engineer', occId: 'software' },
+    { label: '🤖 AI / ML', text: 'AI / Machine Learning Engineer', occId: 'data-ai' },
     { label: '🔒 Cybersecurity', text: 'Cybersecurity Analyst', occId: 'software' },
     { label: '⚙️ วิศวกร', text: 'วิศวกร', occId: 'engineering' },
     { label: '🎨 ดีไซน์ / ครีเอทีฟ', text: 'Graphic Designer / ดีไซเนอร์', occId: 'creative' },

@@ -2,6 +2,18 @@
 // แหล่งอ้างอิง: OECD Better Life Index 2025, Numbeo, Global Peace Index 2025,
 // WHO, World Bank, Home Affairs skill lists, immigration.govt.nz, IRCC Canada
 // Last updated: Feb 2026
+//
+// Exchange rates & currency symbols → import จาก constants.ts (single source of truth)
+// ห้ามประกาศซ้ำในไฟล์นี้
+
+import {
+  CURRENCY_TO_THB as _CURRENCY_TO_THB,
+  CURRENCY_SYMBOLS as _CURRENCY_SYMBOLS,
+} from './constants'
+
+// Re-export for backward compatibility (components ที่ import จากไฟล์นี้อยู่แล้วจะไม่พัง)
+export const CURRENCY_TO_THB = _CURRENCY_TO_THB
+export const CURRENCY_SYMBOLS = _CURRENCY_SYMBOLS
 
 // ===== TYPES =====
 export interface CountryScores {
@@ -31,30 +43,6 @@ export interface Country {
   pros: string[]
   cons: string[]
   thaiCommunity: 'large' | 'medium' | 'small'
-}
-
-// ===== EXCHANGE RATES TO THB (Feb 2026 approx) =====
-// Source: Bank of Thailand mid-rate, XE.com, Google Finance
-export const CURRENCY_TO_THB: Record<string, number> = {
-  AUD: 22.10,
-  NZD: 20.00,
-  CAD: 24.50,
-  USD: 34.50,
-  GBP: 43.50,
-  EUR: 37.50,
-  JPY: 0.23,
-  SGD: 25.80,
-  CHF: 39.50,
-  AED: 9.40,
-  NOK: 3.25,
-  SEK: 3.30,
-  KRW: 0.025,
-}
-
-export const CURRENCY_SYMBOLS: Record<string, string> = {
-  AUD: 'A$', NZD: 'NZ$', CAD: 'C$', USD: 'US$', GBP: '£',
-  EUR: '€', JPY: '¥', SGD: 'S$', CHF: 'CHF', AED: 'AED',
-  NOK: 'NOK', SEK: 'SEK', KRW: '₩',
 }
 
 export interface MatchResult {

@@ -1,10 +1,21 @@
 // ===== Migration Life Simulator Data =====
 // ข้อมูลสำหรับจำลองชีวิตหลังย้ายประเทศ
 // อ้างอิง: ATO (Jun 2025), Fair Work (Jul 2025), Home Affairs (Jan 2026),
-//         Numbeo (Feb 2026), SEEK (Feb 2026), PayScale (Jan 2026), XE (Feb 2026)
+//         Numbeo (Feb 2026), PayScale AU (Jan-Feb 2026), XE (Feb 2026)
 // อัปเดตล่าสุด: กุมภาพันธ์ 2026
+//
+// Exchange rates → import จาก constants.ts (single source of truth)
+// AU Salary categories → import จาก constants.ts (derived from PayScale ใน occupations.ts)
 
-export const AUD_TO_THB = 22.10 // XE mid-market rate Feb 2026 average
+import {
+  AUD_TO_THB as _AUD_TO_THB,
+  AU_SALARY_BY_CATEGORY,
+  AU_UNSKILLED_SALARY as _AU_UNSKILLED_SALARY,
+} from './constants'
+
+// Re-export for backward compatibility
+export const AUD_TO_THB = _AUD_TO_THB
+export const AU_UNSKILLED_SALARY = _AU_UNSKILLED_SALARY
 
 // ===== Australian Tax Brackets FY 2025-26 (Stage 3 Tax Cuts) =====
 export function calculateAusTax(annualGross: number): {
@@ -58,42 +69,47 @@ export function calculateThaiTax(annualGross: number): {
 }
 
 // ===== Salary Data (AUD/year) =====
-export const AU_SALARIES: Record<string, { entry: number; mid: number; senior: number; label: string }> = {
-  // อ้างอิง: SEEK salary data Feb 2026, PayScale AU Jan 2026
-  'software': { entry: 75000, mid: 100000, senior: 140000, label: 'Software Developer' }, // PayScale 2025: 1-4yrs avg $75,630
-  'data-ai': { entry: 90000, mid: 120000, senior: 150000, label: 'Data / AI Engineer' },
-  'accounting': { entry: 65000, mid: 85000, senior: 115000, label: 'Accountant' },
-  'engineering': { entry: 80000, mid: 100000, senior: 130000, label: 'Engineer' },
-  'healthcare': { entry: 75000, mid: 90000, senior: 105000, label: 'Nurse / Healthcare' },
-  'chef': { entry: 60000, mid: 75000, senior: 93000, label: 'Chef / Hospitality' },
-  'trades': { entry: 85000, mid: 100000, senior: 130000, label: 'Trades (ช่าง)' },
-  'other': { entry: 60000, mid: 75000, senior: 95000, label: 'Other' },
-}
+// Derived from PayScale AU (Jan-Feb 2026) via constants.ts → AU_SALARY_BY_CATEGORY
+// Source of truth = occupations.ts (p10/median/p90)
+// ห้ามแก้ตัวเลขที่นี่ — แก้ที่ occupations.ts + constants.ts แทน
+export const AU_SALARIES: Record<string, { entry: number; mid: number; senior: number; label: string }> =
+  Object.fromEntries(
+    Object.entries(AU_SALARY_BY_CATEGORY).map(([key, cat]) => [
+      key,
+      { entry: cat.entry, mid: cat.mid, senior: cat.senior, label: cat.label },
+    ])
+  )
 
 // Unskilled / Working Holiday salary (Fair Work Jul 2025)
-export const AU_UNSKILLED_SALARY = 49300 // $24.95/hr national minimum wage × 38hrs × 52wks
+// ใช้ค่าจาก constants.ts — re-exported ด้านบน
+// $24.10/hr × 38hrs × 52wks = $47,654/yr
+// Source: https://www.fairwork.gov.au/pay/minimum-wages
 
 // Thai salaries for comparison (THB/year)
+// Source: JobsDB Thailand, PayScale TH, Glassdoor TH (Feb 2026)
+// หมายเหตุ: ค่า median ของคนที่ทำงานใน กทม. 3-5 ปี
 export const TH_SALARIES: Record<string, number> = {
-  'software': 720000,    // 60K/month
-  'data-ai': 660000,     // 55K/month (PayScale avg ~43-55K, mid-senior level)
-  'accounting': 420000,  // 35K/month
-  'engineering': 540000, // 45K/month
-  'healthcare': 360000,  // 30K/month
-  'chef': 240000,        // 20K/month
-  'trades': 300000,      // 25K/month
-  'other': 360000,       // 30K/month
+  'software': 720000,    // 60K/เดือน — JobsDB avg software dev Bangkok
+  'data-ai': 660000,     // 55K/เดือน — JobsDB avg data engineer Bangkok
+  'accounting': 420000,  // 35K/เดือน — JobsDB avg accountant Bangkok
+  'engineering': 540000, // 45K/เดือน — JobsDB avg engineer Bangkok
+  'healthcare': 360000,  // 30K/เดือน — พยาบาลวิชาชีพ รพ.รัฐ
+  'chef': 240000,        // 20K/เดือน — SEEK TH avg chef
+  'trades': 300000,      // 25K/เดือน — ช่างไฟฟ้า/ประปา กทม.
+  'other': 360000,       // 30K/เดือน
 }
 
 // Thai living costs (single, Bangkok, THB/month)
+// Source: Numbeo Bangkok Feb 2026 + ประสบการณ์จริง
+// สมมติ: คอนโดใกล้ BTS กทม., กินข้าวแกงส้มตำ mix กับ delivery, ประกัน OPD+IPD
 export const TH_LIVING_COSTS = {
-  rent: 15000,       // คอนโดใกล้ BTS
-  food: 10000,       // กินข้าวแกง ส้มตำ mix กับ delivery
-  transport: 2500,   // BTS/MRT
-  utilities: 2500,   // น้ำไฟ
-  phone: 1000,       // เน็ตมือถือ
-  entertainment: 5000,
-  insurance: 2500,   // ประกันสุขภาพที่ครอบคลุมดี (OPD+IPD)
+  rent: 15000,          // คอนโดใกล้ BTS — Numbeo Bangkok 1BR centre: ~14K-16K
+  food: 10000,          // กินข้าวแกง ส้มตำ mix กับ delivery
+  transport: 2500,      // BTS/MRT monthly
+  utilities: 2500,      // น้ำไฟ (PEA/MEA + ประปา)
+  phone: 1000,          // เน็ตมือถือ AIS/TRUE/DTAC
+  entertainment: 5000,  // สังสรรค์ / พักผ่อน
+  insurance: 2500,      // ประกันสุขภาพที่ครอบคลุมดี (OPD+IPD)
 }
 export const TH_TOTAL_LIVING = Object.values(TH_LIVING_COSTS).reduce((a, b) => a + b, 0) // ~39,000
 
@@ -114,18 +130,19 @@ export const AU_CITIES: Record<string, CityInfo> = {
   // Numbeo Feb 2026: https://www.numbeo.com/cost-of-living/in/{City}
   'sydney': {
     id: 'sydney', name: 'Sydney', label: '🏙️ Sydney',
-    rent1br: 3440, rent2br: 4800, rentFamily: 6800, rentShare: 1400, // Numbeo: 1BR city centre $3,438
-    utilities: 294, internet: 80, // Numbeo: utilities 85m² $294.27, internet 60Mbps $78.10
+    rent1br: 3700, rent2br: 5000, rentFamily: 6900, rentShare: 1400, // Numbeo Mar 2026: 1BR city $3,695, 3BR city $6,898
+    utilities: 294, internet: 78, // Numbeo: utilities 85m² $293.68, internet 60Mbps $78.00
   },
   'melbourne': {
     id: 'melbourne', name: 'Melbourne', label: '🎭 Melbourne',
-    rent1br: 2460, rent2br: 3440, rentFamily: 4750, rentShare: 1100, // Numbeo: 1BR city $2,459, 3BR city $4,752
-    utilities: 291, internet: 80, // Numbeo: utilities 85m² $290.79, internet 60Mbps $76.55
+    rent1br: 2460, rent2br: 3440, rentFamily: 4750, rentShare: 1100, // Numbeo Feb 2026: 1BR city $2,459, 3BR city $4,752
+    utilities: 310, internet: 76, // Numbeo: utilities 85m² $308.97, internet 60Mbps $76.38
   },
+  // Numbeo Feb 2026: https://www.numbeo.com/cost-of-living/in/Brisbane
   'brisbane': {
     id: 'brisbane', name: 'Brisbane', label: '☀️ Brisbane',
-    rent1br: 2600, rent2br: 3500, rentFamily: 4400, rentShare: 1050, // Numbeo: 1BR city $2,600
-    utilities: 280, internet: 80, // Numbeo: utilities 85m² $280
+    rent1br: 2580, rent2br: 3500, rentFamily: 4510, rentShare: 1050, // Numbeo Feb 2026: 1BR city $2,584, 3BR city $4,507
+    utilities: 281, internet: 84, // Numbeo: utilities 85m² $280.96, internet 60Mbps $84.24
   },
 }
 
@@ -161,9 +178,11 @@ export const SAVINGS_RANGES: Record<string, { min: number; max: number; label: s
 export function calculateInitialCosts(family: string, rent: number): {
   visa: number; flight: number; bond: number; furniture: number; docs: number; total: number
 } {
-  // Home Affairs visa pricing Feb 2026 — subclass 189 base $4,910 + additional applicants
-  // Ref: https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/skilled-independent-189/points-tested
-  const visa = family === 'family' ? 8595 : family === 'couple' ? 7365 : 4910
+  // Home Affairs visa pricing Jul 2025 — subclass 189 Skilled Independent
+  // Source: https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/skilled-independent-189/points-tested
+  // Main applicant: $4,765 | Additional adult: $2,385 | Child (<18): $1,195
+  // Note: These are 189 costs. 482 TSS costs different — see country-detailed-data.ts
+  const visa = family === 'family' ? 8345 : family === 'couple' ? 7150 : 4765
   const flight = family === 'family' ? 3500 : family === 'couple' ? 2200 : 1100
   const bond = rent // 4 weeks bond ≈ 1 month
   const furniture = family === 'single' ? 2000 : 4000
