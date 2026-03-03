@@ -63,7 +63,7 @@ export async function chatWithTyphoon(
     model: MODEL,
     messages,
     temperature: 0.7,
-    max_tokens: 1024,
+    max_tokens: 4096,
   })
 
   if (!res.ok) {
@@ -151,7 +151,7 @@ export async function analyzeResults(
     model: MODEL,
     messages,
     temperature: 0.6,
-    max_tokens: 512,
+    max_tokens: 4096,
   })
 
   if (!res.ok) throw new Error('AI analysis failed')
@@ -268,7 +268,7 @@ ${countrySummaries}
     model: MODEL,
     messages,
     temperature: 0.4,
-    max_tokens: 1500,
+    max_tokens: 4096,
   })
 
   if (!res.ok) throw new Error(`AI ranking failed: ${res.status}`)
