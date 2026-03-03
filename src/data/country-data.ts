@@ -357,78 +357,102 @@ export interface MatchParams {
 }
 
 export function matchCountries(params: MatchParams): MatchResult[] {
-  // 1. Build weight vector from goals
-  const weights: Partial<Record<keyof CountryScores, number>> = {}
+  // 1. Build weight vector from goal choices
+  const weights: Record<keyof CountryScores, number> = {
+    costOfLiving: 0, safety: 0, healthcare: 0, education: 0, workLifeBalance: 0,
+    taxFriendliness: 0, immigrationEase: 0, jobMarket: 0, climate: 0, politicalStability: 0,
+  }
 
   for (const g of params.goals) {
     const mapping = GOAL_WEIGHTS[g]
     if (mapping) {
       for (const [criterion, weight] of Object.entries(mapping)) {
-        const key = criterion as keyof CountryScores
-        weights[key] = (weights[key] || 0) + weight
+        weights[criterion as keyof CountryScores] += weight
       }
     }
   }
 
-  // Only score criteria that are relevant to user's goals
-  // (no baseline weights — forces results to actually differ based on choices)
-  // Add small baseline for safety + politicalStability since everyone cares a little
-  const allCriteria: (keyof CountryScores)[] = [
-    'costOfLiving', 'safety', 'healthcare', 'education', 'workLifeBalance',
-    'taxFriendliness', 'immigrationEase', 'jobMarket', 'climate', 'politicalStability'
-  ]
-  for (const c of allCriteria) {
-    if (!weights[c]) weights[c] = 0
+  // 2. Family status adjusts priorities (ถ้าไปกับครอบครัว → education+healthcare สำคัญขึ้น)
+  if (params.family === 'family') {
+    weights.education += 3
+    weights.healthcare += 2
+    weights.safety += 1
+  } else if (params.family === 'couple') {
+    weights.safety += 1
   }
 
-  // 2. Score each country
+  // Labels for explanation
+  const criteriaLabels: Record<string, string> = {
+    costOfLiving: 'ค่าครองชีพ', safety: 'ความปลอดภัย', healthcare: 'สาธารณสุข',
+    education: 'การศึกษา', workLifeBalance: 'Work-life balance', taxFriendliness: 'ภาษีเป็นมิตร',
+    immigrationEase: 'ย้ายเข้าง่าย', jobMarket: 'ตลาดงาน', climate: 'อากาศดี',
+    politicalStability: 'การเมืองมั่นคง',
+  }
+
+  // 3. Score each country using ONLY goal-relevant criteria
   const results: MatchResult[] = COUNTRIES.map(country => {
     let score = 0
     let maxPossible = 0
+    const breakdown: Array<{ label: string; val: number; weight: number }> = []
 
     for (const [criterion, weight] of Object.entries(weights)) {
-      const countryScore = country.scores[criterion as keyof CountryScores] || 5
-      score += countryScore * weight
+      if (weight === 0) continue // skip criteria user didn't pick
+      const val = country.scores[criterion as keyof CountryScores] || 5
+      score += val * weight
       maxPossible += 10 * weight
+      breakdown.push({ label: criteriaLabels[criterion] || criterion, val, weight })
     }
 
-    // 3. Occupation demand bonus (ใช้ matchIds จับคู่กับ hotJobs)
-    // Look up by id OR matchIds (handles 'data-ai' which maps to software group)
+    // If user didn't pick any goals (shouldn't happen) → fallback to average
+    if (maxPossible === 0) {
+      for (const [, val] of Object.entries(country.scores)) {
+        score += val
+        maxPossible += 10
+      }
+    }
+
+    // 4. Occupation demand bonus
     const occDef = OCCUPATIONS.find(o => o.id === params.occupation || (o.matchIds as readonly string[]).includes(params.occupation))
     const isHotJob = occDef
       ? occDef.matchIds.some(mid => country.hotJobs.includes(mid))
       : country.hotJobs.includes(params.occupation)
     if (isHotJob) {
-      score *= 1.10 // was 1.12 — reduced to prevent hotJob-heavy countries from dominating
+      score *= 1.10
     } else {
-      score *= 0.95 // was 0.92 — reduced penalty for non-hotJob
+      score *= 0.95
     }
 
-    // 4. Income feasibility adjustment
-    // If user's income is low and country is very expensive, slight penalty
-    const incomeLevel = params.monthlyIncome / 30000 // normalized (30K THB = 1.0)
-    if (country.costIndex > 250 && incomeLevel < 1.5) {
-      score *= 0.95 // slight penalty for very expensive countries with lower income
+    // 5. Income feasibility — compare user income to country's cost of living
+    const userIncome = params.monthlyIncome || 30000
+    // costIndex: Thailand = 100. Rough monthly living cost = costIndex/100 * 25000 THB
+    const estimatedMonthlyCost = (country.costIndex / 100) * 25000
+    const affordRatio = userIncome / estimatedMonthlyCost
+    if (affordRatio < 0.3) {
+      score *= 0.80 // very hard to afford
+    } else if (affordRatio < 0.5) {
+      score *= 0.88 // tight budget
+    } else if (affordRatio < 0.8) {
+      score *= 0.94 // manageable but not comfortable
     }
+    // No bonus for high income — we don't want to artificially boost expensive countries
 
-    // 5. Age adjustment for points-based systems
+    // 6. Age adjustment for points-based systems
     if (params.age === '45+') {
-      // Points reduction but NOT hard cutoff (AU/CA no max age, NZ max 55)
-      // AU: State nominations (WA/SA/NT/TAS) accept up to age 50 (2026 reforms), 482 visa no age limit
-      // CA: No maximum age, points decline gradually after 29
-      // NZ: Hard limit at 55, not 45
       const pointsBasedCountries = ['australia', 'canada', 'newzealand']
       if (pointsBasedCountries.includes(country.id)) {
-        score *= 0.85 // Softer penalty - age 45+ harder but still possible
+        score *= 0.85
       }
     }
 
     // Calculate match percentage
-    const rawPct = (score / maxPossible) * 100
+    const rawPct = maxPossible > 0 ? (score / maxPossible) * 100 : 50
     const matchPct = Math.min(97, Math.max(15, Math.round(rawPct)))
 
-    // Generate highlights based on user priorities
-    const highlights = generateHighlights(country, params)
+    // Sort breakdown by contribution (weight * val), descending
+    breakdown.sort((a, b) => (b.val * b.weight) - (a.val * a.weight))
+
+    // Generate TRANSPARENT highlights tied to user's actual choices
+    const highlights = generateHighlights(country, params, breakdown, isHotJob, affordRatio)
     const occupationNote = getOccupationNote(country.id, params.occupation)
 
     return {
@@ -444,72 +468,40 @@ export function matchCountries(params: MatchParams): MatchResult[] {
   return results.sort((a, b) => b.matchPct - a.matchPct).slice(0, 5)
 }
 
-function generateHighlights(country: Country, params: MatchParams): string[] {
+function generateHighlights(
+  country: Country,
+  params: MatchParams,
+  breakdown: Array<{ label: string; val: number; weight: number }>,
+  isHotJob: boolean,
+  affordRatio: number,
+): string[] {
   const highlights: string[] = []
 
-  const criteriaLabels: Record<string, string> = {
-    costOfLiving: 'ค่าครองชีพ',
-    safety: 'ความปลอดภัย',
-    healthcare: 'สาธารณสุข',
-    education: 'การศึกษา',
-    workLifeBalance: 'Work-life balance',
-    taxFriendliness: 'ภาษีเป็นมิตร',
-    immigrationEase: 'ย้ายเข้าง่าย',
-    jobMarket: 'ตลาดงาน',
-    climate: 'อากาศดี',
-    politicalStability: 'การเมืองมั่นคง',
-  }
-
-  // Build set of criteria user cares about (from their goals)
-  const userPriorities = new Set<string>()
-  for (const g of params.goals) {
-    const mapping = GOAL_WEIGHTS[g]
-    if (mapping) {
-      for (const criterion of Object.keys(mapping)) {
-        userPriorities.add(criterion)
-      }
+  // 1. Show top criteria that match user's goals (with score)
+  for (const item of breakdown) {
+    if (highlights.length >= 2) break
+    if (item.val >= 8) {
+      highlights.push(`🎯 ${item.label} ${item.val}/10 — ตรงเป้าหมายคุณ`)
+    } else if (item.val >= 6) {
+      highlights.push(`👍 ${item.label} ${item.val}/10`)
     }
   }
 
-  // 1st pass: highlight criteria USER chose that this country scores well on (>=7)
-  const priorityCriteria = Object.entries(country.scores)
-    .filter(([key]) => userPriorities.has(key))
-    .map(([key, val]) => ({ key: key as keyof CountryScores, val }))
-    .sort((a, b) => b.val - a.val)
-
-  for (const { key, val } of priorityCriteria) {
-    if (val >= 7 && highlights.length < 2) {
-      const label = criteriaLabels[key]
-      if (val === 10) highlights.push(`⭐ ${label} ดีเลิศ`)
-      else if (val >= 9) highlights.push(`✅ ${label} ดีมาก`)
-      else if (val >= 8) highlights.push(`✅ ${label} ดี`)
-      else highlights.push(`👍 ${label} พอใช้ได้`)
-    }
-  }
-
-  // 2nd pass: fill remaining spots with highest scores (not already added)
-  const addedKeys = new Set(priorityCriteria.filter(c => c.val >= 7).slice(0, 2).map(c => c.key))
-  const otherCriteria = Object.entries(country.scores)
-    .filter(([key]) => !addedKeys.has(key as keyof CountryScores))
-    .map(([key, val]) => ({ key: key as keyof CountryScores, val }))
-    .sort((a, b) => b.val - a.val)
-
-  for (const { key, val } of otherCriteria) {
-    if (val >= 9 && highlights.length < 3) {
-      const label = criteriaLabels[key]
-      if (val === 10) highlights.push(`⭐ ${label} ดีเลิศ`)
-      else highlights.push(`✅ ${label} ดีมาก`)
-    }
-  }
-
-  // Add occupation note if it's a hot job
-  const occDef = OCCUPATIONS.find(o => o.id === params.occupation || (o.matchIds as readonly string[]).includes(params.occupation))
-  const isHotJob = occDef
-    ? occDef.matchIds.some(mid => country.hotJobs.includes(mid))
-    : country.hotJobs.includes(params.occupation)
+  // 2. Occupation demand
   if (isHotJob) {
-    const occLabel = occDef?.labelTH || params.occupation
-    highlights.push(`🔥 ${occLabel} เป็นที่ต้องการ`)
+    const occDef = OCCUPATIONS.find(o => o.id === params.occupation || (o.matchIds as readonly string[]).includes(params.occupation))
+    highlights.push(`🔥 ${occDef?.labelTH || params.occupation} เป็นที่ต้องการ`)
+  } else {
+    highlights.push(`⚠️ อาชีพไม่อยู่ใน shortage list`)
+  }
+
+  // 3. Affordability note based on actual income
+  if (affordRatio >= 1.0) {
+    highlights.push(`💰 รายได้ปัจจุบันอยู่ได้สบาย`)
+  } else if (affordRatio >= 0.5) {
+    highlights.push(`💰 ค่าครองชีพพอรับได้ แต่ต้องวางแผน`)
+  } else {
+    highlights.push(`⚠️ ค่าครองชีพสูงเทียบรายได้ปัจจุบัน`)
   }
 
   return highlights.slice(0, 4)
