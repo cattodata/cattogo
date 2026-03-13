@@ -1197,9 +1197,9 @@ export function getCategories(): string[] {
   return Array.from(cats).sort()
 }
 
-/** Map occupation category → country-data occupation ID */
+/** Map occupation category → country-data occupation ID (fallback for non-ICT) */
 const CATEGORY_TO_OCC_ID: Record<string, string> = {
-  'ICT & Technology': 'software',
+  'ICT & Technology': 'software',  // fallback — overridden by KEY_TO_OCC_ID for ICT
   'Engineering': 'engineering',
   'Trades': 'engineering',
   'Healthcare': 'healthcare',
@@ -1213,6 +1213,42 @@ const CATEGORY_TO_OCC_ID: Record<string, string> = {
   'Agriculture & Environment': 'other',
   'Community Services': 'other',
   'Other': 'other',
+}
+
+/** Per-key mapping for ICT subcategories (overrides CATEGORY_TO_OCC_ID) */
+const KEY_TO_OCC_ID: Record<string, string> = {
+  // Data / AI
+  dataEngineer: 'data-ai',
+  dataScientist: 'data-ai',
+  mlEngineer: 'data-ai',
+  dataAnalyst: 'data-ai',
+  dataArchitect: 'data-ai',
+  // DevOps / Cloud
+  devopsEngineer: 'devops-cloud',
+  // Cybersecurity
+  cybersecurityAnalyst: 'cybersecurity',
+  cyberSecurityEngineer: 'cybersecurity',
+  penetrationTester: 'cybersecurity',
+  // Network / SysAdmin
+  networkEngineer: 'network-admin',
+  networkAdministrator: 'network-admin',
+  systemsAdministrator: 'network-admin',
+  ictSupportEngineer: 'network-admin',
+  // IT Management
+  ictProjectManager: 'it-management',
+  ictBusinessAnalyst: 'it-management',
+  ictQualityAssurance: 'it-management',
+  ictSalesRep: 'it-management',
+  // Software (explicit — rest of ICT)
+  softwareEngineer: 'software',
+  webDeveloper: 'software',
+  developerProgrammer: 'software',
+  analystProgrammer: 'software',
+  softwareTester: 'software',
+  multimediaDeveloper: 'software',
+  systemsAnalyst: 'software',
+  databaseAdmin: 'software',
+  telecommunicationsEngineer: 'software',
 }
 
 /** ค้นหาอาชีพจากชื่อ, aliases, ANZSCO code, หรือ category (case-insensitive) */
@@ -1233,12 +1269,13 @@ export function searchOccupations(query: string): { key: string; title: string; 
       key,
       title: o.title,
       category: o.category,
-      occId: CATEGORY_TO_OCC_ID[o.category] || 'other',
+      occId: KEY_TO_OCC_ID[key] || CATEGORY_TO_OCC_ID[o.category] || 'other',
     }))
 }
 
 /** Map specific occupation key → country-data ID */
 export function getOccIdForKey(key: string): string {
+  if (KEY_TO_OCC_ID[key]) return KEY_TO_OCC_ID[key]
   const occ = occupations[key]
   if (!occ) return 'other'
   return CATEGORY_TO_OCC_ID[occ.category] || 'other'

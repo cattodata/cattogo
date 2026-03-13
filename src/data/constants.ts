@@ -8,22 +8,22 @@
 // 3. ทุกที่ที่ import จะได้ค่าใหม่อัตโนมัติ
 
 // ===== EXCHANGE RATES TO THB =====
-// Source: Bank of Thailand mid-rate, XE.com mid-market average
-// Last updated: Feb 2026
+// Source: XE.com mid-market rate, Mar 13 2026
+// Last updated: Mar 2026
 export const CURRENCY_TO_THB: Record<string, number> = {
-  AUD: 22.10,
-  NZD: 20.00,
-  CAD: 24.50,
-  USD: 34.50,
-  GBP: 43.50,
-  EUR: 37.50,
-  JPY: 0.23,
-  SGD: 25.80,
-  CHF: 39.50,
-  AED: 9.40,
-  NOK: 3.25,
-  SEK: 3.30,
-  KRW: 0.025,
+  AUD: 22.70,
+  NZD: 18.80,
+  CAD: 23.55,
+  USD: 32.25,
+  GBP: 42.80,
+  EUR: 37.00,
+  JPY: 0.203,
+  SGD: 25.20,
+  CHF: 40.95,
+  AED: 8.78,
+  NOK: 3.32,
+  SEK: 3.44,
+  KRW: 0.0216,
 }
 
 // Convenience: AUD to THB (most commonly used)
@@ -49,11 +49,11 @@ export const CURRENCY_SYMBOLS: Record<string, string> = {
 // ===== DATA VERSION TRACKING =====
 // รวม lastUpdated ไว้ที่เดียว ใช้ตรวจว่าข้อมูลเก่าหรือยัง
 export const DATA_LAST_UPDATED = {
-  exchangeRates: 'Feb 2026',        // XE.com, Bank of Thailand
+  exchangeRates: 'Mar 2026',         // XE.com mid-market Mar 13, 2026
   auSalaries: 'Jan-Feb 2026',       // PayScale AU (source of truth = occupations.ts)
-  countryScores: 'Feb 2026',        // OECD, Numbeo, GPI
-  visaCosts: 'Feb 2026',            // Official immigration sites
-  costOfLiving: 'Feb 2026',         // Numbeo
+  countryScores: 'Mar 2026',        // OECD, Numbeo, GPI
+  visaCosts: 'Mar 2026',            // Official immigration sites (FY25-26)
+  costOfLiving: 'Mar 2026',         // Numbeo
   occupations: 'Jan-Feb 2026',      // PayScale AU, SkillSelect Nov 2025
 } as const
 

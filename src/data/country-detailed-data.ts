@@ -1,6 +1,6 @@
 // ===== Detailed Country Migration Data =====
 // Complete visa costs, salaries, cost of living from official sources
-// Last updated: Feb 12, 2026
+// Last updated: Mar 13, 2026
 // Sources: Home Affairs, IRCC, GOV.UK, Immigration NZ, Make it in Germany,
 //          MOM Singapore, Migrationsverket, UDI, IND, GDRFAD, Department of Enterprise,
 //          USCIS, Numbeo, PayScale, Glassdoor, SEEK, Job Bank Canada
@@ -87,13 +87,13 @@ export const AUSTRALIA: CountryDetailedData = {
   flag: '🇦🇺',
   
   visaCosts: {
-    single: 3210,
-    couple: 6420,
-    family: 7235,
+    single: 4640,
+    couple: 6960,
+    family: 8120,
     currency: 'AUD',
-    notes: '482 TSS (July 1, 2025): $3,210 main + $3,210 adult dep + $805 child. STAC onshore: +$700/person. 186 ENS Direct: $4,765/$7,150/$8,545 | 186 TRT: $4,240 | 189 Skilled: $4,765/$7,150/$8,545. Most popular: 482 (employer-sponsored, no points!)',
-    source: 'Home Affairs',
-    lastUpdated: 'July 2025',
+    notes: '189 Skilled Independent (FY25-26): $4,640 main + $2,320 adult dep + $1,160 child. 482 TSS (July 2025): $3,210 main. 186 ENS: $4,765. 491 Regional: $4,640. Most paths: 189/190 for skilled workers.',
+    source: 'Home Affairs immi.homeaffairs.gov.au',
+    lastUpdated: 'FY25-26 (July 2025)',
   },
   
   // Salaries: derived from PayScale AU p10/median/p90 (Jan-Feb 2026)
@@ -137,17 +137,17 @@ export const AUSTRALIA: CountryDetailedData = {
   keyChallenges: [
     'Very expensive (Sydney/Melbourne)',
     'Far from Thailand (~9 hours)',
-    '482 visa: $3,210+ (increased July 2025)',
+    '189 Skilled: $4,640+ visa fee (FY25-26)',
     '189 Skilled: Competitive points system (65+)',
   ],
   
   officialSources: {
     immigration: 'homeaffairs.gov.au',
-    salaries: 'PayScale AU, SEEK Feb 2026',
-    costOfLiving: 'Numbeo Feb 2026',
+    salaries: 'PayScale AU, SEEK Jan-Feb 2026',
+    costOfLiving: 'Numbeo Mar 2026',
   },
   
-  dataVersion: 'Feb 2026',
+  dataVersion: 'Mar 2026',
 }
 
 // ===== CANADA 🇨🇦 =====
@@ -1101,10 +1101,10 @@ export const JAPAN: CountryDetailedData = {
   officialSources: {
     immigration: 'moj.go.jp, immi-moj.go.jp',
     salaries: 'PayScale JP, Glassdoor JP',
-    costOfLiving: 'Numbeo Feb 2026',
+    costOfLiving: 'Numbeo Mar 2026',
   },
   
-  dataVersion: 'Feb 2026',
+  dataVersion: 'Mar 2026',
 }
 
 // ===== EXPORT ALL =====
