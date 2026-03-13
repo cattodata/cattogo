@@ -168,6 +168,23 @@ export function ChatSimulator() {
 
   const bottomRef = useRef<HTMLDivElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const resultRef = useRef<HTMLDivElement>(null)
+
+  const captureResultAsImage = async () => {
+    if (!resultRef.current) return
+    try {
+      const html2canvas = (await import('html2canvas-pro')).default
+      const canvas = await html2canvas(resultRef.current, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        useCORS: true,
+      })
+      const link = document.createElement('a')
+      link.download = 'cattogo-result.png'
+      link.href = canvas.toDataURL('image/png')
+      link.click()
+    } catch { /* ignore */ }
+  }
 
   useEffect(() => {
     setTimeout(() => {
@@ -1561,7 +1578,7 @@ export function ChatSimulator() {
         {/* ===== RESULT PHASE ===== */}
         {/* ================================================================ */}
         {phase === 'result' && (
-          <div className="animate-fade-in space-y-4">
+          <div ref={resultRef} className="animate-fade-in space-y-4">
             <div className="text-center py-2">
               <div className="text-3xl font-bold text-gray-800 mb-1">🎊 ยินดีด้วย!</div>
               <div className="text-lg text-blue-600 font-semibold">คุณย้ายไป {city.name}, Australia สำเร็จ!</div>
@@ -1578,14 +1595,55 @@ export function ChatSimulator() {
                 <span>💰 เงินสุทธิ Net</span><span>{fmtAud(monthlyNet)}/เดือน</span>
               </div>
               <div className="text-xs text-gray-400 mb-3">+ Super {fmtAud(Math.round(grossAnnual * 0.115 / 12))}/เดือน (นายจ้างจ่าย 11.5%)</div>
-              <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">รายจ่าย</div>
-              <Row label={`🏠 ค่าเช่า (${choices['housing'] === 'share' ? 'แชร์' : choices['housing'] === '1bed' ? '1 bed' : '2 bed'})`} val={`-${fmtAud(monthlyRentAu)}`} red />
-              <Row label="💡 น้ำ/ไฟ+Internet" val={`-${fmtAud(monthlyUtils)}`} red />
-              <Row label="🍳 อาหาร" val={`-${fmtAud(monthlyFood)}`} red />
-              <Row label="🚇 เดินทาง" val={`-${fmtAud(monthlyTransport)}`} red />
-              <Row label="📱 มือถือ" val={`-${fmtAud(monthlyPhone)}`} red />
-              {monthlyInsurance > 0 && <Row label="🏥 ประกันเพิ่ม" val={`-${fmtAud(monthlyInsurance)}`} red />}
-              <Row label="🎬 เที่ยว/สังสรรค์" val={`-${fmtAud(monthlyMisc)}`} red />
+              <div className="flex items-center justify-between mb-1">
+                <div className="text-xs text-gray-400 uppercase tracking-wide">รายจ่าย</div>
+                <button onClick={() => setEditingAuCosts(e => !e)} className="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-blue-100 text-blue-700 border border-blue-300 hover:bg-blue-200 transition-colors">
+                  {editingAuCosts ? '✕ ปิด' : '✏️ แก้ไขได้'}
+                </button>
+              </div>
+              {!editingAuCosts ? (
+                <>
+                  <Row label={`🏠 ค่าเช่า (${choices['housing'] === 'share' ? 'แชร์' : choices['housing'] === '1bed' ? '1 bed' : '2 bed'})`} val={`-${fmtAud(monthlyRentAu)}`} red />
+                  <Row label="💡 น้ำ/ไฟ+Internet" val={`-${fmtAud(monthlyUtils)}`} red />
+                  <Row label="🍳 อาหาร" val={`-${fmtAud(monthlyFood)}`} red />
+                  <Row label="🚇 เดินทาง" val={`-${fmtAud(monthlyTransport)}`} red />
+                  <Row label="📱 มือถือ" val={`-${fmtAud(monthlyPhone)}`} red />
+                  {monthlyInsurance > 0 && <Row label="🏥 ประกันเพิ่ม" val={`-${fmtAud(monthlyInsurance)}`} red />}
+                  <Row label="🎬 เที่ยว/สังสรรค์" val={`-${fmtAud(monthlyMisc)}`} red />
+                </>)
+              : (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-2.5 space-y-1.5">
+                  <div className="text-xs font-medium text-blue-700 mb-1">🇦🇺 ปรับค่าใช้จ่ายรายเดือน (AUD/เดือน)</div>
+                  {([
+                    { key: 'rent', label: `🏠 ค่าเช่า (${choices['housing'] === 'share' ? 'แชร์' : choices['housing'] === '1bed' ? '1 bed' : '2 bed'})`, base: monthlyRent },
+                    { key: 'utils', label: '💡 น้ำไฟ+Net', base: baseUtils },
+                    { key: 'food', label: '🍳 อาหาร', base: baseFood },
+                    { key: 'transport', label: '🚇 เดินทาง', base: baseTransport },
+                    { key: 'phone', label: '📱 มือถือ', base: basePhone },
+                    { key: 'misc', label: '🎬 สังสรรค์', base: baseMisc },
+                    { key: 'insurance', label: '🏥 ประกัน', base: baseInsurance },
+                  ] as const).map(({ key, label, base }) => (
+                    <div key={key} className="flex items-center gap-2">
+                      <label className="text-xs text-gray-600 w-28 truncate">{label}</label>
+                      <input
+                        type="number" min={0}
+                        className="flex-1 px-2 py-1 text-xs border border-blue-200 rounded bg-white text-right font-mono"
+                        value={auCostOverrides[key] ?? base}
+                        onChange={e => {
+                          const v = parseInt(e.target.value) || 0
+                          setAuCostOverrides(prev => ({ ...prev, [key]: Math.max(0, v) }))
+                        }}
+                      />
+                    </div>
+                  ))}
+                  <div className="flex items-center gap-2 pt-2">
+                    <button onClick={() => setAuCostOverrides({})} className="text-[10px] text-blue-500 underline hover:text-blue-700">รีเซ็ต</button>
+                    <button onClick={() => setEditingAuCosts(false)} className="flex-1 py-1.5 text-xs font-bold rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+                      🔄 คำนวนใหม่
+                    </button>
+                  </div>
+                </div>
+              )}
               <Row label="🏥 Medicare" val="ฟรี!" green />
               <div className="flex justify-between py-2 font-bold border-t-2 border-gray-300 mt-1">
                 <span>รวมจ่าย</span><span className="text-red-600">-{fmtAud(totalMonthlyExp)}/เดือน</span>
@@ -1616,25 +1674,51 @@ export function ChatSimulator() {
             {/* TH vs AU */}
             <div className="result-section" style={{ background: 'linear-gradient(135deg, #FFF7ED, #FEF9C3)', borderColor: '#FDBA74' }}>
               <h4 className="text-base font-bold text-gray-800 mb-3">🔥 เทียบกัน: อยู่ไทย vs ย้ายไป AU</h4>
+
+              {/* Header cards */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="text-center p-3 bg-white/70 rounded-lg">
-                  <div className="text-2xl">🇹🇭</div>
-                  <div className="font-bold text-gray-800 text-sm">อยู่ไทย</div>
-                  <div className="text-xs text-gray-500">เงินเดือน {fmtThb(thaiSalary)}</div>
-                  <div className="text-xs text-gray-400">ค่าใช้จ่าย {fmtThb(thaiTotalLiving)}/เดือน</div>
-                  <div className="text-xl font-bold text-orange-600 mt-1">{fmtThb(thaiMonthlySavings)}</div>
+                <div className="p-3 bg-white/80 rounded-xl border border-orange-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-2xl">🇹🇭</span>
+                    <div className="font-bold text-gray-800 text-sm">อยู่ไทย</div>
+                  </div>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex justify-between"><span className="text-gray-500">เงินเดือน</span><span className="font-mono font-semibold">{fmtThb(thaiSalary)}</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">ภาษี+ประกันสังคม</span><span className="font-mono text-red-500">-{fmtThb(Math.round((thaiTax.tax + thaiTax.socialSec) / 12))}</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">ค่าใช้จ่าย</span><span className="font-mono text-red-500">-{fmtThb(thaiTotalLiving)}</span></div>
+                    <div className="flex justify-between pt-1 border-t border-orange-200"><span className="font-semibold text-gray-700">เหลือเก็บ</span><span className="font-mono font-bold text-orange-600">{fmtThb(thaiMonthlySavings)}</span></div>
+                  </div>
                 </div>
-                <div className="text-center p-3 bg-white/70 rounded-lg">
-                  <div className="text-2xl">🇦🇺</div>
-                  <div className="font-bold text-gray-800 text-sm">ย้ายไป AU</div>
-                  <div className="text-xs text-gray-500">เงินเดือน {fmtAud(Math.round(grossAnnual / 12))}</div>
-                  <div className="text-xs text-gray-400">ค่าใช้จ่าย {fmtAud(totalMonthlyExp)}/เดือน</div>
-                  <div className="text-xl font-bold text-green-600 mt-1">{fmtThb(monthlySavingsTHB)}</div>
+                <div className="p-3 bg-white/80 rounded-xl border border-blue-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-2xl">🇦🇺</span>
+                    <div className="font-bold text-gray-800 text-sm">ย้ายไป AU</div>
+                  </div>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex justify-between"><span className="text-gray-500">เงินเดือน</span><span className="font-mono font-semibold">{fmtThb(Math.round(grossAnnual / 12 * AUD_TO_THB))}</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">ภาษี+Medicare</span><span className="font-mono text-red-500">-{fmtThb(Math.round((auTax.tax + auTax.medicare) / 12 * AUD_TO_THB))}</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">ค่าใช้จ่าย</span><span className="font-mono text-red-500">-{fmtThb(Math.round(totalMonthlyExp * AUD_TO_THB))}</span></div>
+                    <div className="flex justify-between pt-1 border-t border-blue-200"><span className="font-semibold text-gray-700">เหลือเก็บ</span><span className="font-mono font-bold text-green-600">{fmtThb(monthlySavingsTHB)}</span></div>
+                  </div>
                 </div>
               </div>
-              {monthlySavingsTHB > thaiMonthlySavings && (
-                <div className="text-center mt-3 p-2 bg-green-100 rounded-lg">
-                  <span className="text-green-700 font-bold text-sm">📈 เก็บเงินได้มากกว่า +{fmtThb(monthlySavingsTHB - thaiMonthlySavings)}/เดือน!</span>
+
+              {/* Result summary */}
+              {monthlySavingsTHB !== thaiMonthlySavings && (
+                <div className={`text-center mt-3 p-3 rounded-xl ${monthlySavingsTHB > thaiMonthlySavings ? 'bg-green-100 border border-green-300' : 'bg-amber-100 border border-amber-300'}`}>
+                  {monthlySavingsTHB > thaiMonthlySavings ? (
+                    <>
+                      <div className="text-green-800 font-bold text-sm">📈 ย้ายไป AU เก็บเงินได้มากกว่า!</div>
+                      <div className="text-green-700 text-2xl font-bold mt-1">+{fmtThb(monthlySavingsTHB - thaiMonthlySavings)}/เดือน</div>
+                      <div className="text-green-600 text-xs mt-1">1 ปีห่างกัน ~{fmtThb((monthlySavingsTHB - thaiMonthlySavings) * 12)}</div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-amber-800 font-bold text-sm">⚠️ อยู่ไทยเก็บได้มากกว่า</div>
+                      <div className="text-amber-700 text-lg font-bold mt-1">+{fmtThb(thaiMonthlySavings - monthlySavingsTHB)}/เดือน</div>
+                      <div className="text-amber-600 text-xs mt-1">ลองปรับค่าใช้จ่ายดู หรือเลือกเมือง/งานอื่น</div>
+                    </>
+                  )}
                 </div>
               )}
 
@@ -1642,9 +1726,6 @@ export function ChatSimulator() {
               <div className="mt-3">
                 <button onClick={() => setEditingThaiCosts(e => !e)} className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-orange-100 text-orange-700 border border-orange-300 hover:bg-orange-200 transition-colors">
                   {editingThaiCosts ? '✕ ปิด' : '✏️ แก้ค่าใช้จ่ายไทย'}
-                </button>
-                <button onClick={() => setEditingAuCosts(e => !e)} className="ml-2 px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-100 text-blue-700 border border-blue-300 hover:bg-blue-200 transition-colors">
-                  {editingAuCosts ? '✕ ปิด' : '✏️ แก้ค่าใช้จ่าย AU'}
                 </button>
               </div>
 
@@ -1674,48 +1755,22 @@ export function ChatSimulator() {
                   <div className="flex justify-between items-center pt-1.5 border-t border-orange-200 text-xs font-semibold text-orange-800">
                     <span>รวม</span><span>฿{fmt(thaiTotalLiving)}</span>
                   </div>
-                  <button onClick={() => setThaiCosts({ ...TH_LIVING_COSTS })} className="text-[10px] text-orange-500 underline hover:text-orange-700">รีเซ็ตเป็นค่าเริ่มต้น</button>
-                </div>
-              )}
-
-              {editingAuCosts && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-2.5 mt-2 space-y-1.5">
-                  <div className="text-xs font-medium text-blue-700 mb-1">🇦🇺 ปรับค่าใช้จ่ายรายเดือน (AUD/เดือน)</div>
-                  {([
-                    { key: 'rent', label: '🏠 ค่าเช่า', base: monthlyRent },
-                    { key: 'utils', label: '💡 น้ำไฟ+Net', base: baseUtils },
-                    { key: 'food', label: '🍳 อาหาร', base: baseFood },
-                    { key: 'transport', label: '🚇 เดินทาง', base: baseTransport },
-                    { key: 'phone', label: '📱 มือถือ', base: basePhone },
-                    { key: 'misc', label: '🎬 สังสรรค์', base: baseMisc },
-                    { key: 'insurance', label: '🏥 ประกัน', base: baseInsurance },
-                  ] as const).map(({ key, label, base }) => (
-                    <div key={key} className="flex items-center gap-2">
-                      <label className="text-xs text-gray-600 w-24">{label}</label>
-                      <input
-                        type="number" min={0}
-                        className="flex-1 px-2 py-1 text-xs border border-blue-200 rounded bg-white text-right font-mono"
-                        value={auCostOverrides[key] ?? base}
-                        onChange={e => {
-                          const v = parseInt(e.target.value) || 0
-                          setAuCostOverrides(prev => ({ ...prev, [key]: Math.max(0, v) }))
-                        }}
-                      />
-                    </div>
-                  ))}
-                  <div className="flex justify-between items-center pt-1.5 border-t border-blue-200 text-xs font-semibold text-blue-800">
-                    <span>รวม</span><span>${fmt(totalMonthlyExp)}</span>
+                  <div className="flex items-center gap-2 pt-1">
+                    <button onClick={() => setThaiCosts({ ...TH_LIVING_COSTS })} className="text-[10px] text-orange-500 underline hover:text-orange-700">รีเซ็ต</button>
+                    <button onClick={() => setEditingThaiCosts(false)} className="flex-1 py-1.5 text-xs font-bold rounded-lg bg-orange-600 text-white hover:bg-orange-700 transition-colors">
+                      🔄 คำนวนใหม่
+                    </button>
                   </div>
-                  <button onClick={() => setAuCostOverrides({})} className="text-[10px] text-blue-500 underline hover:text-blue-700">รีเซ็ตเป็นค่าเริ่มต้น</button>
                 </div>
               )}
 
-              <div className="mt-3 text-xs text-orange-700 space-y-1">
-                <div>🏥 + Medicare ฟรี</div>
-                <div>🏖️ + Annual Leave 20 วัน</div>
-                <div>🤒 + Sick Leave 10 วัน</div>
-                <div>🏦 + Super 11.5% นายจ้างจ่าย</div>
-                <div>👶 + Parental Leave 18 สัปดาห์</div>
+              {/* AU benefits */}
+              <div className="mt-3 grid grid-cols-2 gap-1.5 text-xs text-orange-700">
+                <div className="bg-white/60 rounded-lg px-2 py-1.5">🏥 Medicare ฟรี</div>
+                <div className="bg-white/60 rounded-lg px-2 py-1.5">🏖️ Annual Leave 20 วัน</div>
+                <div className="bg-white/60 rounded-lg px-2 py-1.5">🤒 Sick Leave 10 วัน</div>
+                <div className="bg-white/60 rounded-lg px-2 py-1.5">🏦 Super 11.5%</div>
+                <div className="bg-white/60 rounded-lg px-2 py-1.5 col-span-2 text-center">👶 Parental Leave 18 สัปดาห์</div>
               </div>
             </div>
 
@@ -1747,12 +1802,12 @@ export function ChatSimulator() {
                 <div className="text-xs text-gray-400 mt-2">* ยังไม่รวม Partner/เรียนใน AU/NAATI</div>
                 {visa.score >= 65 ? <div className="text-sm text-green-700 font-semibold mt-2">✅ ผ่าน 65! สมัคร 189/190 ได้</div>
                   : visa.score >= 50 ? <div className="text-sm text-yellow-700 font-semibold mt-2">⚠️ ลอง 491 Regional (+15) = {visa.score + 15}</div>
-                  : <div className="text-sm text-red-700 font-semibold mt-2">❌ คะแนน Skilled ต่ำ — แต่ยังมีทางอื่น! ดูด้านล่าง 👇</div>}
+                  : <div className="text-sm text-red-700 font-semibold mt-2">❌ คะแนน Skilled ต่ำ — ลองหา Employer Sponsor (482/186) แทน</div>}
               </div>
             </div>
 
-            {/* Non-points visa pathways */}
-            <div className="result-section" style={{ background: 'linear-gradient(135deg, #F0FDF4, #ECFDF5)', borderColor: '#86EFAC' }}>
+            {/* Non-points visa pathways — commented out, keep Employer Sponsored only for now */}
+            {/* <div className="result-section" style={{ background: 'linear-gradient(135deg, #F0FDF4, #ECFDF5)', borderColor: '#86EFAC' }}>
               <h4 className="text-base font-bold text-gray-800 mb-2">🎫 เส้นทางอื่นที่ไม่ต้องใช้คะแนน</h4>
               <div className="text-sm text-gray-700 space-y-3">
                 <div className="p-2 bg-white/80 rounded-lg">
@@ -1766,7 +1821,7 @@ export function ChatSimulator() {
                   <div className="text-xs text-gray-400">ค่าวีซ่า $1,600 + ค่าเทอม $20,000-50,000/ปี</div>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Tips */}
             <div className="result-section" style={{ background: '#EFF6FF', borderColor: '#93C5FD' }}>
@@ -1809,7 +1864,7 @@ export function ChatSimulator() {
               </button>
             </div>
             <div className="mb-4">
-              <ShareButtons />
+              <ShareButtons onCaptureImage={captureResultAsImage} />
             </div>
           </div>
         )}

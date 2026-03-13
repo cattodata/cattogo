@@ -5,7 +5,7 @@ import { useState } from 'react'
 const SITE_URL = 'https://cattodata.com/cattogo'
 const SHARE_TEXT = '🐱 CattoGO — เครื่องมือช่วยตัดสินใจก่อนย้ายประเทศ สำหรับสาย Tech เปรียบเทียบเงินเดือน วีซ่า ค่าครองชีพ ข้อมูลจริง'
 
-export function ShareButtons({ compact }: { compact?: boolean }) {
+export function ShareButtons({ compact, onCaptureImage }: { compact?: boolean; onCaptureImage?: () => void }) {
   const [copied, setCopied] = useState(false)
 
   const encodedUrl = encodeURIComponent(SITE_URL)
@@ -69,6 +69,15 @@ export function ShareButtons({ compact }: { compact?: boolean }) {
         >
           {copied ? '✓' : '🔗'}
         </button>
+        {onCaptureImage && (
+          <button
+            onClick={onCaptureImage}
+            className="bg-purple-100 hover:bg-purple-200 text-purple-700 w-8 h-8 rounded-full flex items-center justify-center text-xs transition-all hover:scale-110"
+            title="บันทึกเป็นรูป"
+          >
+            📸
+          </button>
+        )}
       </div>
     )
   }
@@ -97,6 +106,16 @@ export function ShareButtons({ compact }: { compact?: boolean }) {
           {copied ? '✅ คัดลอกแล้ว!' : '🔗 คัดลอก'}
         </button>
       </div>
+      {onCaptureImage && (
+        <div className="flex justify-center mt-2">
+          <button
+            onClick={onCaptureImage}
+            className="bg-purple-100 hover:bg-purple-200 text-purple-700 px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-semibold transition-all hover:scale-105 border border-purple-200"
+          >
+            📸 บันทึกเป็นรูป
+          </button>
+        </div>
+      )}
       <div className="text-center mt-2">
         <span className="text-[10px] text-gray-400">IG / TikTok → กดคัดลอกแล้ววางใน app ได้เลย</span>
       </div>

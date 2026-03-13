@@ -538,11 +538,11 @@ export const UAE: CountryDetailedData = {
   flag: '🇦🇪',
   
   visaCosts: {
-    single: 900,
-    couple: 1800,
-    family: 2700,
-    currency: 'USD',
-    notes: '2-Year Employment Visa: ~3,000-4,000 AED (~$815-1,090). Includes work permit, entry permit, Emirates ID, medical',
+    single: 3300,
+    couple: 6600,
+    family: 9900,
+    currency: 'AED',
+    notes: '2-Year Employment Visa: ~3,000-4,000 AED. Includes work permit, entry permit, Emirates ID, medical',
     source: 'GDRFA Dubai',
     lastUpdated: 'Nov 2025',
   },
@@ -601,9 +601,9 @@ export const NORWAY: CountryDetailedData = {
   visaCosts: {
     single: 6300,
     couple: 16800,
-    family: 17115,
+    family: 23415,
     currency: 'NOK',
-    notes: 'Skilled Worker Permit: Main 6,300 NOK, Adult dependent 10,500 NOK. Service fee €27 (~315 NOK)',
+    notes: 'Skilled Worker Permit: Main 6,300 NOK, Adult dependent 10,500 NOK, Child dependent 6,300 NOK. Service fee €27 (~315 NOK) each',
     source: 'UDI',
     lastUpdated: 'Dec 2025',
   },
@@ -737,7 +737,7 @@ export const IRELAND: CountryDetailedData = {
   minSalaryRequirement: '€40,904/year (Critical Skills List + degree), €68,911/year (High earner)',
   
   salaries: {
-    softwareDev: { entry: 46000, mid: 55000, senior: 93000, currency: 'EUR' },
+    softwareDev: { entry: 46000, mid: 67000, senior: 93000, currency: 'EUR' }, // mid adjusted: Dublin tech mid-level (Google/Meta/Apple presence)
     dataAI: { entry: 55000, mid: 70000, senior: 85000, currency: 'EUR' },
     nurse: { entry: 35000, mid: 42000, senior: 50000, currency: 'EUR' },
     engineer: { entry: 45000, mid: 60000, senior: 80000, currency: 'EUR' },
@@ -931,10 +931,10 @@ export const SOUTH_KOREA: CountryDetailedData = {
   minSalaryRequirement: 'E-7-1: ₩35,200,000/year (₩2,933,000/month ≈ $2,100/mo) increased Feb 1, 2026',
   
   salaries: {
-    softwareDev: { entry: 36000000, mid: 47400000, senior: 94000000, currency: 'KRW' },
-    dataAI: { entry: 45000000, mid: 66000000, senior: 73200000, currency: 'KRW' },
+    softwareDev: { entry: 36000000, mid: 55000000, senior: 80000000, currency: 'KRW' }, // mid adjusted: Samsung/Naver 3-6yr, senior: lead-level chaebol
+    dataAI: { entry: 45000000, mid: 66000000, senior: 90000000, currency: 'KRW' }, // senior adjusted: AI leads Samsung/Kakao ~₩85-100M
     nurse: { entry: 30000000, mid: 40000000, senior: 55000000, currency: 'KRW' },
-    engineer: { entry: 40000000, mid: 53000000, senior: 94000000, currency: 'KRW' },
+    engineer: { entry: 40000000, mid: 58000000, senior: 82000000, currency: 'KRW' }, // mid/senior adjusted for general market consistency
     accountant: { entry: 35000000, mid: 45000000, senior: 65000000, currency: 'KRW' },
     trades: { entry: 30000000, mid: 42000000, senior: 60000000, currency: 'KRW' },
   },
@@ -994,7 +994,7 @@ export const SWITZERLAND: CountryDetailedData = {
   },
   
   salaries: {
-    softwareDev: { entry: 90000, mid: 133000, senior: 287000, currency: 'CHF' },
+    softwareDev: { entry: 90000, mid: 133000, senior: 190000, currency: 'CHF' }, // senior adjusted: base salary, not FAANG total comp
     dataAI: { entry: 120000, mid: 150000, senior: 180000, currency: 'CHF' },
     nurse: { entry: 70000, mid: 85000, senior: 105000, currency: 'CHF' },
     engineer: { entry: 95000, mid: 120000, senior: 160000, currency: 'CHF' },
@@ -1039,7 +1039,7 @@ export const SWITZERLAND: CountryDetailedData = {
     costOfLiving: 'Numbeo Feb 2026',
   },
   
-  dataVersion: '2024',
+  dataVersion: 'Mar 2026',
 }
 
 // ===== JAPAN 🇯🇵 =====
@@ -1060,7 +1060,7 @@ export const JAPAN: CountryDetailedData = {
   
   salaries: {
     softwareDev: { entry: 3500000, mid: 6000000, senior: 10000000, currency: 'JPY' },
-    dataAI: { entry: 5500000, mid: 7000000, senior: 9000000, currency: 'JPY' },
+    dataAI: { entry: 4200000, mid: 7000000, senior: 9000000, currency: 'JPY' }, // entry adjusted: JP new grad salaries ~¥3.5-4.5M regardless of field
     nurse: { entry: 3800000, mid: 4500000, senior: 6000000, currency: 'JPY' },
     engineer: { entry: 4000000, mid: 6000000, senior: 8500000, currency: 'JPY' },
     accountant: { entry: 3500000, mid: 5000000, senior: 7500000, currency: 'JPY' },
