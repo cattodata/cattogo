@@ -1630,7 +1630,7 @@ export function ChatSimulator() {
                 <div className="font-semibold text-red-700">
                   {monthlySavingsTHB > thaiMonthlySavings
                     ? `💡 จ่ายภาษี "เยอะ" แต่เหลือเก็บมากกว่าอยู่ไทย +${fmtThb(monthlySavingsTHB - thaiMonthlySavings)}/เดือน`
-                    : '💡 ตัวเลขไม่โกหก ลองดูแล้วตัดสินใจเอง'}
+                    : '⚠️ อยู่ออส เหลือเก็บน้อยกว่า — ลองปรับค่าเช่า/เมือง/การเดินทางดู'}
                 </div>
               </div>
             </div>

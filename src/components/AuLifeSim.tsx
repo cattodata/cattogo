@@ -577,7 +577,7 @@ export function AuLifeSim() {
           <div className="font-semibold text-sm mt-2">
             {monthlySavingsTHB > thaiMonthlySavings
               ? <span className="text-green-700">💡 อยู่ออส เหลือเก็บมากกว่า +{fmtThb(monthlySavingsTHB - thaiMonthlySavings)}/เดือน</span>
-              : <span className="text-red-700">💡 ตัวเลขไม่โกหก ลองดูแล้วตัดสินใจเอง</span>
+              : <span className="text-red-700">⚠️ อยู่ออส เหลือเก็บน้อยกว่า — ลองปรับค่าเช่า/เมือง/การเดินทางดู</span>
             }
           </div>
         </div>
