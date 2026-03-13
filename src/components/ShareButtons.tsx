@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-const SITE_URL = 'https://cattodata.github.io/cattogo'
+const SITE_URL = 'https://cattodata.com/cattogo'
 const SHARE_TEXT = '🐱 CattoGO — เครื่องมือช่วยตัดสินใจก่อนย้ายประเทศ สำหรับสาย Tech เปรียบเทียบเงินเดือน วีซ่า ค่าครองชีพ ข้อมูลจริง'
 
 export function ShareButtons({ compact }: { compact?: boolean }) {

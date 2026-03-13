@@ -54,6 +54,7 @@ export function AuLifeSim() {
   const [occSearch, setOccSearch] = useState('')
   const [thaiCosts, setThaiCosts] = useState({ ...TH_LIVING_COSTS })
   const [editingThaiCosts, setEditingThaiCosts] = useState(false)
+  const [visaType, setVisaType] = useState<'skilled' | 'employer'>('skilled')
 
   const bottomRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -75,24 +76,33 @@ export function AuLifeSim() {
   const salarySource = selectedOcc?.salarySource || ''
 
   const preDepartureCosts = useMemo(() => {
-    // Visa 189/190: Primary $4,640 + Partner $2,320 + Child $1,160 (FY2025-26)
-    const visa = profile.family === 'family' ? 8120 : profile.family === 'couple' ? 6960 : 4640
-    // Skills Assessment: IT (ACS) ~$530, Other (VETASSESS) ~$1,000
+    // Visa 189/190 (Skilled): Primary $4,640 + Partner $2,320 + Child $1,160 (FY2025-26)
+    // Visa 482 (Employer Sponsored): Primary $3,035 + Partner $3,035 + Child $760 (FY2025-26)
+    const visa189 = profile.family === 'family' ? 8120 : profile.family === 'couple' ? 6960 : 4640
+    const visa482 = profile.family === 'family' ? 6830 : profile.family === 'couple' ? 6070 : 3035
+    const visa = visaType === 'employer' ? visa482 : visa189
+    const visaLabel = visaType === 'employer' ? '📋 Visa 482 (Employer Sponsored)' : '📋 Visa 189/190 (Skilled)'
+    // Skills Assessment: only required for Skilled visas, not 482
     const itOccs = ['softwareEngineer', 'dataEngineer', 'dataScientist', 'mlEngineer',
       'devopsEngineer', 'cloudArchitect', 'cybersecurityAnalyst', 'networkEngineer',
       'systemAdministrator', 'itProjectManager', 'solutionArchitect', 'uxDesigner',
       'webDeveloper', 'mobileDeveloper', 'databaseAdmin', 'businessAnalyst', 'qualityAssurance']
     const isIT = itOccs.includes(profile.occupation) || profile.occupation.toLowerCase().includes('software') || profile.occupation.toLowerCase().includes('ict')
-    const saFee = isIT ? 530 : 1000
+    const saFee = visaType === 'employer' ? 0 : (isIT ? 530 : 1000)
     const saLabel = isIT ? '📝 Skills Assessment (ACS)' : '📝 Skills Assessment (VETASSESS)'
-    return [
-      { label: '📋 Visa 189/190 (Skilled)', aud: visa, source: 'Home Affairs FY25-26' },
-      { label: saLabel, aud: saFee, source: isIT ? 'ACS' : 'VETASSESS' },
+    const costs = [
+      { label: visaLabel, aud: visa, source: 'Home Affairs FY25-26' },
+    ]
+    if (visaType === 'skilled') {
+      costs.push({ label: saLabel, aud: saFee, source: isIT ? 'ACS' : 'VETASSESS' })
+    }
+    costs.push(
       { label: '📖 IELTS/PTE สอบภาษา', aud: 410, source: 'IELTS.org / PTE' },
       { label: '🏥 ตรวจสุขภาพ Medical', aud: 400, source: 'Bupa/HAP' },
       { label: '📄 เอกสาร+แปล+รับรอง', aud: 500, source: 'ประมาณ' },
-    ]
-  }, [profile.family, profile.occupation])
+    )
+    return costs
+  }, [profile.family, profile.occupation, visaType])
   const preDepartureTotal = preDepartureCosts.reduce((s, c) => s + c.aud, 0)
 
   const grossAnnual = choices['job'] === 'p90' ? salaryP90 : choices['job'] === 'p10' ? salaryP10 : choices['job'] === 'min' ? AU_UNSKILLED_SALARY : salaryMedian
@@ -143,7 +153,7 @@ export function AuLifeSim() {
   const advanceStage = () => setSimStage(s => s + 1)
   const pick = (stageId: string, optionId: string) => { setChoices(prev => ({ ...prev, [stageId]: optionId })); setSimStage(s => s + 1) }
   const allDone = simStage >= TOTAL_STAGES
-  const restart = () => { setPhase('profile'); setSimStage(0); setSavingsInput(''); setIsMotherLord(false); setInitialAUD(0); setChoices({}); setThaiCosts({ ...TH_LIVING_COSTS }); setEditingThaiCosts(false) }
+  const restart = () => { setPhase('profile'); setSimStage(0); setSavingsInput(''); setIsMotherLord(false); setInitialAUD(0); setChoices({}); setThaiCosts({ ...TH_LIVING_COSTS }); setEditingThaiCosts(false); setVisaType('skilled') }
 
   // When all stages done → show results
   useEffect(() => {
@@ -344,7 +354,7 @@ export function AuLifeSim() {
           {simStage > 6 && choices['furnish'] && <Completed emoji="🛋️" title="ของเข้าบ้าน" detail={furnishCost === 0 ? 'Furnished! $0' : `-${fmtAud(furnishCost)}`} negative={furnishCost > 0} />}
           {simStage > 7 && choices['commute'] && <Completed emoji="🚗" title="เดินทาง" detail={`${fmtAud(monthlyTransport)}/เดือน`} />}
           {simStage > 8 && choices['food'] && <Completed emoji="🍳" title="อาหาร" detail={`${fmtAud(monthlyFood)}/เดือน`} />}
-          {simStage > 9 && choices['insurance'] && <Completed emoji="🏥" title="ประกัน" detail={monthlyInsurance > 0 ? '$150/เดือน' : 'ฟรี!'} />}
+          {simStage > 9 && choices['insurance'] && <Completed emoji="🏥" title="ประกัน" detail={monthlyInsurance > 0 ? '$150/เดือน' : choices['insurance'] === 'company' ? 'บ.ออกให้!' : 'ฟรี!'} />}
 
           {/* Current stage */}
           {!allDone && (
@@ -368,6 +378,14 @@ export function AuLifeSim() {
                 {simStage === 1 && (
                   <div>
                     <div className="text-sm text-gray-600 mb-3">ก่อนไปต้องจ่ายทั้งหมดนี้:</div>
+                    <div className="flex gap-2 mb-3">
+                      <button onClick={() => setVisaType('skilled')} className={`flex-1 px-3 py-2 text-xs font-semibold rounded-lg border-2 transition-colors ${visaType === 'skilled' ? 'bg-blue-50 border-blue-400 text-blue-700' : 'border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
+                        🎯 189/190 Skilled
+                      </button>
+                      <button onClick={() => setVisaType('employer')} className={`flex-1 px-3 py-2 text-xs font-semibold rounded-lg border-2 transition-colors ${visaType === 'employer' ? 'bg-green-50 border-green-400 text-green-700' : 'border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
+                        💼 482 Employer Sponsored
+                      </button>
+                    </div>
                     {preDepartureCosts.map((c, i) => (
                       <SumRow key={i} label={c.label} aud={c.aud} />
                     ))}
@@ -439,6 +457,7 @@ export function AuLifeSim() {
                   <div className="space-y-2">
                     <Opt onClick={() => pick('insurance', 'medicare')}><div className="font-semibold">🏥 Medicare (ฟรี!)</div><div className="text-sm text-gray-500">PR/citizen ใช้ได้ — ครอบคลุม รพ.รัฐ + GP</div></Opt>
                     <Opt onClick={() => pick('insurance', 'private')}><div className="font-semibold">🏥 Private Health Insurance</div><div className="text-sm text-gray-500">{fmtAud(150)}/เดือน — เลือก hospital ได้ ไม่ต้องรอคิว</div></Opt>
+                    <Opt onClick={() => pick('insurance', 'company')}><div className="font-semibold">💼 บริษัททำให้!</div><div className="text-sm text-green-600">$0/เดือน</div></Opt>
                     <div className="text-xs text-amber-700 bg-amber-50 rounded-lg p-2.5 border border-amber-200">
                       ⚠️ วีซ่า <strong>482/494 (Employer Sponsored)</strong> บังคับทำ Private Health Insurance — เป็นเงื่อนไขวีซ่า ใช้ Medicare ไม่ได้ (ยกเว้นประเทศที่มี RHCA เช่น UK, NZ — ไทยไม่มี)
                     </div>
@@ -511,10 +530,10 @@ export function AuLifeSim() {
           </div>
           <div className="text-[10px] text-gray-500 ml-1 -mt-1 mb-1">
             เช่า ฿{fmt(thaiCosts.rent)} + อาหาร ฿{fmt(thaiCosts.food)} + เดินทาง ฿{fmt(thaiCosts.transport)} + น้ำไฟ ฿{fmt(thaiCosts.utilities)} + มือถือ ฿{fmt(thaiCosts.phone)} + สังสรรค์ ฿{fmt(thaiCosts.entertainment)} + ประกัน ฿{fmt(thaiCosts.insurance)}
-            <button onClick={() => setEditingThaiCosts(e => !e)} className="ml-2 text-orange-600 underline hover:text-orange-800">
-              {editingThaiCosts ? 'ปิด' : '✏️ แก้ไข'}
-            </button>
           </div>
+          <button onClick={() => setEditingThaiCosts(e => !e)} className="mt-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-orange-100 text-orange-700 border border-orange-300 hover:bg-orange-200 transition-colors">
+            {editingThaiCosts ? '✕ ปิด' : '✏️ แก้ไขค่าใช้จ่ายไทย'}
+          </button>
           {editingThaiCosts && (
             <div className="bg-orange-50 border border-orange-200 rounded-lg p-2.5 my-1.5 space-y-1.5">
               <div className="text-xs font-medium text-orange-700 mb-1">ปรับค่าใช้จ่ายรายเดือน (฿/เดือน)</div>
@@ -605,30 +624,31 @@ export function AuLifeSim() {
         <div className="text-sm text-gray-700 space-y-2">
           <p>
             {monthlySavings >= 0
-              ? `ถ้าย้ายไป${city.name} ทำงาน${salaryLabel} เงินเดือน ${fmtAud(grossAnnual)}/ปี หักภาษี+ค่าใช้จ่ายแล้ว เหลือเก็บ ${fmtAud(monthlySavings)}/เดือน (${fmtThb(monthlySavingsTHB)})`
-              : `เตือนก่อนนะ — ตัวเลขออกมาติดลบ ${fmtAud(Math.abs(monthlySavings))}/เดือน ถ้าเลือกใช้จ่ายแบบนี้ เงินจะไม่พอ ลองลด Housing หรือ Food ดู`
+              ? `ถ้าย้ายไป ${city.name} ทำงาน ${salaryLabel} เงินเดือนปีละ ${fmtAud(grossAnnual)} หักภาษี+ค่าใช้จ่ายแล้ว เหลือเก็บเดือนละ ${fmtAud(monthlySavings)} (${fmtThb(monthlySavingsTHB)})`
+              : `เตือนก่อนนะ — ตัวเลขออกมาติดลบเดือนละ ${fmtAud(Math.abs(monthlySavings))} ถ้าใช้จ่ายแบบนี้เงินไม่พอ ลองลดค่าเช่าหรือค่าอาหารดู`
             }
           </p>
           {monthlySavings >= 0 && (
             <p className="text-xs text-gray-600">
               {monthlySavingsTHB > thaiMonthlySavings
-                ? `💪 อยู่ออส เหลือเก็บมากกว่า +${fmtThb(monthlySavingsTHB - thaiMonthlySavings)}/เดือน เทียบกับอยู่ไทย`
-                : '🤔 เหลือเก็บน้อยกว่าอยู่ไทย — แต่คุณภาพชีวิตเป็นอีกเรื่อง'
+                ? `💪 อยู่ออส เก็บเงินได้มากกว่าอยู่ไทย +${fmtThb(monthlySavingsTHB - thaiMonthlySavings)}/เดือน`
+                : '🤔 เก็บเงินได้น้อยกว่าอยู่ไทย — แต่ได้คุณภาพชีวิต สวัสดิการ และโอกาสที่ต่างออกไป'
               }
             </p>
           )}
           <p className="text-xs text-gray-500">
-            💡 ค่าเริ่มต้นรวม {fmtAud(finalOneTime)} ({fmtThb(Math.round(finalOneTime * AUD_TO_THB))}) —{' '}
+            💡 ค่าตั้งต้นทั้งหมด {fmtAud(finalOneTime)} ({fmtThb(Math.round(finalOneTime * AUD_TO_THB))}) —{' '}
             {!isMotherLord && initialAUD >= finalOneTime
               ? 'เงินเก็บพอ ✅'
               : !isMotherLord
-                ? `เงินเก็บยังไม่พอ ต้องหาเพิ่มอีก ${fmtAud(finalOneTime - initialAUD)}`
+                ? `ยังไม่พอ ต้องเก็บเพิ่มอีก ${fmtAud(finalOneTime - initialAUD)}`
                 : 'MOTHERLORD 👑'
             }
           </p>
           {visa.score < 65 && (
             <p className="text-xs text-amber-700">
-              📋 คะแนน {visa.score} — ยังไม่ถึง 65 ลอง Employer Sponsored (482→186) หรือ Regional (491→191) แทน ดูรายละเอียดที่หน้าวีซ่า
+              📋 คะแนน Skilled Migration ได้ {visa.score} (ต้อง 65) — ลองดูเส้นทาง Employer Sponsored (482→186) หรือ Regional (491→191) แทนได้ที่
+              {' '}<a href={`${basePath}/visa`} className="text-blue-600 underline font-medium">หน้าวีซ่า</a>
             </p>
           )}
         </div>

@@ -140,7 +140,7 @@ export function ChatSimulator() {
   const [isMotherLord, setIsMotherLord] = useState(false)
   const [initialAUD, setInitialAUD] = useState(0)
   const [choices, setChoices] = useState<Record<string, string>>({})
-
+  const [visaType, setVisaType] = useState<'skilled' | 'employer'>('skilled')
   // Occupation search
   const [occSearchMode, setOccSearchMode] = useState(false)
   const [occSearchQuery, setOccSearchQuery] = useState('')
@@ -450,19 +450,28 @@ export function ChatSimulator() {
   }, [occupation])
 
   const preDepartureCosts = useMemo(() => {
-    // Visa 189/190: Primary $4,640 + Partner $2,320 + Child $1,160 (FY2025-26)
-    const visa = quickProfile.family === 'family' ? 8120 : quickProfile.family === 'couple' ? 6960 : 4640
+    // Visa 189/190 (Skilled): Primary $4,640 + Partner $2,320 + Child $1,160 (FY2025-26)
+    // Visa 482 (Employer Sponsored): Primary $3,035 + Partner $3,035 + Child $760 (FY2025-26)
+    const visa189 = quickProfile.family === 'family' ? 8120 : quickProfile.family === 'couple' ? 6960 : 4640
+    const visa482 = quickProfile.family === 'family' ? 6830 : quickProfile.family === 'couple' ? 6070 : 3035
+    const visa = visaType === 'employer' ? visa482 : visa189
+    const visaLabel = visaType === 'employer' ? '📋 Visa 482 (Employer Sponsored)' : '📋 Visa 189/190 (Skilled)'
     const itOccs = ['software', 'data-ai', 'devops-cloud', 'cybersecurity', 'network-admin', 'it-management']
-    const saFee = itOccs.includes(occupation) ? 530 : 1000
+    const saFee = visaType === 'employer' ? 0 : (itOccs.includes(occupation) ? 530 : 1000)
     const saLabel = itOccs.includes(occupation) ? '📝 Skills Assessment (ACS)' : '📝 Skills Assessment (VETASSESS)'
-    return [
-      { label: '📋 Visa 189/190 (Skilled)', aud: visa },
-      { label: saLabel, aud: saFee },
+    const costs = [
+      { label: visaLabel, aud: visa },
+    ]
+    if (visaType === 'skilled') {
+      costs.push({ label: saLabel, aud: saFee })
+    }
+    costs.push(
       { label: '📖 IELTS/PTE สอบภาษา', aud: 410 },
       { label: '🏥 ตรวจสุขภาพ Medical', aud: 400 },
       { label: '📄 เอกสาร+แปล+รับรอง', aud: 500 },
-    ]
-  }, [quickProfile.family, occupation])
+    )
+    return costs
+  }, [quickProfile.family, occupation, visaType])
   const preDepartureTotal = preDepartureCosts.reduce((s, c) => s + c.aud, 0)
 
   const grossAnnual = choices['job'] === 'top' ? salaryData.senior : choices['job'] === 'min' ? AU_UNSKILLED_SALARY : salaryData.mid
@@ -575,7 +584,7 @@ export function ChatSimulator() {
     setQuickProfile({ age: '', monthlyIncome: '', savings: '', family: 'single' })
     setMatchResults([]); setSelectedCountry(''); setExpandedCountry('')
     setAuProfile({ english: '', experience: '', education: '', thaiSalary: '', city: 'melbourne' })
-    setSimStage(0); setSavingsInput(''); setIsMotherLord(false); setInitialAUD(0); setChoices({})
+    setSimStage(0); setSavingsInput(''); setIsMotherLord(false); setInitialAUD(0); setChoices({}); setVisaType('skilled')
     setAiMessages([]); setAiChatHistory([]); setAiInput(''); setAiGathered({ goals: [], occupation: '', monthlyIncome: 0, age: '', family: '', ready: false })
     setAiAnalysis(''); setAiError(''); setOccDisplayLabel(''); setChipSelected([]); setShowOccSearch(false); setOccChatSearch(''); setAiMode(false); setGoalsConfirmed(false)
     // Re-start quiz mode after reset
@@ -1413,6 +1422,14 @@ export function ChatSimulator() {
               {simStage === 1 && (
                 <div>
                   <div className="text-sm text-gray-600 mb-3">ก่อนไปต้องจ่ายทั้งหมดนี้:</div>
+                  <div className="flex gap-2 mb-3">
+                    <button onClick={() => setVisaType('skilled')} className={`flex-1 px-3 py-2 text-xs font-semibold rounded-lg border-2 transition-colors ${visaType === 'skilled' ? 'bg-blue-50 border-blue-400 text-blue-700' : 'border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
+                      🎯 189/190 Skilled
+                    </button>
+                    <button onClick={() => setVisaType('employer')} className={`flex-1 px-3 py-2 text-xs font-semibold rounded-lg border-2 transition-colors ${visaType === 'employer' ? 'bg-green-50 border-green-400 text-green-700' : 'border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
+                      💼 482 Employer Sponsored
+                    </button>
+                  </div>
                   {preDepartureCosts.map((c, i) => (
                     <div key={i} className="flex justify-between py-1.5 text-sm border-b border-gray-100">
                       <span>{c.label}</span>
@@ -1715,7 +1732,7 @@ export function ChatSimulator() {
               <button onClick={() => setPhase('countryResults')} className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-gray-500 hover:bg-gray-50 text-sm font-medium">
                 ← ดูประเทศอื่น
               </button>
-              <button onClick={restart} className="flex-1 py-3 rounded-xl border-2 border-blue-200 text-blue-600 hover:bg-blue-50 text-sm font-medium">
+              <button onClick={restart} className="flex-1 py-3 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 text-blue-700 hover:shadow-md text-sm font-bold transition-all">
                 🔄 ลองใหม่
               </button>
             </div>
