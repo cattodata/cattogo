@@ -42,10 +42,10 @@ export function Header() {
         </div>
         <div className="min-w-0 flex-1">
           <h1 className="text-xl md:text-2xl font-bold text-white" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.2)' }}>
-            🐱 Catto Migration Planner
+            🐱 CattoGO
           </h1>
           <p className="text-sm text-white/90 truncate">
-            วิเคราะห์ย้ายประเทศด้วยข้อมูลจริง ไม่เดา ไม่ขายฝัน
+            เครื่องมือช่วยตัดสินใจก่อนย้ายประเทศ (สำหรับสาย Tech ที่สนใจออสเตรเลีย!)
           </p>
         </div>
       </div>

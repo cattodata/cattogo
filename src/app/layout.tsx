@@ -6,9 +6,9 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
 const gaId = process.env.NEXT_PUBLIC_GA_ID || 'G-H2FX3V1CK6'
 
 export const metadata: Metadata = {
-  title: '🐱 Catto Migration Planner - วิเคราะห์ย้ายประเทศด้วยข้อมูลจริง',
+  title: '🐱 CattoGO — เครื่องมือช่วยตัดสินใจก่อนย้ายประเทศ',
   description:
-    'วิเคราะห์ย้ายประเทศด้วยข้อมูลจริง เปรียบเทียบ 14 ประเทศ เงินเดือน ภาษี ค่าเช่า ค่าครองชีพ วีซ่า คะแนน ข้อมูลอัพเดท Feb 2026',
+    'เครื่องมือช่วยตัดสินใจก่อนย้ายประเทศสำหรับสาย Tech เปรียบเทียบ 14 ประเทศ เงินเดือน ภาษี ค่าครองชีพ วีซ่า ข้อมูลอัพเดท Mar 2026',
   keywords: ['migration', 'australia', 'visa', 'skilled worker', 'immigration'],
   manifest: `${basePath}/manifest.json`,
   appleWebApp: {

@@ -988,10 +988,10 @@ export function VisaExplorer() {
                 <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0 text-sm">🐱</div>
                 <div className="bg-blue-50 rounded-2xl rounded-tl-lg p-3 max-w-[85%]">
                   <p className="text-sm text-gray-700">
-                    {profile.situation === 'experienced' ? 'เยี่ยม! 💪 ขอข้อมูลเพิ่มเพื่อคำนวณ Points — กดเลือกได้เลย' :
-                     profile.situation === 'student' ? 'ดีเลย! 📚 ขอถามอีกนิดเดียว' :
-                     profile.situation === 'partner' ? 'เข้าใจแล้ว! 💕 ขอถามเพิ่มอีก 2 ข้อ' :
-                     'สนุกแน่! ✈️ ขอเช็คอายุก่อนนะ — กดเลือกเลย'}
+                    {profile.situation === 'experienced' ? '💪 กรอกข้อมูลเพิ่มเพื่อคำนวณ Points ได้เลย' :
+                     profile.situation === 'student' ? '📚 ขอข้อมูลเพิ่มอีกเล็กน้อย' :
+                     profile.situation === 'partner' ? '💕 ขอข้อมูลเพิ่มอีก 2 ข้อ' :
+                     '✈️ ขอเช็คอายุก่อน — กดเลือกได้เลย'}
                   </p>
                 </div>
               </div>
@@ -1280,32 +1280,32 @@ export function VisaExplorer() {
                     <th className="text-left p-2 rounded-tl-lg">เส้นทาง</th>
                     <th className="text-center p-2">ค่าวีซ่า</th>
                     <th className="text-center p-2">ภาษาอังกฤษ</th>
-                    <th className="text-center p-2">เวลา→PR</th>
-                    <th className="text-center p-2 rounded-tr-lg">ความยาก</th>
+                    <th className="text-center p-2 rounded-tr-lg">เวลา→PR</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {[
-                    { p: '🎯 189 Skilled', c: '$4,640', e: 'IELTS 6+', t: '12-18 เดือน', d: '⭐⭐⭐⭐⭐', h: false },
-                    { p: '🏛️ 190 State', c: '$4,640', e: 'IELTS 6+', t: '12-18 เดือน', d: '⭐⭐⭐⭐', h: false },
-                    { p: '🌾 491 Regional', c: '$4,640', e: 'IELTS 6+', t: '3-5 ปี', d: '⭐⭐⭐', h: false },
-                    { p: '💼 482→186', c: '$3,035→$4,640', e: 'IELTS 5+', t: '2-4 ปี', d: '⭐⭐', h: true },
-                    { p: '🎓 500→485→PR', c: '$1,600+เทอม', e: 'IELTS 5.5+', t: '4-6 ปี', d: '⭐⭐', h: false },
-                    { p: '🏖️ 462 WHV', c: '$640', e: 'IELTS 4.5+', t: 'ไม่มี PR ตรง', d: '⭐', h: true },
-                    { p: '💑 309/820 Partner', c: '$9,095', e: 'ไม่ต้อง', t: '2 ปี', d: '⭐⭐', h: false },
+                    { p: '🎯 189 Skilled', c: '$4,640', e: 'IELTS 6+', t: '12-18 เดือน', h: false },
+                    { p: '🏛️ 190 State', c: '$4,640', e: 'IELTS 6+', t: '12-18 เดือน', h: false },
+                    { p: '🌾 491 Regional', c: '$4,640', e: 'IELTS 6+', t: '3-5 ปี', h: false },
+                    { p: '💼 482→186', c: '$3,035→$4,640', e: 'IELTS 5+', t: '2-4 ปี', h: true },
+                    /* TODO: เพิ่มข้อมูลเส้นทางเหล่านี้ก่อนเปิดใช้
+                    { p: '🎓 500→485→PR', c: '$1,600+เทอม', e: 'IELTS 5.5+', t: '4-6 ปี', h: false },
+                    { p: '🏖️ 462 WHV', c: '$640', e: 'IELTS 4.5+', t: 'ไม่มี PR ตรง', h: true },
+                    { p: '💑 309/820 Partner', c: '$9,095', e: 'ไม่ต้อง', t: '2 ปี', h: false },
+                    */
                   ].map((row, idx) => (
                     <tr key={idx} className={row.h ? 'bg-green-50/50' : ''}>
                       <td className="p-2 font-medium">{row.p}</td>
                       <td className="text-center p-2">{row.c}</td>
                       <td className="text-center p-2">{row.e}</td>
                       <td className="text-center p-2">{row.t}</td>
-                      <td className="text-center p-2">{row.d}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-            <div className="text-[10px] text-gray-400 mt-2">ความยาก: ⭐=ง่าย ⭐⭐⭐⭐⭐=ยากมาก | ค่าวีซ่า=ผู้สมัครหลัก Feb 2026</div>
+            <div className="text-[10px] text-gray-400 mt-2">ค่าวีซ่า=ผู้สมัครหลัก FY2025-26</div>
           </div>
 
           {/* Toggle full explorer */}

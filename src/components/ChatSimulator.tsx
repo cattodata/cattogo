@@ -73,7 +73,7 @@ function getOccSalary(countryId: string, occId: string): SalaryRange | null {
 }
 
 const STAGE_META = [
-  { id: 'savings', title: '💰 ด่าน 1: เตรียมกระสุน', sub: 'มีเงินเก็บเท่าไหร่?' },
+  { id: 'savings', title: '💰 ด่าน 1: เตรียมเงิน', sub: 'มีเงินเก็บเท่าไหร่?' },
   { id: 'predeparture', title: '📋 ด่าน 2: ค่าใช้จ่ายก่อนบิน', sub: 'ก่อนไปต้องจ่ายค่าอะไรบ้าง?' },
   { id: 'job', title: '💼 ด่าน 3: ได้งานแล้ว!', sub: 'เงินเดือนเท่าไหร่?' },
   { id: 'flight', title: '✈️ ด่าน 4: ซื้อตั๋วบินกัน!', sub: 'Business หรือ Economy?' },
@@ -224,7 +224,7 @@ export function ChatSimulator() {
   const startAiChat = () => {
     setAiMode(true)
     setPhase('aiChat')
-    const greeting = 'เหมียว! 🐱 ฉันชื่อ Catto — ผู้ช่วยวิเคราะห์ว่าคุณเหมาะจะย้ายไปประเทศไหน\n\nเล่าให้ฟังหน่อยสิ ตอนนี้ทำอะไรอยู่ แล้วทำไมถึงคิดอยากย้าย? 🌍'
+    const greeting = '🐱 สวัสดี ฉันชื่อ Catto — ผู้ช่วยวิเคราะห์ว่าคุณเหมาะจะย้ายไปประเทศไหน\n\nตอนนี้ทำงานสายอะไร และอะไรคือเหตุผลหลักที่อยากย้าย? 🌍'
     setAiMessages([{ role: 'bot', text: greeting }])
     setAiChatHistory([{ role: 'system', content: AI_SYSTEM_PROMPT }, { role: 'assistant', content: greeting }])
   }
@@ -597,7 +597,7 @@ export function ChatSimulator() {
             <div className="text-sm text-gray-500 mb-8">วิเคราะห์จาก 14 ประเทศ — เงินเดือน วีซ่า ค่าครองชีพ ข้อมูลจริง</div>
 
             <button onClick={() => setPhase('quiz')} className="btn-primary w-full justify-center rounded-xl py-4 text-base mb-3">
-              📋 เริ่มเลือกตอบ!
+              📋 เริ่มวิเคราะห์
             </button>
 
             {/* AI Chat mode — temporarily disabled for stability
@@ -861,8 +861,8 @@ export function ChatSimulator() {
 
           {/* ===== STEP 0: GOALS ===== */}
           <BotMsg>
-            ว่าไง! 👋 กำลังคิดจะย้ายประเทศเหรอ?<br />
-            <strong>อะไรสำคัญที่สุด?</strong> เลือก 1-3 ข้อ
+            👋 สวัสดี! เริ่มวิเคราะห์ประเทศที่เหมาะกับคุณ<br />
+            <strong>สิ่งที่สำคัญที่สุดสำหรับคุณคืออะไร?</strong> เลือกได้ 1-3 ข้อ
           </BotMsg>
 
           {quizStep === 0 && (
@@ -888,8 +888,8 @@ export function ChatSimulator() {
             <>
               <UserMsg>{goals.map(g => GOALS.find(x => x.id === g)?.emoji).join(' ')}</UserMsg>
               <BotMsg>
-                {GOALS.find(x => x.id === goals[0])?.response || 'เข้าใจเลย!'}<br /><br />
-                แล้วตอนนี้ <strong>ทำงานสายอะไร?</strong> 💼 อาชีพสำคัญเพราะแต่ละประเทศขาดแคลนไม่เหมือนกัน
+                {GOALS.find(x => x.id === goals[0])?.response || '✅ รับทราบ'}<br /><br />
+                💼 <strong>คุณทำงานสายไหน?</strong> อาชีพมีผลต่อวีซ่าและความต้องการตลาดแรงงานแต่ละประเทศ
               </BotMsg>
             </>
           )}
@@ -950,7 +950,7 @@ export function ChatSimulator() {
             <>
               <UserMsg>{occDisplayLabel || OCCUPATIONS.find(o => o.id === occupation)?.label || occupation}</UserMsg>
               <BotMsg>
-                เยี่ยม! 🎯 กรอกข้อมูลคร่าวๆ เดี๋ยวเอาไปวิเคราะห์ให้<br />
+                🎯 กรอกข้อมูลเบื้องต้นเพื่อวิเคราะห์ประเทศที่เหมาะกับคุณ<br />
                 <span className="text-xs text-gray-500">ข้อมูลไม่ได้เก็บไว้ คำนวณในเครื่องคุณเท่านั้น 🔒</span>
               </BotMsg>
             </>
@@ -985,17 +985,7 @@ export function ChatSimulator() {
                   <label className="form-label">💵 เงินเดือนตอนนี้ (บาท/เดือน)</label>
                   <input type="number" className="form-input" placeholder="เช่น 45000"
                     value={quickProfile.monthlyIncome} onChange={e => upQ('monthlyIncome', e.target.value)} />
-                </div>
-                <div>
-                  <label className="form-label">🏦 เงินเก็บประมาณ</label>
-                  <select className="form-select" value={quickProfile.savings} onChange={e => upQ('savings', e.target.value)}>
-                    <option value="">— เลือก —</option>
-                    <option value="under100k">ต่ำกว่า 100,000 บาท</option>
-                    <option value="100k-300k">100,000 - 300,000 บาท</option>
-                    <option value="300k-500k">300,000 - 500,000 บาท</option>
-                    <option value="500k-1m">500,000 - 1,000,000 บาท</option>
-                    <option value="over1m">มากกว่า 1,000,000 บาท</option>
-                  </select>
+                  <span className="text-[10px] text-gray-400 mt-1 block">ใช้เปรียบเทียบค่าครองชีพแต่ละประเทศ</span>
                 </div>
                 {quickProfile.age && quickProfile.monthlyIncome && (
                   <button onClick={confirmProfile} className="btn-primary w-full mt-2 justify-center rounded-xl py-3 text-sm animate-fade-in">
@@ -1389,7 +1379,7 @@ export function ChatSimulator() {
         </div>
 
         {/* ===== COMPLETED STAGES ===== */}
-        {simStage >= 1 && <Completed emoji="💰" title="เตรียมกระสุน" detail={isMotherLord ? 'MOTHERLORD ∞' : `${fmtThb(parseInt(savingsInput) || 0)} = ${fmtAud(initialAUD)}`} />}
+        {simStage >= 1 && <Completed emoji="💰" title="เตรียมเงิน" detail={isMotherLord ? 'MOTHERLORD ∞' : `${fmtThb(parseInt(savingsInput) || 0)} = ${fmtAud(initialAUD)}`} />}
         {simStage >= 2 && <Completed emoji="📋" title="ค่าก่อนบิน" detail={`-${fmtAud(preDepartureTotal)}`} negative />}
         {simStage > 2 && choices['job'] && <Completed emoji="💼" title="ได้งาน" detail={`${fmtAud(grossAnnual)}/ปี (${choices['job'] === 'top' ? '👑 Top' : choices['job'] === 'min' ? 'ขั้นต่ำ' : 'Average'})`} />}
         {simStage > 3 && choices['flight'] && <Completed emoji="✈️" title="ตั๋วเครื่องบิน" detail={choices['flight'] === 'company' ? 'ฟรี! บ.ออกให้' : `-${fmtAud(flightCost)}`} negative={choices['flight'] !== 'company'} />}

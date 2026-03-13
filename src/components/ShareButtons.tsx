@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 
-const SITE_URL = 'https://orapina.github.io/rainflowdata_mover'
-const SHARE_TEXT = '🌏 ลองเช็คดูว่าคุณเหมาะจะย้ายไปประเทศไหน! จำลองชีวิตจริง ค่าครองชีพ เงินเดือน วีซ่า ครบจบในที่เดียว 🐱'
+const SITE_URL = 'https://cattodata.github.io/cattogo'
+const SHARE_TEXT = '🐱 CattoGO — เครื่องมือช่วยตัดสินใจก่อนย้ายประเทศ สำหรับสาย Tech เปรียบเทียบเงินเดือน วีซ่า ค่าครองชีพ ข้อมูลจริง'
 
 export function ShareButtons({ compact }: { compact?: boolean }) {
   const [copied, setCopied] = useState(false)

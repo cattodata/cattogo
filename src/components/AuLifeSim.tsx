@@ -23,7 +23,7 @@ const fmtAud = (n: number) => `$${fmt(n)}`
 const fmtThb = (n: number) => `฿${fmt(n)}`
 
 const STAGE_META = [
-  { id: 'savings', title: '💰 ด่าน 1: เตรียมกระสุน', sub: 'มีเงินเก็บเท่าไหร่?' },
+  { id: 'savings', title: '💰 ด่าน 1: เตรียมเงิน', sub: 'มีเงินเก็บเท่าไหร่?' },
   { id: 'predeparture', title: '📋 ด่าน 2: ค่าใช้จ่ายก่อนบิน', sub: 'ก่อนไปต้องจ่ายค่าอะไรบ้าง?' },
   { id: 'job', title: '💼 ด่าน 3: ได้งานแล้ว!', sub: 'เงินเดือนเท่าไหร่?' },
   { id: 'flight', title: '✈️ ด่าน 4: ซื้อตั๋วบินกัน!', sub: 'Business หรือ Economy?' },
@@ -165,8 +165,8 @@ export function AuLifeSim() {
         <div className="card">
           <div className="text-center mb-4">
             <div className="text-4xl mb-2">🇦🇺</div>
-            <h2 className="text-2xl font-bold text-gray-800">จำลองชีวิตจริงที่ออสเตรเลีย</h2>
-            <p className="text-sm text-gray-500 mt-1">ผ่าน 10 ด่าน ตั้งแต่เตรียมกระสุน → หาบ้าน → สรุปเงินเก็บ</p>
+            <h2 className="text-2xl font-bold text-gray-800">จำลองค่าใช้จ่ายจริงที่ออสเตรเลีย</h2>
+            <p className="text-sm text-gray-500 mt-1">ประมาณการค่าใช้จ่ายทั้งหมด ตั้งแต่เตรียมเงิน → ค่าบิน → ที่อยู่ → ค่าครองชีพรายเดือน</p>
           </div>
 
           <div className="space-y-3">
@@ -335,9 +335,9 @@ export function AuLifeSim() {
           </div>
 
           {/* Completed stages */}
-          {simStage >= 1 && <Completed emoji="💰" title="เตรียมกระสุน" detail={isMotherLord ? 'MOTHERLORD ∞' : `${fmtThb(parseInt(savingsInput) || 0)} = ${fmtAud(initialAUD)}`} />}
+          {simStage >= 1 && <Completed emoji="💰" title="เตรียมเงิน" detail={isMotherLord ? 'MOTHERLORD ∞' : `${fmtThb(parseInt(savingsInput) || 0)} = ${fmtAud(initialAUD)}`} />}
           {simStage >= 2 && <Completed emoji="📋" title="ค่าก่อนบิน" detail={`-${fmtAud(preDepartureTotal)}`} negative />}
-          {simStage > 2 && choices['job'] && <Completed emoji="💼" title="ได้งาน" detail={`${fmtAud(grossAnnual)}/ปี (${choices['job'] === 'p90' ? '👑 Senior' : choices['job'] === 'p10' ? '📊 Entry' : choices['job'] === 'min' ? 'ขั้นต่ำ' : '💼 Median'})`} />}
+          {simStage > 2 && choices['job'] && <Completed emoji="💼" title="ได้งาน" detail={`${fmtAud(grossAnnual)}/ปี (${choices['job'] === 'p90' ? '👑 ระดับสูง' : choices['job'] === 'p10' ? '📊 เริ่มต้น' : choices['job'] === 'min' ? 'ขั้นต่ำ' : '💼 ระดับกลาง'})`} />}
           {simStage > 3 && choices['flight'] && <Completed emoji="✈️" title="ตั๋วเครื่องบิน" detail={choices['flight'] === 'company' ? 'ฟรี! บ.ออกให้' : `-${fmtAud(flightCost)}`} negative={choices['flight'] !== 'company'} />}
           {simStage > 4 && choices['temp'] && <Completed emoji="🏨" title="พักชั่วคราว" detail={choices['temp'] === 'friend' ? 'ฟรี!' : `-${fmtAud(tempCost)}`} negative={choices['temp'] !== 'friend'} />}
           {simStage > 5 && choices['housing'] && <Completed emoji="🏠" title="บ้าน" detail={`มัดจำ -${fmtAud(bond)} + ${fmtAud(monthlyRent)}/เดือน`} negative />}
@@ -385,10 +385,10 @@ export function AuLifeSim() {
                         {salarySourceUrl && <> — <a href={salarySourceUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">ดูแหล่งข้อมูล</a></>}
                       </div>
                     )}
-                    <Opt onClick={() => pick('job', 'p10')}><div className="font-semibold">📊 Entry Level (p10)</div><div className="text-sm text-gray-500">{fmtAud(salaryP10)}/ปี ≈ {fmtThb(Math.round(salaryP10 / 12 * AUD_TO_THB))}/เดือน</div></Opt>
-                    <Opt onClick={() => pick('job', 'median')}><div className="font-semibold">💼 {salaryLabel} — Median</div><div className="text-sm text-gray-500">{fmtAud(salaryMedian)}/ปี ≈ {fmtThb(Math.round(salaryMedian / 12 * AUD_TO_THB))}/เดือน</div></Opt>
-                    <Opt onClick={() => pick('job', 'p90')}><div className="font-semibold">👑 Senior (p90)</div><div className="text-sm text-gray-500">{fmtAud(salaryP90)}/ปี ≈ {fmtThb(Math.round(salaryP90 / 12 * AUD_TO_THB))}/เดือน</div></Opt>
-                    <Opt onClick={() => pick('job', 'min')}><div className="font-semibold">🏣 ทำอะไรก็ได้ (ค่าแรงขั้นต่ำ)</div><div className="text-sm text-gray-500">{fmtAud(AU_UNSKILLED_SALARY)}/ปี ($24.95/hr × 38hr)</div></Opt>
+                    <Opt onClick={() => pick('job', 'p10')}><div className="font-semibold">📊 เริ่มต้น (0-2 ปีประสบการณ์)</div><div className="text-sm text-gray-500">{fmtAud(salaryP10)}/ปี ≈ {fmtThb(Math.round(salaryP10 / 12 * AUD_TO_THB))}/เดือน</div></Opt>
+                    <Opt onClick={() => pick('job', 'median')}><div className="font-semibold">💼 ระดับกลาง (3-6 ปี)</div><div className="text-sm text-gray-500">{fmtAud(salaryMedian)}/ปี ≈ {fmtThb(Math.round(salaryMedian / 12 * AUD_TO_THB))}/เดือน</div></Opt>
+                    <Opt onClick={() => pick('job', 'p90')}><div className="font-semibold">👑 ระดับสูง (7+ ปี)</div><div className="text-sm text-gray-500">{fmtAud(salaryP90)}/ปี ≈ {fmtThb(Math.round(salaryP90 / 12 * AUD_TO_THB))}/เดือน</div></Opt>
+                    <Opt onClick={() => pick('job', 'min')}><div className="font-semibold">🏣 ค่าแรงขั้นต่ำ (ทำอะไรก็ได้)</div><div className="text-sm text-gray-500">{fmtAud(AU_UNSKILLED_SALARY)}/ปี ($24.10/hr × 38hr)</div></Opt>
                   </div>
                 )}
                 {simStage === 3 && (
@@ -487,7 +487,7 @@ export function AuLifeSim() {
           <Row label="📋 ภาษี+Medicare" val={`-${fmtAud(Math.round((auTax.tax + auTax.medicare) / 12))}`} red note={`ATO FY 2025-26 Stage 3 Tax Cuts (effective rate ${auTax.effectiveRate}%) + Medicare 2%`} />
           <Row label="💵 สุทธิ (net)" val={fmtAud(monthlyNet)} green />
           <div className="border-t border-gray-200 mt-2 pt-2" />
-          <Row label="🏠 ค่าเช่า" val={`-${fmtAud(monthlyRent)} (${fmtAud(Math.round(monthlyRent * 12 / 52))}/wk)`} red note={`Numbeo ${city.name} Feb 2026 — inner/mid suburbs`} />
+          <Row label="🏠 ค่าเช่า" val={`-${fmtAud(monthlyRent)} (${fmtAud(Math.round(monthlyRent * 12 / 52))}/wk)`} red note={`Numbeo ${city.name} Mar 2026 — inner/mid suburbs`} />
           <Row label="🔌 ค่าน้ำไฟ+เน็ต" val={`-${fmtAud(monthlyUtils)}`} red note={`Numbeo: utilities 85m² $${city.utilities} + internet 60Mbps $${city.internet}`} />
           <Row label="🍳 อาหาร" val={`-${fmtAud(monthlyFood)}`} red note={`${FOOD_COSTS[choices['food']]?.label || 'ผสม'} — ประมาณจาก Numbeo meal prices`} />
           <Row label="🚗 เดินทาง" val={`-${fmtAud(monthlyTransport)}`} red note={TRANSPORT_COSTS[choices['commute']]?.breakdown} />
@@ -586,13 +586,13 @@ export function AuLifeSim() {
           <div className="text-xs text-blue-700 font-medium mb-1">📊 แหล่งข้อมูล (ตรวจสอบได้ทุกตัวเลข):</div>
           <div className="text-xs text-blue-600 space-y-0.5">
             <div>• <a href="https://www.ato.gov.au/tax-rates-and-codes/tax-rates-resident" target="_blank" rel="noopener noreferrer" className="underline">ATO Tax Rates FY 2025-26</a> — Stage 3 Tax Cuts (16%/30%/37%/45%)</div>
-            <div>• <a href={`https://www.numbeo.com/cost-of-living/in/${city.name}`} target="_blank" rel="noopener noreferrer" className="underline">Numbeo {city.name} Cost of Living</a> — ค่าเช่า, น้ำไฟ, อาหาร, เดินทาง (Feb 2026)</div>
-            {salarySourceUrl && <div>• <a href={salarySourceUrl} target="_blank" rel="noopener noreferrer" className="underline">PayScale {salaryLabel}</a> — เงินเดือน p10/median/p90</div>}
+            <div>• <a href={`https://www.numbeo.com/cost-of-living/in/${city.name}`} target="_blank" rel="noopener noreferrer" className="underline">Numbeo {city.name} Cost of Living</a> — ค่าเช่า, น้ำไฟ, อาหาร, เดินทาง (Mar 2026)</div>
+            {salarySourceUrl && <div>• <a href={salarySourceUrl} target="_blank" rel="noopener noreferrer" className="underline">PayScale {salaryLabel}</a> — เงินเดือน เริ่มต้น/กลาง/สูง</div>}
             <div>• <a href="https://www.fairwork.gov.au/pay-and-wages/minimum-wages" target="_blank" rel="noopener noreferrer" className="underline">Fair Work Minimum Wage</a> — $24.95/hr (Jul 2025)</div>
-            <div>• <a href="https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing" target="_blank" rel="noopener noreferrer" className="underline">Home Affairs Visa Fees</a> — 189: $4,910 / 482: $3,390 (Feb 2026)</div>
+            <div>• <a href="https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing" target="_blank" rel="noopener noreferrer" className="underline">Home Affairs Visa Fees</a> — 189: $4,640 / 482: $3,035 (FY2025-26)</div>
             <div>• <a href="https://www.privatehealth.gov.au/dynamic/Insurer" target="_blank" rel="noopener noreferrer" className="underline">Private Health Insurance Ombudsman</a> — ค่าประกันเฉลี่ย</div>
           </div>
-          <div className="text-[10px] text-blue-500 mt-2 italic">ข้อมูลอัปเดตล่าสุด: กุมภาพันธ์ 2026 — คลิกลิงก์ตรวจสอบได้เลย</div>
+          <div className="text-[10px] text-blue-500 mt-2 italic">ข้อมูลอัปเดตล่าสุด: มีนาคม 2026 — คลิกลิงก์ตรวจสอบได้เลย</div>
         </div>
       </div>
 
@@ -639,7 +639,7 @@ export function AuLifeSim() {
         <a href={`${basePath}/visa`} className="flex-1 py-3 rounded-xl bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 text-center text-sm text-orange-700 font-medium hover:shadow-md transition-all">
           📋 ดูวีซ่าทั้งหมด & เส้นทาง →
         </a>
-        <button onClick={restart} className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-gray-500 hover:bg-gray-50 text-sm font-medium">
+        <button onClick={restart} className="flex-1 py-3 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 text-blue-700 hover:shadow-md text-sm font-bold transition-all">
           🔄 ลองใหม่
         </button>
       </div>
