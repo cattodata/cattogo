@@ -9,7 +9,7 @@ import {
 } from '@/data/country-data'
 import {
   AUD_TO_THB, calculateAusTax, calculateThaiTax,
-  AU_SALARIES, AU_UNSKILLED_SALARY, TH_TOTAL_LIVING,
+  AU_SALARIES, AU_UNSKILLED_SALARY, TH_LIVING_COSTS,
   AU_CITIES, FOOD_COSTS, TRANSPORT_COSTS,
   calculateSimpleVisaScore,
 } from '@/data/simulator-data'
@@ -141,6 +141,11 @@ export function ChatSimulator() {
   const [initialAUD, setInitialAUD] = useState(0)
   const [choices, setChoices] = useState<Record<string, string>>({})
   const [visaType, setVisaType] = useState<'skilled' | 'employer'>('skilled')
+  // Cost editing
+  const [thaiCosts, setThaiCosts] = useState({ ...TH_LIVING_COSTS })
+  const [editingThaiCosts, setEditingThaiCosts] = useState(false)
+  const [editingAuCosts, setEditingAuCosts] = useState(false)
+  const [auCostOverrides, setAuCostOverrides] = useState<Record<string, number>>({})
   // Occupation search
   const [occSearchMode, setOccSearchMode] = useState(false)
   const [occSearchQuery, setOccSearchQuery] = useState('')
@@ -162,9 +167,16 @@ export function ChatSimulator() {
   const [goalsConfirmed, setGoalsConfirmed] = useState(false)
 
   const bottomRef = useRef<HTMLDivElement>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 200)
+    setTimeout(() => {
+      if (phase === 'countryResults' || phase === 'result') {
+        scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+      } else {
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+      }
+    }, 200)
   }, [quizStep, phase, simStage, aiMessages.length])
 
   // Init: auto-start quiz mode (choice-based — easier to control than AI chat)
@@ -495,20 +507,28 @@ export function ChatSimulator() {
 
   const auTax = calculateAusTax(grossAnnual)
   const monthlyNet = auTax.netMonthly
-  const monthlyFood = FOOD_COSTS[choices['food']]?.cost || 550
-  const monthlyTransport = TRANSPORT_COSTS[choices['commute']]?.cost || 200
-  const monthlyInsurance = choices['insurance'] === 'private' ? 150 : 0
-  const monthlyUtils = city.utilities + city.internet
-  const monthlyPhone = 50
-  const monthlyMisc = 250
-  const totalMonthlyExp = monthlyRent + monthlyUtils + monthlyFood + monthlyTransport + monthlyInsurance + monthlyPhone + monthlyMisc
+  const baseFood = FOOD_COSTS[choices['food']]?.cost || 550
+  const baseTransport = TRANSPORT_COSTS[choices['commute']]?.cost || 200
+  const baseInsurance = choices['insurance'] === 'private' ? 150 : 0
+  const baseUtils = city.utilities + city.internet
+  const basePhone = 50
+  const baseMisc = 250
+  const monthlyFood = auCostOverrides.food ?? baseFood
+  const monthlyTransport = auCostOverrides.transport ?? baseTransport
+  const monthlyInsurance = auCostOverrides.insurance ?? baseInsurance
+  const monthlyUtils = auCostOverrides.utils ?? baseUtils
+  const monthlyPhone = auCostOverrides.phone ?? basePhone
+  const monthlyMisc = auCostOverrides.misc ?? baseMisc
+  const monthlyRentAu = auCostOverrides.rent ?? monthlyRent
+  const totalMonthlyExp = monthlyRentAu + monthlyUtils + monthlyFood + monthlyTransport + monthlyInsurance + monthlyPhone + monthlyMisc
   const monthlySavings = monthlyNet - totalMonthlyExp
   const monthlySavingsTHB = Math.round(monthlySavings * AUD_TO_THB)
 
   const thaiSalary = parseInt(auProfile.thaiSalary) || parseInt(quickProfile.monthlyIncome) || 40000
   const thaiTax = calculateThaiTax(thaiSalary * 12)
   const thaiNetMonthly = thaiTax.netMonthly
-  const thaiMonthlySavings = thaiNetMonthly - TH_TOTAL_LIVING
+  const thaiTotalLiving = Object.values(thaiCosts).reduce((a, b) => a + b, 0)
+  const thaiMonthlySavings = thaiNetMonthly - thaiTotalLiving
 
   const visa = calculateSimpleVisaScore(quickProfile.age, auProfile.english, auProfile.experience, auProfile.education, choices['job'] === 'min' ? 'unskilled' : 'skilled')
   const finalOneTime = preDepartureTotal + flightCost + tempCost + bond + furnishCost
@@ -585,6 +605,7 @@ export function ChatSimulator() {
     setMatchResults([]); setSelectedCountry(''); setExpandedCountry('')
     setAuProfile({ english: '', experience: '', education: '', thaiSalary: '', city: 'melbourne' })
     setSimStage(0); setSavingsInput(''); setIsMotherLord(false); setInitialAUD(0); setChoices({}); setVisaType('skilled')
+    setThaiCosts({ ...TH_LIVING_COSTS }); setEditingThaiCosts(false); setEditingAuCosts(false); setAuCostOverrides({})
     setAiMessages([]); setAiChatHistory([]); setAiInput(''); setAiGathered({ goals: [], occupation: '', monthlyIncome: 0, age: '', family: '', ready: false })
     setAiAnalysis(''); setAiError(''); setOccDisplayLabel(''); setChipSelected([]); setShowOccSearch(false); setOccChatSearch(''); setAiMode(false); setGoalsConfirmed(false)
     // Re-start quiz mode after reset
@@ -1043,7 +1064,7 @@ export function ChatSimulator() {
   if (phase === 'countryResults') {
     return (
       <div className="sim-container">
-        <div className="sim-scroll">
+        <div className="sim-scroll" ref={scrollContainerRef}>
           <div className="text-center mb-4 animate-fade-in">
             <div className="text-3xl font-bold text-gray-800 mb-1">🌍 ผลวิเคราะห์ของคุณ!</div>
             <div className="text-sm text-gray-500">{aiMode ? '🐱 Catto วิเคราะห์จาก' : 'จาก'} {COUNTRIES.length} ประเทศ — นี่คือ Top 5 ที่เหมาะกับคุณ</div>
@@ -1249,9 +1270,10 @@ export function ChatSimulator() {
           </div>
           <div className="mt-2 bg-amber-50 border border-amber-200 rounded-xl p-3">
             <div className="text-xs text-amber-700">
-              ⚠️ <strong>ข้อจำกัดความรับผิดชอบ:</strong> ข้อมูลเป็นการประมาณจากแหล่งข้อมูลที่น่าเชื่อถือ
-              ไม่ใช่คำแนะนำอย่างเป็นทางการ ผลจริงขึ้นกับสถานการณ์ส่วนตัว
-              กรุณาตรวจสอบจากเว็บไซต์ทางการของแต่ละประเทศก่อนตัดสินใจ
+              📋 <strong>POC Data</strong> — ข้อมูล ณ March 2026 ไม่ได้ live update อาจเปลี่ยนแปลง กรุณาเช็คจากแหล่งทางการก่อนตัดสินใจ
+            </div>
+            <div className="text-xs text-amber-700 mt-1">
+              ⚠️ ไม่ใช่คำแนะนำทางกฎหมาย เป็นข้อมูลทั่วไปเท่านั้น ควรปรึกษา MARA agent ก่อนตัดสินใจ
             </div>
           </div>
 
@@ -1379,7 +1401,7 @@ export function ChatSimulator() {
         )}
       </div>
 
-      <div className="sim-scroll sim-scroll-with-bar">
+      <div className="sim-scroll sim-scroll-with-bar" ref={scrollContainerRef}>
         {/* Progress */}
         <div className="stage-progress">
           {STAGE_META.map((_, i) => (
@@ -1557,7 +1579,7 @@ export function ChatSimulator() {
               </div>
               <div className="text-xs text-gray-400 mb-3">+ Super {fmtAud(Math.round(grossAnnual * 0.115 / 12))}/เดือน (นายจ้างจ่าย 11.5%)</div>
               <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">รายจ่าย</div>
-              <Row label={`🏠 ค่าเช่า (${choices['housing'] === 'share' ? 'แชร์' : choices['housing'] === '1bed' ? '1 bed' : '2 bed'})`} val={`-${fmtAud(monthlyRent)}`} red />
+              <Row label={`🏠 ค่าเช่า (${choices['housing'] === 'share' ? 'แชร์' : choices['housing'] === '1bed' ? '1 bed' : '2 bed'})`} val={`-${fmtAud(monthlyRentAu)}`} red />
               <Row label="💡 น้ำ/ไฟ+Internet" val={`-${fmtAud(monthlyUtils)}`} red />
               <Row label="🍳 อาหาร" val={`-${fmtAud(monthlyFood)}`} red />
               <Row label="🚇 เดินทาง" val={`-${fmtAud(monthlyTransport)}`} red />
@@ -1599,12 +1621,14 @@ export function ChatSimulator() {
                   <div className="text-2xl">🇹🇭</div>
                   <div className="font-bold text-gray-800 text-sm">อยู่ไทย</div>
                   <div className="text-xs text-gray-500">เงินเดือน {fmtThb(thaiSalary)}</div>
+                  <div className="text-xs text-gray-400">ค่าใช้จ่าย {fmtThb(thaiTotalLiving)}/เดือน</div>
                   <div className="text-xl font-bold text-orange-600 mt-1">{fmtThb(thaiMonthlySavings)}</div>
                 </div>
                 <div className="text-center p-3 bg-white/70 rounded-lg">
                   <div className="text-2xl">🇦🇺</div>
                   <div className="font-bold text-gray-800 text-sm">ย้ายไป AU</div>
                   <div className="text-xs text-gray-500">เงินเดือน {fmtAud(Math.round(grossAnnual / 12))}</div>
+                  <div className="text-xs text-gray-400">ค่าใช้จ่าย {fmtAud(totalMonthlyExp)}/เดือน</div>
                   <div className="text-xl font-bold text-green-600 mt-1">{fmtThb(monthlySavingsTHB)}</div>
                 </div>
               </div>
@@ -1613,6 +1637,79 @@ export function ChatSimulator() {
                   <span className="text-green-700 font-bold text-sm">📈 เก็บเงินได้มากกว่า +{fmtThb(monthlySavingsTHB - thaiMonthlySavings)}/เดือน!</span>
                 </div>
               )}
+
+              {/* Thai cost edit */}
+              <div className="mt-3">
+                <button onClick={() => setEditingThaiCosts(e => !e)} className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-orange-100 text-orange-700 border border-orange-300 hover:bg-orange-200 transition-colors">
+                  {editingThaiCosts ? '✕ ปิด' : '✏️ แก้ค่าใช้จ่ายไทย'}
+                </button>
+                <button onClick={() => setEditingAuCosts(e => !e)} className="ml-2 px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-100 text-blue-700 border border-blue-300 hover:bg-blue-200 transition-colors">
+                  {editingAuCosts ? '✕ ปิด' : '✏️ แก้ค่าใช้จ่าย AU'}
+                </button>
+              </div>
+
+              {editingThaiCosts && (
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-2.5 mt-2 space-y-1.5">
+                  <div className="text-xs font-medium text-orange-700 mb-1">🇹🇭 ปรับค่าใช้จ่ายรายเดือน (฿/เดือน)</div>
+                  {([
+                    { key: 'rent', label: '🏠 ค่าเช่า' },
+                    { key: 'food', label: '🍜 อาหาร' },
+                    { key: 'transport', label: '🚇 เดินทาง' },
+                    { key: 'utilities', label: '💡 น้ำไฟ' },
+                    { key: 'phone', label: '📱 มือถือ' },
+                    { key: 'entertainment', label: '🎉 สังสรรค์' },
+                    { key: 'insurance', label: '🏥 ประกัน' },
+                  ] as const).map(({ key, label }) => (
+                    <div key={key} className="flex items-center gap-2">
+                      <label className="text-xs text-gray-600 w-24">{label}</label>
+                      <input
+                        type="number" min={0}
+                        className="flex-1 px-2 py-1 text-xs border border-orange-200 rounded bg-white text-right font-mono"
+                        value={thaiCosts[key] || ''}
+                        onBlur={e => { if (e.target.value === '') setThaiCosts(prev => ({ ...prev, [key]: 0 })) }}
+                        onChange={e => setThaiCosts(prev => ({ ...prev, [key]: Math.max(0, parseInt(e.target.value) || 0) }))}
+                      />
+                    </div>
+                  ))}
+                  <div className="flex justify-between items-center pt-1.5 border-t border-orange-200 text-xs font-semibold text-orange-800">
+                    <span>รวม</span><span>฿{fmt(thaiTotalLiving)}</span>
+                  </div>
+                  <button onClick={() => setThaiCosts({ ...TH_LIVING_COSTS })} className="text-[10px] text-orange-500 underline hover:text-orange-700">รีเซ็ตเป็นค่าเริ่มต้น</button>
+                </div>
+              )}
+
+              {editingAuCosts && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-2.5 mt-2 space-y-1.5">
+                  <div className="text-xs font-medium text-blue-700 mb-1">🇦🇺 ปรับค่าใช้จ่ายรายเดือน (AUD/เดือน)</div>
+                  {([
+                    { key: 'rent', label: '🏠 ค่าเช่า', base: monthlyRent },
+                    { key: 'utils', label: '💡 น้ำไฟ+Net', base: baseUtils },
+                    { key: 'food', label: '🍳 อาหาร', base: baseFood },
+                    { key: 'transport', label: '🚇 เดินทาง', base: baseTransport },
+                    { key: 'phone', label: '📱 มือถือ', base: basePhone },
+                    { key: 'misc', label: '🎬 สังสรรค์', base: baseMisc },
+                    { key: 'insurance', label: '🏥 ประกัน', base: baseInsurance },
+                  ] as const).map(({ key, label, base }) => (
+                    <div key={key} className="flex items-center gap-2">
+                      <label className="text-xs text-gray-600 w-24">{label}</label>
+                      <input
+                        type="number" min={0}
+                        className="flex-1 px-2 py-1 text-xs border border-blue-200 rounded bg-white text-right font-mono"
+                        value={auCostOverrides[key] ?? base}
+                        onChange={e => {
+                          const v = parseInt(e.target.value) || 0
+                          setAuCostOverrides(prev => ({ ...prev, [key]: Math.max(0, v) }))
+                        }}
+                      />
+                    </div>
+                  ))}
+                  <div className="flex justify-between items-center pt-1.5 border-t border-blue-200 text-xs font-semibold text-blue-800">
+                    <span>รวม</span><span>${fmt(totalMonthlyExp)}</span>
+                  </div>
+                  <button onClick={() => setAuCostOverrides({})} className="text-[10px] text-blue-500 underline hover:text-blue-700">รีเซ็ตเป็นค่าเริ่มต้น</button>
+                </div>
+              )}
+
               <div className="mt-3 text-xs text-orange-700 space-y-1">
                 <div>🏥 + Medicare ฟรี</div>
                 <div>🏖️ + Annual Leave 20 วัน</div>
@@ -1623,13 +1720,14 @@ export function ChatSimulator() {
             </div>
 
             {/* Tax section */}
-            <div className="result-section" style={{ background: 'linear-gradient(135deg, #FEF2F2, #FCE7F3)', borderColor: '#FCA5A5' }}>
-              <h4 className="text-base font-bold text-gray-800 mb-2">😏 สำหรับคนบอก &ldquo;ภาษีเยอะ ไม่เหลืออะไร&rdquo;</h4>
+            <div className="result-section" style={{ background: 'linear-gradient(135deg, #F0F9FF, #EFF6FF)', borderColor: '#93C5FD' }}>
+              <h4 className="text-base font-bold text-gray-800 mb-2">📊 ภาษีจริงๆ จ่ายเท่าไหร่?</h4>
               <div className="text-sm text-gray-700 space-y-2">
-                <div>ภาษี+Medicare ที่ AU: {auTax.effectiveRate}% ≈ {fmtAud(Math.round((auTax.tax + auTax.medicare) / 12))}/เดือน</div>
-                <div className="font-semibold text-red-700">
+                <div className="flex justify-between"><span>🇦🇺 ภาษี+Medicare</span><span className="font-mono">{auTax.effectiveRate}% ≈ {fmtAud(Math.round((auTax.tax + auTax.medicare) / 12))}/เดือน</span></div>
+                <div className="flex justify-between"><span>🇹🇭 ภาษี+ประกันสังคม</span><span className="font-mono">{Math.round(((thaiTax.tax + thaiTax.socialSec) / (thaiSalary * 12)) * 100)}% ≈ {fmtThb(Math.round((thaiTax.tax + thaiTax.socialSec) / 12))}/เดือน</span></div>
+                <div className={`font-semibold mt-1 p-2 rounded-lg text-center ${monthlySavingsTHB > thaiMonthlySavings ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
                   {monthlySavingsTHB > thaiMonthlySavings
-                    ? `💡 จ่ายภาษี "เยอะ" แต่เหลือเก็บมากกว่าอยู่ไทย +${fmtThb(monthlySavingsTHB - thaiMonthlySavings)}/เดือน`
+                    ? `หักภาษีแล้ว เหลือเก็บมากกว่าอยู่ไทย +${fmtThb(monthlySavingsTHB - thaiMonthlySavings)}/เดือน`
                     : '⚠️ อยู่ออส เหลือเก็บน้อยกว่า — ลองปรับค่าเช่า/เมือง/การเดินทางดู'}
                 </div>
               </div>
@@ -1667,29 +1765,6 @@ export function ChatSimulator() {
                   <div className="text-xs text-gray-600">เรียนที่ AU → จบได้ work visa 2-4 ปี → หางาน → apply PR</div>
                   <div className="text-xs text-gray-400">ค่าวีซ่า $1,600 + ค่าเทอม $20,000-50,000/ปี</div>
                 </div>
-                {(() => {
-                  const ageN = quickProfile.age === '18-24' ? 21 : quickProfile.age === '25-32' ? 28 : 36
-                  return ageN <= 30 ? (
-                    <div className="p-2 bg-white/80 rounded-lg border-2 border-orange-200">
-                      <div className="font-semibold text-orange-700">🏖️ Working Holiday (462) — คุณมีสิทธิ์!</div>
-                      <div className="text-xs text-gray-600">ไทยมีข้อตกลงกับ AU! อายุ 18-30 ไปทำงาน+เที่ยว 12 เดือน ต่อได้ถึง 3 ปี</div>
-                      <div className="text-xs text-gray-400">ค่าวีซ่า $640 เท่านั้น!</div>
-                    </div>
-                  ) : (
-                    <div className="p-2 bg-white/80 rounded-lg opacity-60">
-                      <div className="font-semibold text-orange-700">🏖️ Working Holiday (462)</div>
-                      <div className="text-xs text-gray-500">สำหรับอายุ 18-30 ปี (ไม่ตรงเงื่อนไขอายุของคุณ)</div>
-                    </div>
-                  )
-                })()}
-                <div className="p-2 bg-white/80 rounded-lg">
-                  <div className="font-semibold text-pink-700">💑 Partner Visa (309/820)</div>
-                  <div className="text-xs text-gray-600">มีคู่สมรส/แฟนเป็น AU citizen/PR → สมัครได้เลย → PR ภายใน 2 ปี</div>
-                  <div className="text-xs text-gray-400">ค่าวีซ่า $9,095 (แพงที่สุด)</div>
-                </div>
-              </div>
-              <div className="mt-2 text-xs text-gray-500">
-                <a href={`${basePath}/visa`} className="text-blue-600 underline font-medium">→ ดูวีซ่าทั้งหมด + เปรียบเทียบเส้นทาง</a>
               </div>
             </div>
 
@@ -1698,7 +1773,7 @@ export function ChatSimulator() {
               <h4 className="text-base font-bold text-gray-800 mb-2">💡 เคล็ดลับ</h4>
               <div className="text-sm text-gray-700 space-y-2">
                 {choices['job'] === 'min' && <div>📈 <strong>หางาน Professional:</strong> Skilled Visa เงินเดือนสูงกว่า 2-3 เท่า</div>}
-                {choices['housing'] !== 'share' && <div>🏠 <strong>แชร์บ้านช่วง 6 เดือนแรก:</strong> ประหยัดได้ {fmtAud(monthlyRent - city.rentShare)}/เดือน</div>}
+                {choices['housing'] !== 'share' && <div>🏠 <strong>แชร์บ้านช่วง 6 เดือนแรก:</strong> ประหยัดได้ {fmtAud(monthlyRentAu - city.rentShare)}/เดือน</div>}
                 {choices['commute'] === 'car' && <div>🚇 <strong>ใช้รถไฟช่วงแรก:</strong> ประหยัด {fmtAud(TRANSPORT_COSTS['car'].cost - TRANSPORT_COSTS['public'].cost)}/เดือน</div>}
                 <div>📋 <strong>ขั้นตอน:</strong> สอบ IELTS → Skills Assessment → ยื่น EOI → Invitation → วีซ่า → บินไป!</div>
               </div>
@@ -1717,16 +1792,13 @@ export function ChatSimulator() {
             </div>
             <div className="mt-2 bg-amber-50 border border-amber-200 rounded-xl p-3">
               <div className="text-xs text-amber-700">
-                ⚠️ <strong>ข้อจำกัดความรับผิดชอบ:</strong> ตัวเลขเป็นการประมาณเบื้องต้น ผลจริงอาจแตกต่างจากนี้
+                📋 <strong>POC Data</strong> — ข้อมูล ณ March 2026 ไม่ได้ live update อาจเปลี่ยนแปลง
                 อัตราแลกเปลี่ยนผันผวนได้ ควรเช็คจาก <a href="https://www.xe.com/currencyconverter/convert/?Amount=1&From=AUD&To=THB" target="_blank" rel="noopener noreferrer" className="underline font-medium">XE.com</a> ก่อนใช้จริง
-                กรุณาปรึกษา Migration Agent ที่ได้รับอนุญาตก่อนยื่นวีซ่าจริง
+              </div>
+              <div className="text-xs text-amber-700 mt-1">
+                ⚠️ ไม่ใช่คำแนะนำทางกฎหมาย เป็นข้อมูลทั่วไปเท่านั้น ควรปรึกษา MARA agent ก่อนตัดสินใจ
               </div>
             </div>
-
-            {/* Link to detailed calculator */}
-            <a href={`${basePath}/visa`} className="block mt-3 py-3 rounded-xl bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 text-center text-sm text-orange-700 font-medium hover:shadow-md transition-all">
-              📋 ดูวีซ่าทั้งหมด & เปรียบเทียบเส้นทาง →
-            </a>
 
             <div className="flex gap-2 mt-3 mb-2">
               <button onClick={() => setPhase('countryResults')} className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-gray-500 hover:bg-gray-50 text-sm font-medium">

@@ -9,10 +9,10 @@ import type {
   PointsBreakdown,
 } from './types'
 
-// ===== City Cost Data (Numbeo Feb 2026) =====
+// ===== City Cost Data (Numbeo Mar 2026) =====
 export const CITY_DATA: Record<CityKey, CityData> = {
   sydney: {
-    rent1br: 3440, rent2br: 4800, rentFamily: 6800,
+    rent1br: 3700, rent2br: 5000, rentFamily: 6900,
     groceries: 680, transport: 217, utilities: 294, misc: 450,
   },
   melbourne: {
@@ -20,8 +20,8 @@ export const CITY_DATA: Record<CityKey, CityData> = {
     groceries: 620, transport: 200, utilities: 291, misc: 400,
   },
   brisbane: {
-    rent1br: 2200, rent2br: 3000, rentFamily: 4000,
-    groceries: 550, transport: 180, utilities: 250, misc: 350,
+    rent1br: 2580, rent2br: 3500, rentFamily: 4510,
+    groceries: 550, transport: 180, utilities: 281, misc: 350,
   },
 }
 
@@ -177,7 +177,7 @@ export function calculateFeasibility(
       description: 'ไม่ต้อง sponsor สมัครเองได้ แต่แข่งสูงมาก (cut-off 85-95+ คะแนน ในปี 2025-26)',
       pathToPR: 'ได้ PR ทันที',
       timeline: '12-18 เดือน',
-      cost: '$4,910 (หลัก) + $2,455 (คู่สมรส)',
+      cost: '$4,640 (หลัก) + $2,320 (คู่สมรส)',
       eligible: totalScore >= 65,
     })
   }
@@ -191,7 +191,7 @@ export function calculateFeasibility(
       description: 'ต้องได้ nomination จาก state (NSW/VIC/QLD) +5 คะแนน → รวมแล้ว ' + (totalScore + 5) + ' คะแนน',
       pathToPR: 'ได้ PR ทันที แต่ต้องอยู่ state นั้น 2 ปี',
       timeline: '12-18 เดือน',
-      cost: '$4,910 (หลัก)',
+      cost: '$4,640 (หลัก)',
       eligible: true,
     })
   }
@@ -205,7 +205,7 @@ export function calculateFeasibility(
       description: 'Regional nomination +15 คะแนน → รวมแล้ว ' + (totalScore + 15) + ' คะแนน (ต้องอยู่ regional 3 ปี)',
       pathToPR: 'หลัง 3 ปีสมัคร 191 เป็น PR',
       timeline: '8-12 เดือน',
-      cost: '$4,910 (หลัก)',
+      cost: '$4,640 (หลัก)',
       eligible: true,
     })
   }
@@ -219,7 +219,7 @@ export function calculateFeasibility(
     description: 'ต้องมี employer sponsor ก่อน ไม่ต้องใช้คะแนน ต้องมีประสบการณ์ 2 ปี+',
     pathToPR: 'ทำ 2-3 ปี → สมัคร 186 (Employer Nomination) ได้ PR',
     timeline: '3-6 เดือน (ถ้ามี job offer)',
-    cost: '$3,115 (หลัก)',
+    cost: '$3,035 (หลัก)',
     eligible: true,
   })
 
@@ -231,7 +231,7 @@ export function calculateFeasibility(
     description: 'นายจ้าง AU nominate ให้ ต้องทำงานกับนายจ้างนั้น 2-3 ปี หรือมี 3 ปีประสบการณ์',
     pathToPR: 'ได้ PR ทันที (Direct Entry stream)',
     timeline: '6-12 เดือน',
-    cost: '$4,910 (หลัก)',
+    cost: '$4,765 (หลัก)',
     eligible: true,
   })
 
@@ -326,7 +326,7 @@ export function calculateBudget(
 
   // All in AUD
   const initialCosts = {
-    visa: familyStatus === 'family' ? 8595 : 4910,  // Home Affairs 189 base $4,910 + additional applicants
+    visa: familyStatus === 'family' ? 8120 : familyStatus === 'couple' ? 6960 : 4640,  // Home Affairs 189 FY25-26: $4,640 + $2,320 dep + $1,160 child
     flight: familyStatus === 'single' ? 1000 : familyStatus === 'couple' ? 2000 : 3000,
     bond: Math.round(monthlyRent),   // 4 weeks bond ≈ 1 month rent
     furniture: familyStatus === 'single' ? 2000 : 4000,

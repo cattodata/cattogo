@@ -21,14 +21,16 @@
 - `minPoints189`: Minimum score invited for Subclass 189 in the latest round
 - `minPoints491`: Minimum score invited for Subclass 491 (Family Sponsored)
 - `null` = "N/A*" = No EOIs available or didn't meet parameters (NOT the same as "didn't get invited")
-- ICT occupations (Software Engineer, Developer Programmer, etc.) were **NOT listed** in the Nov 2025 round — likely hit occupation ceiling. Historical data suggests 85-95+ required.
+- ICT occupations (Software Engineer, Developer Programmer, etc.) were **NOT listed** in the Nov 2025 round — likely hit occupation ceiling. Telecom Eng. (263311) in same ANZSCO family listed at 90 → used as reference point.
 
 ### ICT Occupations — Special Note:
 Most ICT occupations (261xxx, 262xxx, 263xxx ANZSCO codes) were **not individually listed** in the Nov 2025 SkillSelect round. This typically means:
 1. The occupation ceiling was already reached, OR
 2. No EOIs with sufficient points were available
 
-Based on Aug 2025 round + migration agent community data, ICT generally requires **90-95+ points** for 189 invitation. The `minPoints189` values for ICT in our data use community consensus (Iscah, OzLinks, migration forums) since official per-occupation data isn't published for these roles.
+**Reference point:** Telecommunications Engineer (263311) and Multimedia Specialist (261211) — both in the ICT ANZSCO family — **were** listed in the Nov 2025 round at **90 points (189)**. Since Software Engineer (261313), Developer Programmer (261312), and similar ICT roles are typically more competitive than Telecom, the minimum for ICT is estimated at **90+ points** for 189 invitation.
+
+This estimate is also consistent with migration agent community data (Iscah, OzLinks, migration forums).
 
 ---
 

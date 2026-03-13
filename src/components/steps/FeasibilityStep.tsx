@@ -230,7 +230,7 @@ export function FeasibilityStep({ formData }: FeasibilityStepProps) {
           คะแนนตาม <a href="https://immi.homeaffairs.gov.au/visas/working-in-australia/skillselect/invitation-rounds" target="_blank" rel="noopener noreferrer" className="underline font-medium">SkillSelect Invitation Rounds</a>
         </p>
         <p className="text-xs text-amber-600 mt-1">
-          ⚠️ ค่าธรรมเนียมและเกณฑ์อาจเปลี่ยนแปลง ตรวจสอบจาก Home Affairs ก่อนสมัครจริง
+          ⚠️ ค่าธรรมเนียมและเกณฑ์อาจเปลี่ยนแปลง ตรวจสอบจาก Home Affairs ก่อนสมัครจริง · ไม่ใช่คำแนะนำทางกฎหมาย ควรปรึกษา MARA agent
         </p>
       </div>
     </div>

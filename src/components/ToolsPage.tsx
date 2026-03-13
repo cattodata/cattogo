@@ -134,11 +134,11 @@ export function ToolsPage() {
         {/* Disclaimer */}
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mt-3">
           <p className="text-xs text-amber-700">
-            ⚠️ <strong>ข้อจำกัดความรับผิดชอบ:</strong> ข้อมูลนี้เป็นการประมาณการจากแหล่งที่น่าเชื่อถือ
-            แต่ <strong>ไม่ใช่คำแนะนำอย่างเป็นทางการ</strong> ค่าใช้จ่ายและเกณฑ์วีซ่าอาจเปลี่ยนแปลงได้ 
+            📋 <strong>POC Data</strong> — ข้อมูล ณ March 2026 ไม่ได้ live update อาจเปลี่ยนแปลง
             กรุณาตรวจสอบข้อมูลล่าสุดจาก <a href="https://immi.homeaffairs.gov.au" target="_blank" rel="noopener noreferrer" className="underline font-medium">Home Affairs</a> และ 
             <a href="https://www.ato.gov.au" target="_blank" rel="noopener noreferrer" className="underline font-medium"> ATO</a> ก่อนตัดสินใจจริง
-            อัตราแลกเปลี่ยนอาจผันผวน ควรเช็คจาก XE.com ก่อนใช้
+            อัตราแลกเปลี่ยนอาจผันผวน ควรเช็คจาก XE.com ก่อนใช้<br />
+            ⚠️ ไม่ใช่คำแนะนำทางกฎหมาย เป็นข้อมูลทั่วไปเท่านั้น ควรปรึกษา MARA agent ก่อนตัดสินใจ
           </p>
         </div>
       </div>

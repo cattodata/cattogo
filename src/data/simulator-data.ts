@@ -182,11 +182,11 @@ export const SAVINGS_RANGES: Record<string, { min: number; max: number; label: s
 export function calculateInitialCosts(family: string, rent: number): {
   visa: number; flight: number; bond: number; furniture: number; docs: number; total: number
 } {
-  // Home Affairs visa pricing Jul 2025 — subclass 189 Skilled Independent
+  // Home Affairs visa pricing FY25-26 — subclass 189 Skilled Independent
   // Source: https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/skilled-independent-189/points-tested
-  // Main applicant: $4,765 | Additional adult: $2,385 | Child (<18): $1,195
+  // Main applicant: $4,640 | Additional adult: $2,320 | Child (<18): $1,160
   // Note: These are 189 costs. 482 TSS costs different — see country-detailed-data.ts
-  const visa = family === 'family' ? 8345 : family === 'couple' ? 7150 : 4765
+  const visa = family === 'family' ? 8120 : family === 'couple' ? 6960 : 4640
   const flight = family === 'family' ? 3500 : family === 'couple' ? 2200 : 1100
   const bond = rent // 4 weeks bond ≈ 1 month
   const furniture = family === 'single' ? 2000 : 4000

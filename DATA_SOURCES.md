@@ -1,6 +1,6 @@
 # Country Data Sources
 
-ข้อมูลในแอพนี้มาจาก **official government sources** และ **verified data providers** ล่าสุดถึง **February 2026**
+ข้อมูลในแอพนี้มาจาก **official government sources** และ **verified data providers** ล่าสุดถึง **March 2026**
 
 ## ✅ Verified Data (16 Countries)
 
@@ -11,7 +11,7 @@
 - **Visa Options**:
   - **482 TSS** (Most popular): $1,455-3,035 single | Employer-sponsored, NO points required
   - **186 ENS**: $4,240-4,765 single | Permanent, employer-sponsored
-  - **189 Skilled**: $4,765 single | Permanent, independent (65+ points)
+  - **189 Skilled**: $4,640 single | Permanent, independent (65+ points)
 - **Notes**: Updated with 482/186/189 pathways. 482 → 186 TRT after 3 years most common route.
 
 ### 🇨🇦 Canada
@@ -131,8 +131,8 @@ Country matching algorithm
 
 ### `src/data/simulator-data.ts`
 Australia-Thailand comparison simulator
-- **NOTE**: Simulator uses 189 visa ($4,765) as baseline (needs update to show 482/186 options)
-- Exchange rate: 22.10 THB/AUD (Feb 2026 average)
+- **NOTE**: Simulator uses 189 visa ($4,640) as baseline for initial costs. 482/186 options available in AuLifeSim.
+- Exchange rate: 22.70 THB/AUD (Mar 2026, XE.com mid-market)
 - Salaries, living costs, tax calculations
 
 ---
@@ -141,7 +141,7 @@ Australia-Thailand comparison simulator
 
 ### ✅ Perplexity Fact-Check (Feb 12, 2026)
 All data verified against official sources:
-1. ✅ AU visa costs updated: 482 TSS ($1,455-3,035), 186 ENS ($4,240-4,765), 189 ($4,765)
+1. ✅ AU visa costs updated: 482 TSS ($1,455-3,035), 186 ENS ($4,765), 189/190/491 ($4,640)
 2. ✅ Exchange rate updated (22.10 THB/AUD)
 3. ✅ Thai insurance updated (฿2,500/month)
 4. ✅ Food costs adjusted (+$100/level)

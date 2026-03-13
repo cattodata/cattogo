@@ -32,7 +32,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยาก — ICT ไม่ถูกเชิญในรอบ Nov 2025 ต้อง 90+',
     skills: ['Python', 'SQL', 'AWS/Azure', 'Spark', 'Airflow'],
     aliases: ['วิศวกรข้อมูล', 'data platform', 'etl developer', 'bi developer', 'analytics engineer', 'data pipeline', 'data', 'ข้อมูล', 'big data'],
-    pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
+    pointsNote: 'SkillSelect Nov 2025: ICT ไม่ถูกเชิญ · อ้างอิง Telecom Eng. = 90',
   },
   dataScientist: {
     title: 'Data Scientist', anzsco: '223234', category: 'ICT & Technology',
@@ -45,7 +45,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยาก — แข่งสูง ต้อง 90+',
     skills: ['Python', 'R', 'ML/DL', 'Statistics', 'SQL'],
     aliases: ['นักวิทยาศาสตร์ข้อมูล', 'research scientist', 'quantitative analyst', 'data science'],
-    pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
+    pointsNote: 'SkillSelect Nov 2025: ICT ไม่ถูกเชิญ · อ้างอิง Telecom Eng. = 90',
   },
   softwareEngineer: {
     title: 'Software Engineer', anzsco: '261313', category: 'ICT & Technology',
@@ -58,7 +58,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยาก — ICT แข่งสูงมาก ต้อง 90+',
     skills: ['JavaScript/Python/Java', 'React/Node', 'APIs', 'Git', 'CI/CD'],
     aliases: ['โปรแกรมเมอร์', 'programmer', 'developer', 'software developer', 'full stack', 'fullstack', 'backend developer', 'backend', 'solution architect', 'tech lead', 'technical lead', 'application developer', 'mobile developer', 'ios developer', 'android developer', 'java developer', 'python developer', 'senior developer', 'lead developer', 'software architect', 'coder', 'sde'],
-    pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
+    pointsNote: 'SkillSelect Nov 2025: ICT ไม่ถูกเชิญ · อ้างอิง Telecom Eng. = 90',
   },
   mlEngineer: {
     title: 'ML/AI Engineer', anzsco: '223234', category: 'ICT & Technology',
@@ -71,7 +71,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยาก — ต้อง 90+ แต่ demand สูง หา sponsor ง่ายกว่า',
     skills: ['Python', 'TensorFlow/PyTorch', 'MLOps', 'Cloud', 'Docker/K8s'],
     aliases: ['ai engineer', 'AI Engineer', 'deep learning', 'nlp engineer', 'computer vision', 'machine learning', 'วิศวกร ai', 'prompt engineer', 'llm engineer', 'generative ai', 'gen ai', 'artificial intelligence', 'ai', 'วิศวกรปัญญาประดิษฐ์'],
-    pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
+    pointsNote: 'SkillSelect Nov 2025: ICT ไม่ถูกเชิญ · อ้างอิง Telecom Eng. = 90',
   },
   devopsEngineer: {
     title: 'DevOps Engineer', anzsco: '261399', category: 'ICT & Technology',
@@ -84,7 +84,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยาก — ต้อง 90+ แต่ employer sponsor (482) เป็นทางเลือกดี',
     skills: ['AWS/Azure/GCP', 'Docker/Kubernetes', 'CI/CD', 'Terraform', 'Linux'],
     aliases: ['sre', 'site reliability', 'platform engineer', 'infrastructure engineer', 'cloud engineer', 'cloud architect', 'release engineer', 'sysops', 'devops', 'cloud', 'คลาวด์', 'aws', 'azure', 'gcp'],
-    pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
+    pointsNote: 'SkillSelect Nov 2025: ICT ไม่ถูกเชิญ · อ้างอิง Telecom Eng. = 90',
   },
   cybersecurityAnalyst: {
     title: 'ICT Security Specialist', anzsco: '262112', category: 'ICT & Technology',
@@ -97,7 +97,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยาก — ต้อง 90+ แต่ demand สูงมาก หา sponsor ง่าย',
     skills: ['Network Security', 'SIEM', 'Penetration Testing', 'ISO 27001', 'Incident Response'],
     aliases: ['cybersecurity', 'security analyst', 'information security', 'infosec', 'penetration tester', 'pentest', 'soc analyst', 'security engineer', 'cyber', 'ไซเบอร์', 'security', 'ความปลอดภัย'],
-    pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
+    pointsNote: 'SkillSelect Nov 2025: ICT ไม่ถูกเชิญ · อ้างอิง Telecom Eng. = 90',
   },
   ictBusinessAnalyst: {
     title: 'ICT Business Analyst', anzsco: '261111', category: 'ICT & Technology',
@@ -110,7 +110,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยาก — ต้อง 90+',
     skills: ['Requirements Analysis', 'Stakeholder Management', 'Agile/Scrum', 'SQL', 'JIRA'],
     aliases: ['business analyst', 'ba', 'นักวิเคราะห์ธุรกิจ', 'requirements analyst', 'product owner', 'functional analyst', 'systems consultant'],
-    pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
+    pointsNote: 'SkillSelect Nov 2025: ICT ไม่ถูกเชิญ · อ้างอิง Telecom Eng. = 90',
   },
   databaseAdmin: {
     title: 'Database Administrator', anzsco: '262111', category: 'ICT & Technology',
@@ -123,7 +123,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยากมาก — ต้อง 90+ และ demand ลดลง',
     skills: ['SQL Server/Oracle/PostgreSQL', 'Database Tuning', 'Backup/Recovery', 'Cloud DBaaS'],
     aliases: ['dba', 'database engineer', 'data architect', 'database developer', 'sql developer'],
-    pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025',
+    pointsNote: 'SkillSelect Nov 2025: ICT ไม่ถูกเชิญ · อ้างอิง Telecom Eng. = 90',
   },
   systemsAnalyst: {
     title: 'Systems Analyst', anzsco: '261112', category: 'ICT & Technology',
@@ -136,7 +136,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยากมาก — ต้อง 90+',
     skills: ['Systems Analysis', 'UML', 'Business Process Modeling', 'Technical Documentation'],
     aliases: ['systems engineer', 'technical analyst', 'enterprise architect', 'it analyst'],
-    pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025',
+    pointsNote: 'SkillSelect Nov 2025: ICT ไม่ถูกเชิญ · อ้างอิง Telecom Eng. = 90',
   },
   webDeveloper: {
     title: 'Web Developer', anzsco: '261212', category: 'ICT & Technology',
@@ -149,7 +149,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยากมาก — ต้อง 90+ และเงินเดือนต่ำกว่าสาย SE',
     skills: ['HTML/CSS/JS', 'React/Vue/Angular', 'Node.js', 'REST APIs', 'Git'],
     aliases: ['frontend developer', 'frontend', 'react developer', 'javascript developer', 'ui developer', 'เว็บโปรแกรมเมอร์', 'web designer', 'wordpress developer'],
-    pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025',
+    pointsNote: 'SkillSelect Nov 2025: ICT ไม่ถูกเชิญ · อ้างอิง Telecom Eng. = 90',
   },
   networkEngineer: {
     title: 'Computer Network & Systems Engineer', anzsco: '263111', category: 'ICT & Technology',
@@ -162,7 +162,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยาก — ต้อง 90+',
     skills: ['Cisco/Juniper', 'Network Design', 'Firewall', 'Cloud Networking', 'CCNP/CCIE'],
     aliases: ['network admin', 'network administrator', 'infrastructure', 'it infrastructure', 'network specialist', 'network engineer'],
-    pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025',
+    pointsNote: 'SkillSelect Nov 2025: ICT ไม่ถูกเชิญ · อ้างอิง Telecom Eng. = 90',
   },
   ictProjectManager: {
     title: 'ICT Project Manager', anzsco: '135112', category: 'ICT & Technology',
@@ -175,7 +175,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยาก — ต้อง 90+',
     skills: ['Project Management', 'Agile/Scrum', 'Stakeholder Management', 'PMP/PRINCE2', 'Budget Management'],
     aliases: ['it manager', 'project manager', 'program manager', 'delivery manager', 'scrum master', 'product manager', 'agile coach', 'engineering manager', 'cto', 'it director', 'head of engineering', 'vp engineering'],
-    pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025',
+    pointsNote: 'SkillSelect Nov 2025: ICT ไม่ถูกเชิญ · อ้างอิง Telecom Eng. = 90',
   },
   multimediaDeveloper: {
     title: 'Multimedia Specialist', anzsco: '261211', category: 'ICT & Technology',
@@ -232,7 +232,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยาก — ICT ต้อง 90+',
     skills: ['SQL', 'Excel/Power BI', 'Python/R', 'Data Visualization', 'Statistics'],
     aliases: ['นักวิเคราะห์ข้อมูล', 'data analytics', 'bi analyst', 'business intelligence', 'reporting analyst', 'analytics', 'วิเคราะห์ข้อมูล'],
-    pointsNote: 'ANZSCO 223231 (OSCA 2024) — ICT คาดว่าต้อง 90+',
+    pointsNote: 'OSCA 2024 · SkillSelect: ICT ไม่ถูกเชิญ Nov 2025 · อ้างอิง Telecom = 90',
   },
   dataArchitect: {
     title: 'Data Architect', anzsco: '223232', category: 'ICT & Technology',
@@ -245,7 +245,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยาก — ต้อง 90+ แต่เงินเดือนสูง หา sponsor ง่าย',
     skills: ['Data Modeling', 'SQL', 'Cloud Data Platforms', 'Data Governance', 'ETL/ELT'],
     aliases: ['สถาปนิกข้อมูล', 'enterprise data architect', 'data modeler', 'data platform architect'],
-    pointsNote: 'ANZSCO 223232 (OSCA 2024) — ICT คาดว่าต้อง 90+',
+    pointsNote: 'OSCA 2024 · SkillSelect: ICT ไม่ถูกเชิญ Nov 2025 · อ้างอิง Telecom = 90',
   },
   developerProgrammer: {
     title: 'Developer Programmer', anzsco: '261312', category: 'ICT & Technology',
@@ -258,7 +258,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยาก — ต้อง 90+',
     skills: ['JavaScript/Python/Java', 'React/Angular', 'APIs', 'Git', 'Databases'],
     aliases: ['developer', 'programmer', 'โปรแกรมเมอร์', 'dev', 'coder', 'php developer', 'ruby developer', 'golang developer', 'go developer', '.net developer', 'c# developer'],
-    pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
+    pointsNote: 'SkillSelect Nov 2025: ICT ไม่ถูกเชิญ · อ้างอิง Telecom Eng. = 90',
   },
   analystProgrammer: {
     title: 'Analyst Programmer', anzsco: '261311', category: 'ICT & Technology',
@@ -271,7 +271,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยาก — ต้อง 90+',
     skills: ['Systems Analysis', 'Programming', 'Database Design', 'Testing', 'Documentation'],
     aliases: ['analyst programmer', 'programmer analyst', 'systems developer'],
-    pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
+    pointsNote: 'SkillSelect Nov 2025: ICT ไม่ถูกเชิญ · อ้างอิง Telecom Eng. = 90',
   },
   softwareTester: {
     title: 'Software Tester / QA Engineer', anzsco: '261314', category: 'ICT & Technology',
@@ -284,7 +284,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยาก — ต้อง 90+',
     skills: ['Test Automation', 'Selenium/Cypress', 'JIRA', 'Agile Testing', 'CI/CD'],
     aliases: ['qa', 'qa engineer', 'quality assurance', 'test analyst', 'tester', 'automation tester', 'sdet', 'test engineer', 'software testing', 'manual tester', 'test lead'],
-    pointsNote: 'ANZSCO 261314 — ICT คาดว่าต้อง 90+',
+    pointsNote: 'SkillSelect Nov 2025: ICT ไม่ถูกเชิญ · อ้างอิง Telecom Eng. = 90',
   },
   cyberSecurityEngineer: {
     title: 'Cyber Security Engineer', anzsco: '261315', category: 'ICT & Technology',
@@ -297,7 +297,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยาก — ต้อง 90+ แต่ demand สูงมาก',
     skills: ['Security Architecture', 'Cloud Security', 'SIEM', 'Incident Response', 'Compliance'],
     aliases: ['security engineer', 'cloud security engineer', 'application security', 'appsec', 'devsecops'],
-    pointsNote: 'ANZSCO 261315 (OSCA 2024) — ICT คาดว่าต้อง 90+',
+    pointsNote: 'OSCA 2024 · SkillSelect: ICT ไม่ถูกเชิญ Nov 2025 · อ้างอิง Telecom = 90',
   },
   penetrationTester: {
     title: 'Penetration Tester', anzsco: '261317', category: 'ICT & Technology',
@@ -310,7 +310,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยาก — ต้อง 90+',
     skills: ['Penetration Testing', 'Ethical Hacking', 'OSCP/CEH', 'Vulnerability Assessment', 'Burp Suite'],
     aliases: ['pentester', 'ethical hacker', 'offensive security', 'red team', 'bug bounty', 'vulnerability researcher'],
-    pointsNote: 'ANZSCO 261317 (OSCA 2024) — ICT คาดว่าต้อง 90+',
+    pointsNote: 'OSCA 2024 · SkillSelect: ICT ไม่ถูกเชิญ Nov 2025 · อ้างอิง Telecom = 90',
   },
   systemsAdministrator: {
     title: 'Systems Administrator', anzsco: '262113', category: 'ICT & Technology',
@@ -323,7 +323,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยาก — ต้อง 90+',
     skills: ['Windows Server', 'Linux', 'Active Directory', 'Virtualization', 'Scripting'],
     aliases: ['sysadmin', 'system admin', 'it admin', 'server admin', 'windows admin', 'linux admin', 'it administrator'],
-    pointsNote: 'ANZSCO 262113 — ICT คาดว่าต้อง 90+',
+    pointsNote: 'SkillSelect Nov 2025: ICT ไม่ถูกเชิญ · อ้างอิง Telecom Eng. = 90',
   },
   ictSupportEngineer: {
     title: 'ICT Support Engineer', anzsco: '263212', category: 'ICT & Technology',
@@ -336,7 +336,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยาก — ต้อง 90+',
     skills: ['IT Support', 'Troubleshooting', 'Networking', 'Help Desk', 'ITIL'],
     aliases: ['it support', 'support engineer', 'helpdesk', 'help desk', 'desktop support', 'technical support', 'it support engineer', 'level 2', 'level 3', 'l2 support', 'l3 support'],
-    pointsNote: 'ANZSCO 263212 — ICT คาดว่าต้อง 90+',
+    pointsNote: 'SkillSelect Nov 2025: ICT ไม่ถูกเชิญ · อ้างอิง Telecom Eng. = 90',
   },
   ictQualityAssurance: {
     title: 'ICT Quality Assurance Engineer', anzsco: '263211', category: 'ICT & Technology',
@@ -349,7 +349,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยาก — ต้อง 90+',
     skills: ['Quality Assurance', 'Test Planning', 'Process Improvement', 'ISO Standards', 'Automation'],
     aliases: ['qa manager', 'quality engineer', 'test manager', 'quality assurance manager', 'quality analyst'],
-    pointsNote: 'ANZSCO 263211 — ICT คาดว่าต้อง 90+',
+    pointsNote: 'SkillSelect Nov 2025: ICT ไม่ถูกเชิญ · อ้างอิง Telecom Eng. = 90',
   },
   networkAdministrator: {
     title: 'Network Administrator', anzsco: '263112', category: 'ICT & Technology',
@@ -362,7 +362,7 @@ export const occupations: Record<string, Occupation> = {
     pathToPR: 'ยาก — ต้อง 90+',
     skills: ['Cisco', 'Firewall', 'LAN/WAN', 'VPN', 'CCNA/CCNP'],
     aliases: ['network admin', 'เน็ตเวิร์ค', 'network support'],
-    pointsNote: 'ANZSCO 263112 — ICT คาดว่าต้อง 90+',
+    pointsNote: 'SkillSelect Nov 2025: ICT ไม่ถูกเชิญ · อ้างอิง Telecom Eng. = 90',
   },
 
   // ═══════════════════════════════════════════════════════════

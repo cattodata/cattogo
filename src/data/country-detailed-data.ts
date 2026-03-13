@@ -91,7 +91,7 @@ export const AUSTRALIA: CountryDetailedData = {
     couple: 6960,
     family: 8120,
     currency: 'AUD',
-    notes: '189 Skilled Independent (FY25-26): $4,640 main + $2,320 adult dep + $1,160 child. 482 TSS (July 2025): $3,210 main. 186 ENS: $4,765. 491 Regional: $4,640. Most paths: 189/190 for skilled workers.',
+    notes: '189 Skilled Independent (FY25-26): $4,640 main + $2,320 adult dep + $1,160 child. 482 TSS (FY25-26): $3,035 main + $3,035 partner + $760 child. 186 ENS: $4,765. 491 Regional: $4,640. Most paths: 189/190 for skilled workers.',
     source: 'Home Affairs immi.homeaffairs.gov.au',
     lastUpdated: 'FY25-26 (July 2025)',
   },

@@ -369,6 +369,7 @@ export function SummaryStep({
           📊 ข้อมูลจาก: Home Affairs SkillSelect Nov 2025 | PayScale AU Feb 2026 | Numbeo Feb 2026 | SEEK AU
         </p>
         <p>💱 อัตราแลกเปลี่ยน: 1 AUD = {exchangeRate.toFixed(2)} THB {lastUpdate && `(${lastUpdate})`}</p>
+        <p className="mt-1">📋 POC Data ณ March 2026 · ⚠️ ไม่ใช่คำแนะนำทางกฎหมาย ควรปรึกษา MARA agent</p>
       </div>
     </div>
   )

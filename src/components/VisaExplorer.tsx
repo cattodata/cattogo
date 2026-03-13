@@ -523,7 +523,7 @@ const VISA_CATEGORIES = [
         requirements: ['Employer ใน AU nominate ให้', 'อายุต่ำกว่า 45 ปี', 'Skills Assessment (Direct Entry)', 'IELTS 6.0+ (Competent)'],
         pros: ['ได้ PR ทันที', 'Transition stream ง่ายกว่า (จาก 482)', 'ไม่ต้องมี points score'],
         cons: ['ต้องมี employer willing to nominate', 'Direct Entry ต้อง 3 ปีประสบการณ์', 'นายจ้างจ่าย SAF levy'],
-        cost: '$4,640', timeline: '6-12 เดือน', prPath: '✅ ได้ PR ทันที',
+        cost: '$4,765', timeline: '6-12 เดือน', prPath: '✅ ได้ PR ทันที',
         highlight: false,
       },
     ],
@@ -1280,7 +1280,7 @@ export function VisaExplorer() {
                     { p: '🎯 189 Skilled', c: '$4,640', e: 'IELTS 6+', t: '12-18 เดือน', h: false },
                     { p: '🏛️ 190 State', c: '$4,640', e: 'IELTS 6+', t: '12-18 เดือน', h: false },
                     { p: '🌾 491 Regional', c: '$4,640', e: 'IELTS 6+', t: '3-5 ปี', h: false },
-                    { p: '💼 482→186', c: '$3,035→$4,640', e: 'IELTS 5+', t: '2-4 ปี', h: true },
+                    { p: '💼 482→186', c: '$3,035→$4,765', e: 'IELTS 5+', t: '2-4 ปี', h: true },
                     /* TODO: เพิ่มข้อมูลเส้นทางเหล่านี้ก่อนเปิดใช้
                     { p: '🎓 500→485→PR', c: '$1,600+เทอม', e: 'IELTS 5.5+', t: '4-6 ปี', h: false },
                     { p: '🏖️ 462 WHV', c: '$640', e: 'IELTS 4.5+', t: 'ไม่มี PR ตรง', h: true },
@@ -1416,7 +1416,7 @@ export function VisaExplorer() {
                     <tr><td className="p-2 font-medium">🎯 189 Skilled</td><td className="text-center p-2">$4,640</td><td className="text-center p-2">IELTS 6+</td><td className="text-center p-2">12-18 เดือน</td><td className="text-center p-2">⭐⭐⭐⭐⭐</td></tr>
                     <tr><td className="p-2 font-medium">🏛️ 190 State</td><td className="text-center p-2">$4,640</td><td className="text-center p-2">IELTS 6+</td><td className="text-center p-2">12-18 เดือน</td><td className="text-center p-2">⭐⭐⭐⭐</td></tr>
                     <tr><td className="p-2 font-medium">🌾 491 Regional</td><td className="text-center p-2">$4,640</td><td className="text-center p-2">IELTS 6+</td><td className="text-center p-2">3-5 ปี</td><td className="text-center p-2">⭐⭐⭐</td></tr>
-                    <tr className="bg-green-50"><td className="p-2 font-medium">💼 482→186</td><td className="text-center p-2">$3,035→$4,640</td><td className="text-center p-2">IELTS 5+</td><td className="text-center p-2">2-4 ปี</td><td className="text-center p-2">⭐⭐</td></tr>
+                    <tr className="bg-green-50"><td className="p-2 font-medium">💼 482→186</td><td className="text-center p-2">$3,035→$4,765</td><td className="text-center p-2">IELTS 5+</td><td className="text-center p-2">2-4 ปี</td><td className="text-center p-2">⭐⭐</td></tr>
                     <tr><td className="p-2 font-medium">🎓 500→485→PR</td><td className="text-center p-2">$1,600+เทอม</td><td className="text-center p-2">IELTS 5.5+</td><td className="text-center p-2">4-6 ปี</td><td className="text-center p-2">⭐⭐</td></tr>
                     <tr className="bg-orange-50"><td className="p-2 font-medium">🏖️ 462 WHV</td><td className="text-center p-2">$640</td><td className="text-center p-2">IELTS 4.5+</td><td className="text-center p-2">ไม่มี PR ตรง</td><td className="text-center p-2">⭐</td></tr>
                     <tr><td className="p-2 font-medium">💑 309/820 Partner</td><td className="text-center p-2">$9,095</td><td className="text-center p-2">ไม่ต้อง</td><td className="text-center p-2">2 ปี</td><td className="text-center p-2">⭐⭐</td></tr>
@@ -1436,16 +1436,17 @@ export function VisaExplorer() {
           <div className="text-xs text-blue-600 space-y-0.5">
             <div>• <a href="https://immi.homeaffairs.gov.au/visas/working-in-australia/skillselect" target="_blank" rel="noopener noreferrer" className="underline">Home Affairs — SkillSelect & Points Table</a></div>
             <div>• <a href="https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing" target="_blank" rel="noopener noreferrer" className="underline">Home Affairs — Visa Listing (ค่าธรรมเนียม)</a></div>
-            <div>• <a href="https://immi.homeaffairs.gov.au/what-we-do/whm-program/latest-news/thai" target="_blank" rel="noopener noreferrer" className="underline">Home Affairs — Work and Holiday 462 (ไทย)</a></div>
+            <div>• <a href="https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/work-holiday-462" target="_blank" rel="noopener noreferrer" className="underline">Home Affairs — Work and Holiday 462</a></div>
             <div>• <a href="https://immi.homeaffairs.gov.au/visas/working-in-australia/skill-occupation-list" target="_blank" rel="noopener noreferrer" className="underline">Skilled Occupation List (CSOL/MLTSSL/STSOL/ROL)</a></div>
-            <div>• SkillSelect Invitation Rounds Nov 2025 — cut-off คะแนนอาชีพ 60+ สาย</div>
+            <div>• <a href="https://immi.homeaffairs.gov.au/visas/working-in-australia/skillselect/invitation-rounds" target="_blank" rel="noopener noreferrer" className="underline">SkillSelect Invitation Rounds Nov 2025</a> — cut-off คะแนนอาชีพ 60+ สาย</div>
           </div>
         </div>
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mt-3">
           <p className="text-xs text-amber-700">
-            ⚠️ ข้อมูลเป็นการสรุปเบื้องต้น อาจเปลี่ยนแปลงได้ กรุณาตรวจสอบจาก{' '}
+            📋 <strong>POC Data</strong> — ข้อมูล ณ March 2026 ไม่ได้ live update อาจเปลี่ยนแปลง กรุณาเช็คจาก{' '}
             <a href="https://immi.homeaffairs.gov.au" target="_blank" rel="noopener noreferrer" className="underline font-medium">Home Affairs</a>{' '}
-            ก่อนตัดสินใจ และปรึกษา Migration Agent ที่ได้รับอนุญาตก่อนยื่นวีซ่าจริง
+            ก่อนตัดสินใจ<br />
+            ⚠️ ไม่ใช่คำแนะนำทางกฎหมาย เป็นข้อมูลทั่วไปเท่านั้น ควรปรึกษา MARA agent ก่อนตัดสินใจ
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 mt-3">
