@@ -46,6 +46,29 @@ export const CURRENCY_SYMBOLS: Record<string, string> = {
   KRW: '₩',
 }
 
+// ===== EFFECTIVE TAX RATES (mid-level tech salary) =====
+// อัตราภาษีโดยประมาณ (income tax + social contributions) สำหรับเงินเดือนระดับ mid
+// ใช้เปรียบเทียบ take-home pay ระหว่างประเทศ — ไม่รวม VAT/GST
+// Sources: OECD Tax Wedge 2024, KPMG Tax Rates 2025, PwC Worldwide Tax Summaries
+export const EFFECTIVE_TAX_RATES: Record<string, number> = {
+  australia: 0.27,     // AU: 32.5% marginal at ~$100K, effective ~27% incl Medicare levy
+  canada: 0.25,        // CA: Federal+Provincial combined effective ~25%
+  uk: 0.25,            // UK: 20% basic + 13.25% NI → effective ~25% at mid salary
+  newzealand: 0.22,    // NZ: 30% marginal at ~$70K, no social security → effective ~22%
+  germany: 0.35,       // DE: 42% marginal + ~20% social contributions → effective ~35%
+  singapore: 0.07,     // SG: Progressive 7% at ~$80K SGD, no social insurance for foreigners
+  sweden: 0.35,        // SE: ~32% municipal tax + social charges → effective ~35% at mid
+  uae: 0.0,            // AE: 0% personal income tax
+  norway: 0.33,        // NO: ~22% flat income + ~8% social → effective ~33%
+  netherlands: 0.37,   // NL: 36.93% bracket + social premiums → effective ~37%
+  ireland: 0.28,       // IE: 20% rate + PRSI + USC → effective ~28%
+  usa: 0.25,           // US: Federal+State (CA/NY avg) combined effective ~25%
+  portugal: 0.30,      // PT: 28.5% marginal + 11% social → effective ~30% (NHR expired 2024)
+  korea: 0.18,         // KR: 15% bracket + ~9% social = effective ~18% at mid
+  switzerland: 0.22,   // CH: Federal+Cantonal+Municipal combined ~22% (varies by canton)
+  japan: 0.23,         // JP: 20% income + ~15% social/health → effective ~23%
+}
+
 // ===== DATA VERSION TRACKING =====
 // รวม lastUpdated ไว้ที่เดียว ใช้ตรวจว่าข้อมูลเก่าหรือยัง
 export const DATA_LAST_UPDATED = {

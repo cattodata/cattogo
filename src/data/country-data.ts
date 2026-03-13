@@ -33,11 +33,13 @@
 import {
   CURRENCY_TO_THB as _CURRENCY_TO_THB,
   CURRENCY_SYMBOLS as _CURRENCY_SYMBOLS,
+  EFFECTIVE_TAX_RATES as _EFFECTIVE_TAX_RATES,
 } from './constants'
 
 // Re-export for backward compatibility (components ที่ import จากไฟล์นี้อยู่แล้วจะไม่พัง)
 export const CURRENCY_TO_THB = _CURRENCY_TO_THB
 export const CURRENCY_SYMBOLS = _CURRENCY_SYMBOLS
+export const EFFECTIVE_TAX_RATES = _EFFECTIVE_TAX_RATES
 
 // ===== TYPES =====
 export interface CountryScores {

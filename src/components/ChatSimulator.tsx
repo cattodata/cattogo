@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import {
   COUNTRIES, GOALS, OCCUPATIONS,
-  CURRENCY_TO_THB, CURRENCY_SYMBOLS,
+  CURRENCY_TO_THB, CURRENCY_SYMBOLS, EFFECTIVE_TAX_RATES,
   matchCountries,
   type MatchResult, type MatchParams,
 } from '@/data/country-data'
@@ -168,22 +168,44 @@ export function ChatSimulator() {
 
   const bottomRef = useRef<HTMLDivElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const resultRef = useRef<HTMLDivElement>(null)
+  const shareCardRef = useRef<HTMLDivElement>(null)
 
   const captureResultAsImage = async () => {
-    if (!resultRef.current) return
+    if (!shareCardRef.current) return
     try {
+      // Temporarily make the card visible for capture
+      shareCardRef.current.style.position = 'fixed'
+      shareCardRef.current.style.left = '0'
+      shareCardRef.current.style.top = '0'
+      shareCardRef.current.style.opacity = '1'
+      shareCardRef.current.style.pointerEvents = 'none'
+      shareCardRef.current.style.zIndex = '-1'
+
       const html2canvas = (await import('html2canvas-pro')).default
-      const canvas = await html2canvas(resultRef.current, {
-        backgroundColor: '#ffffff',
+      const canvas = await html2canvas(shareCardRef.current, {
+        backgroundColor: null,
         scale: 2,
         useCORS: true,
+        width: 600,
       })
+
+      // Hide again
+      shareCardRef.current.style.position = 'absolute'
+      shareCardRef.current.style.left = '-9999px'
+      shareCardRef.current.style.opacity = '0'
+
       const link = document.createElement('a')
       link.download = 'cattogo-result.png'
       link.href = canvas.toDataURL('image/png')
       link.click()
-    } catch { /* ignore */ }
+    } catch {
+      // fallback: hide card if error
+      if (shareCardRef.current) {
+        shareCardRef.current.style.position = 'absolute'
+        shareCardRef.current.style.left = '-9999px'
+        shareCardRef.current.style.opacity = '0'
+      }
+    }
   }
 
   useEffect(() => {
@@ -1155,13 +1177,16 @@ export function ChatSimulator() {
                     const cur = result.country.currency || 'USD'
                     const sym = CURRENCY_SYMBOLS[cur] || cur
                     const thbRate = CURRENCY_TO_THB[cur] || 1
+                    const taxRate = EFFECTIVE_TAX_RATES[result.country.id] ?? 0.25
                     if (salary) {
-                      const thbMonthly = Math.round(salary.mid * thbRate / 12)
-                      return <div className="text-xs px-4 pb-1 text-gray-500">💰 {sym}{salary.mid.toLocaleString()}/ปี (~{thbMonthly.toLocaleString()} บาท/เดือน)</div>
+                      const netAnnual = Math.round(salary.mid * (1 - taxRate))
+                      const netMonthlyTHB = Math.round(netAnnual * thbRate / 12)
+                      return <div className="text-xs px-4 pb-1 text-gray-500">💰 {sym}{netAnnual.toLocaleString()}/ปี หลังภาษี (~{netMonthlyTHB.toLocaleString()} บาท/เดือน)</div>
                     }
                     const localSalary = Math.round(result.country.avgSalaryUSD * 34.5 / thbRate)
-                    const thbMonthly = Math.round(localSalary * thbRate / 12)
-                    return <div className="text-xs px-4 pb-1 text-gray-500">💰 ~{sym}{localSalary.toLocaleString()}/ปี (~{thbMonthly.toLocaleString()} บาท/เดือน)</div>
+                    const netLocal = Math.round(localSalary * (1 - taxRate))
+                    const netMonthlyTHB = Math.round(netLocal * thbRate / 12)
+                    return <div className="text-xs px-4 pb-1 text-gray-500">💰 ~{sym}{netLocal.toLocaleString()}/ปี หลังภาษี (~{netMonthlyTHB.toLocaleString()} บาท/เดือน)</div>
                   })()}
 
                   {/* Occupation note */}
@@ -1214,20 +1239,25 @@ export function ChatSimulator() {
                         const cur = result.country.currency || 'USD'
                         const sym = CURRENCY_SYMBOLS[cur] || cur
                         const thbRate = CURRENCY_TO_THB[cur] || 1
+                        const taxRate = EFFECTIVE_TAX_RATES[result.country.id] ?? 0.25
                         if (salary) {
-                          const midMonthlyTHB = Math.round(salary.mid * thbRate / 12)
+                          const netEntry = Math.round(salary.entry * (1 - taxRate))
+                          const netMid = Math.round(salary.mid * (1 - taxRate))
+                          const netSenior = Math.round(salary.senior * (1 - taxRate))
+                          const netMidMonthlyTHB = Math.round(netMid * thbRate / 12)
                           return (
                             <div className="text-xs mt-2 space-y-1">
-                              <div className="text-blue-600 font-medium">💼 เงินเดือน {occLabel} ({sym}/ปี):</div>
-                              <div className="text-gray-600">🟢 Entry: {sym}{salary.entry.toLocaleString()} → Mid: {sym}{salary.mid.toLocaleString()} → Senior: {sym}{salary.senior.toLocaleString()}</div>
-                              <div className="text-gray-500">≈ Mid ~{midMonthlyTHB.toLocaleString()} บาท/เดือน</div>
+                              <div className="text-blue-600 font-medium">💼 เงินเดือน {occLabel} หลังหักภาษี ~{Math.round(taxRate * 100)}% ({sym}/ปี):</div>
+                              <div className="text-gray-600">🟢 Entry: {sym}{netEntry.toLocaleString()} → Mid: {sym}{netMid.toLocaleString()} → Senior: {sym}{netSenior.toLocaleString()}</div>
+                              <div className="text-gray-500">≈ Mid ~{netMidMonthlyTHB.toLocaleString()} บาท/เดือน (หลังภาษี)</div>
                               <div className="text-gray-400">ค่าครองชีพ {result.country.costIndex}% ของไทย | คนไทย: {result.country.thaiCommunity === 'large' ? 'เยอะ' : result.country.thaiCommunity === 'medium' ? 'พอมี' : 'น้อย'}</div>
                             </div>
                           )
                         }
                         const localSalary = Math.round(result.country.avgSalaryUSD * 34.5 / thbRate)
-                        const thbMonthly = Math.round(localSalary * thbRate / 12)
-                        return <div className="text-xs text-gray-400 mt-2">💰 เงินเดือนเฉลี่ย ~{sym}{localSalary.toLocaleString()}/ปี (~{thbMonthly.toLocaleString()} บาท/เดือน) | ค่าครองชีพ {result.country.costIndex}% ของไทย | คนไทย: {result.country.thaiCommunity === 'large' ? 'เยอะ' : result.country.thaiCommunity === 'medium' ? 'พอมี' : 'น้อย'}</div>
+                        const netLocal = Math.round(localSalary * (1 - taxRate))
+                        const netMonthlyTHB = Math.round(netLocal * thbRate / 12)
+                        return <div className="text-xs text-gray-400 mt-2">💰 เงินเดือนเฉลี่ย ~{sym}{netLocal.toLocaleString()}/ปี หลังภาษี (~{netMonthlyTHB.toLocaleString()} บาท/เดือน) | ค่าครองชีพ {result.country.costIndex}% ของไทย | คนไทย: {result.country.thaiCommunity === 'large' ? 'เยอะ' : result.country.thaiCommunity === 'medium' ? 'พอมี' : 'น้อย'}</div>
                       })()}
                     </div>
                   )}
@@ -1578,7 +1608,7 @@ export function ChatSimulator() {
         {/* ===== RESULT PHASE ===== */}
         {/* ================================================================ */}
         {phase === 'result' && (
-          <div ref={resultRef} className="animate-fade-in space-y-4">
+          <div className="animate-fade-in space-y-4">
             <div className="text-center py-2">
               <div className="text-3xl font-bold text-gray-800 mb-1">🎊 ยินดีด้วย!</div>
               <div className="text-lg text-blue-600 font-semibold">คุณย้ายไป {city.name}, Australia สำเร็จ!</div>
@@ -1865,6 +1895,112 @@ export function ChatSimulator() {
             </div>
             <div className="mb-4">
               <ShareButtons onCaptureImage={captureResultAsImage} />
+            </div>
+
+            {/* Hidden branded share card for image capture */}
+            <div
+              ref={shareCardRef}
+              style={{ position: 'absolute', left: '-9999px', opacity: 0, width: 600, fontFamily: 'Kanit, Poppins, sans-serif' }}
+            >
+              <div style={{
+                background: 'linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #7c3aed 100%)',
+                borderRadius: 24,
+                padding: 32,
+                color: '#fff',
+                width: 600,
+              }}>
+                {/* Header */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 36 }}>🐱</span>
+                    <div>
+                      <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: 1 }}>CattoGO</div>
+                      <div style={{ fontSize: 11, opacity: 0.7 }}>วางแผนย้ายประเทศ สำหรับสาย Tech</div>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 36 }}>🇦🇺</div>
+                </div>
+
+                {/* Title */}
+                <div style={{
+                  background: 'rgba(255,255,255,0.15)',
+                  borderRadius: 16,
+                  padding: '16px 20px',
+                  marginBottom: 16,
+                  textAlign: 'center' as const,
+                }}>
+                  <div style={{ fontSize: 14, opacity: 0.8, marginBottom: 4 }}>จำลองชีวิตที่</div>
+                  <div style={{ fontSize: 26, fontWeight: 800 }}>📍 {city.name}, Australia</div>
+                </div>
+
+                {/* Income Card */}
+                <div style={{
+                  background: 'rgba(255,255,255,0.1)',
+                  borderRadius: 14,
+                  padding: 16,
+                  marginBottom: 12,
+                }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, opacity: 0.9 }}>💵 รายรับ/เดือน</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
+                    <span>เงินเดือน (Gross)</span>
+                    <span style={{ fontWeight: 600 }}>A${fmt(Math.round(grossAnnual / 12))}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4, color: '#fca5a5' }}>
+                    <span>ภาษี + Medicare</span>
+                    <span>-A${fmt(Math.round((auTax.tax + auTax.medicare) / 12))}</span>
+                  </div>
+                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: 8, marginTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 15, fontWeight: 800 }}>
+                    <span>💰 เงินสุทธิ Net</span>
+                    <span style={{ color: '#86efac' }}>A${fmt(monthlyNet)}</span>
+                  </div>
+                </div>
+
+                {/* Expense Card */}
+                <div style={{
+                  background: 'rgba(255,255,255,0.1)',
+                  borderRadius: 14,
+                  padding: 16,
+                  marginBottom: 12,
+                }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, opacity: 0.9 }}>🏠 รายจ่าย/เดือน</div>
+                  {[
+                    ['🏠 ค่าเช่า', monthlyRentAu],
+                    ['🍜 อาหาร', monthlyFood],
+                    ['🚇 เดินทาง', monthlyTransport],
+                    ['📱 โทรศัพท์+อื่นๆ', monthlyUtils + monthlyPhone + monthlyMisc],
+                  ].map(([label, val]) => (
+                    <div key={label as string} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
+                      <span>{label as string}</span>
+                      <span>A${fmt(val as number)}</span>
+                    </div>
+                  ))}
+                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: 8, marginTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 14, fontWeight: 700 }}>
+                    <span>รวมจ่าย</span>
+                    <span>A${fmt(totalMonthlyExp)}</span>
+                  </div>
+                </div>
+
+                {/* Savings Card - Hero */}
+                <div style={{
+                  background: monthlySavings >= 0
+                    ? 'linear-gradient(135deg, #059669, #10b981)'
+                    : 'linear-gradient(135deg, #dc2626, #ef4444)',
+                  borderRadius: 16,
+                  padding: 20,
+                  textAlign: 'center' as const,
+                  marginBottom: 16,
+                }}>
+                  <div style={{ fontSize: 13, opacity: 0.9, marginBottom: 4 }}>💰 เหลือเก็บ/เดือน</div>
+                  <div style={{ fontSize: 32, fontWeight: 900 }}>A${fmt(monthlySavings)}</div>
+                  <div style={{ fontSize: 16, opacity: 0.85, marginTop: 4 }}>≈ ฿{fmt(monthlySavingsTHB)}/เดือน</div>
+                </div>
+
+                {/* Footer */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: 0.6, fontSize: 11 }}>
+                  <span>cattodata.com/cattogo</span>
+                  <span>ข้อมูล ณ Mar 2026</span>
+                </div>
+              </div>
             </div>
           </div>
         )}
