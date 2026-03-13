@@ -122,6 +122,30 @@ export const AU_SALARY_BY_CATEGORY: Record<string, AUSalaryCategory> = {
     label: 'Trades (ช่าง)',
     derivedFrom: 'avg(electrician, plumber, carpenter, welder) — PayScale AU Jan 2026 (hourly×1,976)',
   },
+  'devops-cloud': {
+    // DevOps/Cloud maps close to software engineer salaries
+    entry: 70000, mid: 100000, senior: 140000,
+    label: 'DevOps / Cloud Engineer',
+    derivedFrom: 'SEEK + PayScale AU Feb 2026 — similar to software engineer range',
+  },
+  'cybersecurity': {
+    // Cyber security specialist — slightly above software avg
+    entry: 72000, mid: 105000, senior: 145000,
+    label: 'Cybersecurity',
+    derivedFrom: 'SEEK + PayScale AU Feb 2026 — ICT Security Specialist',
+  },
+  'network-admin': {
+    // Network/SysAdmin — slightly below software dev
+    entry: 55000, mid: 80000, senior: 115000,
+    label: 'Network / SysAdmin',
+    derivedFrom: 'SEEK + PayScale AU Feb 2026 — Network Engineer / Systems Administrator',
+  },
+  'it-management': {
+    // IT Manager / PM — higher range
+    entry: 80000, mid: 120000, senior: 165000,
+    label: 'IT Manager / PM',
+    derivedFrom: 'SEEK + PayScale AU Feb 2026 — ICT Project Manager',
+  },
   'other': {
     // ค่ากลางประมาณ — ระหว่าง trades กับ accounting
     entry: 55000, mid: 70000, senior: 90000,

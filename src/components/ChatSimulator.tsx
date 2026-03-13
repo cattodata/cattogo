@@ -51,12 +51,18 @@ const fmtThb = (n: number) => `฿${fmt(n)}`
 const OCC_TO_SALARY_KEY: Record<string, keyof OccupationSalaries> = {
   'software': 'softwareDev',
   'data-ai': 'dataAI',
+  'devops-cloud': 'softwareDev',
+  'cybersecurity': 'softwareDev',
+  'network-admin': 'softwareDev',
+  'it-management': 'softwareDev',
+  'other': 'softwareDev',
+  /* Temporarily disabled — non-tech
   'engineering': 'engineer',
-  'creative': 'trades', // No dedicated creative salary data; trades is a safer generic proxy than softwareDev
+  'creative': 'trades',
   'accounting': 'accountant',
   'healthcare': 'nurse',
-  'chef': 'trades', // chef uses trades salary range as closest proxy
-  'other': 'trades',
+  'chef': 'trades',
+  */
 }
 
 function getOccSalary(countryId: string, occId: string): SalaryRange | null {
@@ -371,18 +377,22 @@ export function ChatSimulator() {
     sendMessage(title)
   }
 
-  // Quick occupation chip mapping → proper AI-expected IDs
+  // Quick occupation chip mapping → proper AI-expected IDs (Tech/IT only)
   const OCC_CHIP_MAP: { label: string; text: string; occId: string }[] = [
     { label: '💻 Software Dev', text: 'Software Developer / โปรแกรมเมอร์', occId: 'software' },
     { label: '📊 Data / Analytics', text: 'Data Engineer / Analyst', occId: 'data-ai' },
-    { label: '☁️ DevOps / Cloud', text: 'DevOps / Cloud Engineer', occId: 'software' },
+    { label: '☁️ DevOps / Cloud', text: 'DevOps / Cloud Engineer', occId: 'devops-cloud' },
     { label: '🤖 AI / ML', text: 'AI / Machine Learning Engineer', occId: 'data-ai' },
-    { label: '🔒 Cybersecurity', text: 'Cybersecurity Analyst', occId: 'software' },
+    { label: '🔒 Cybersecurity', text: 'Cybersecurity Analyst', occId: 'cybersecurity' },
+    { label: '🌐 Network / SysAdmin', text: 'Network Engineer / SysAdmin', occId: 'network-admin' },
+    { label: '📋 IT Manager / PM', text: 'IT Project Manager', occId: 'it-management' },
+    /* Temporarily disabled — non-tech
     { label: '⚙️ วิศวกร', text: 'วิศวกร', occId: 'engineering' },
     { label: '🎨 ดีไซน์ / ครีเอทีฟ', text: 'Graphic Designer / ดีไซเนอร์', occId: 'creative' },
     { label: '🏥 สาธารณสุข', text: 'แพทย์ / พยาบาล', occId: 'healthcare' },
     { label: '📋 บัญชี', text: 'บัญชี / การเงิน', occId: 'accounting' },
     { label: '👨‍🍳 เชฟ', text: 'เชฟ / ครัว', occId: 'chef' },
+    */
   ]
   const sendOccChip = (text: string, occId: string) => {
     setAiGathered(prev => ({ ...prev, occupation: occId }))
@@ -430,16 +440,29 @@ export function ChatSimulator() {
   const city = AU_CITIES[auProfile.city] || AU_CITIES['melbourne']
   const salaryData = AU_SALARIES[auOccKey] || AU_SALARIES['other']
 
+  // Skills Assessment cost depends on occupation:
+  // IT (ACS) ~$530, Engineering (EA) ~$700, Other (VETASSESS) ~$1,000
+  // Only required for Skilled visas (189/190/491), NOT for employer-sponsored (482)
+  const skillsAssessmentCost = useMemo(() => {
+    const itOccs = ['software', 'data-ai', 'devops-cloud', 'cybersecurity', 'network-admin', 'it-management']
+    if (itOccs.includes(occupation)) return 530 // ACS fee
+    return 1000 // VETASSESS / other bodies
+  }, [occupation])
+
   const preDepartureCosts = useMemo(() => {
-    const visa = quickProfile.family === 'family' ? 9825 : quickProfile.family === 'couple' ? 7365 : 4910
+    // Visa 189/190: Primary $4,640 + Partner $2,320 + Child $1,160 (FY2025-26)
+    const visa = quickProfile.family === 'family' ? 8120 : quickProfile.family === 'couple' ? 6960 : 4640
+    const itOccs = ['software', 'data-ai', 'devops-cloud', 'cybersecurity', 'network-admin', 'it-management']
+    const saFee = itOccs.includes(occupation) ? 530 : 1000
+    const saLabel = itOccs.includes(occupation) ? '📝 Skills Assessment (ACS)' : '📝 Skills Assessment (VETASSESS)'
     return [
-      { label: '📋 Visa Application Fee', aud: visa },
-      { label: '📝 Skills Assessment', aud: 1000 },
-      { label: '📖 IELTS สอบภาษา', aud: 400 },
+      { label: '📋 Visa 189/190 (Skilled)', aud: visa },
+      { label: saLabel, aud: saFee },
+      { label: '📖 IELTS/PTE สอบภาษา', aud: 410 },
       { label: '🏥 ตรวจสุขภาพ Medical', aud: 400 },
       { label: '📄 เอกสาร+แปล+รับรอง', aud: 500 },
     ]
-  }, [quickProfile.family])
+  }, [quickProfile.family, occupation])
   const preDepartureTotal = preDepartureCosts.reduce((s, c) => s + c.aud, 0)
 
   const grossAnnual = choices['job'] === 'top' ? salaryData.senior : choices['job'] === 'min' ? AU_UNSKILLED_SALARY : salaryData.mid
@@ -1025,6 +1048,16 @@ export function ChatSimulator() {
           <div className="text-center mb-4 animate-fade-in">
             <div className="text-3xl font-bold text-gray-800 mb-1">🌍 ผลวิเคราะห์ของคุณ!</div>
             <div className="text-sm text-gray-500">{aiMode ? '🐱 Catto วิเคราะห์จาก' : 'จาก'} {COUNTRIES.length} ประเทศ — นี่คือ Top 5 ที่เหมาะกับคุณ</div>
+            {/* Show user's selected criteria */}
+            <div className="flex flex-wrap justify-center gap-2 mt-2">
+              {goals.map(g => {
+                const goal = GOALS.find(x => x.id === g)
+                return goal ? <span key={g} className="inline-block px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">{goal.emoji} {goal.label.replace(/^[^\s]+\s/, '')}</span> : null
+              })}
+              {occupation && <span className="inline-block px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full">💼 {occDisplayLabel || OCCUPATIONS.find(o => o.id === occupation)?.labelTH}</span>}
+              {quickProfile.family && <span className="inline-block px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">{quickProfile.family === 'family' ? '👨‍👩‍👧 ครอบครัว' : quickProfile.family === 'couple' ? '👫 คู่' : '🧑 คนเดียว'}</span>}
+            </div>
+            <div className="text-[10px] text-gray-400 mt-1">คะแนนคำนวณจากเป้าหมาย × คะแนนประเทศ × อาชีพ × รายได้</div>
           </div>
 
           <div className="space-y-3">
@@ -1060,6 +1093,16 @@ export function ChatSimulator() {
                       background: result.matchPct >= 75 ? 'linear-gradient(90deg, #22c55e, #16a34a)' : result.matchPct >= 55 ? 'linear-gradient(90deg, #3b82f6, #2563eb)' : 'linear-gradient(90deg, #f97316, #ea580c)',
                     }} />
                   </div>
+
+                  {/* Goal-based reasons: WHY this country matches */}
+                  {result.goalReasons && result.goalReasons.length > 0 && (
+                    <div className="px-4 pt-2 pb-1 space-y-0.5">
+                      <div className="text-[11px] font-semibold text-gray-500 mb-1">📋 ทำไมได้อันดับนี้ (จากที่คุณเลือก):</div>
+                      {result.goalReasons.map((r, i) => (
+                        <div key={i} className="text-xs text-gray-600">{r}</div>
+                      ))}
+                    </div>
+                  )}
 
                   {/* Highlights */}
                   <div className="country-highlights">

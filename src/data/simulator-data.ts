@@ -89,14 +89,18 @@ export const AU_SALARIES: Record<string, { entry: number; mid: number; senior: n
 // Source: JobsDB Thailand, PayScale TH, Glassdoor TH (Feb 2026)
 // หมายเหตุ: ค่า median ของคนที่ทำงานใน กทม. 3-5 ปี
 export const TH_SALARIES: Record<string, number> = {
-  'software': 720000,    // 60K/เดือน — JobsDB avg software dev Bangkok
-  'data-ai': 660000,     // 55K/เดือน — JobsDB avg data engineer Bangkok
-  'accounting': 420000,  // 35K/เดือน — JobsDB avg accountant Bangkok
-  'engineering': 540000, // 45K/เดือน — JobsDB avg engineer Bangkok
-  'healthcare': 360000,  // 30K/เดือน — พยาบาลวิชาชีพ รพ.รัฐ
-  'chef': 240000,        // 20K/เดือน — SEEK TH avg chef
-  'trades': 300000,      // 25K/เดือน — ช่างไฟฟ้า/ประปา กทม.
-  'other': 360000,       // 30K/เดือน
+  'software': 720000,      // 60K/เดือน — JobsDB avg software dev Bangkok
+  'data-ai': 660000,       // 55K/เดือน — JobsDB avg data engineer Bangkok
+  'devops-cloud': 720000,  // 60K/เดือน — DevOps/Cloud ใกล้เคียง software dev
+  'cybersecurity': 600000, // 50K/เดือน — Cybersecurity analyst Bangkok
+  'network-admin': 480000, // 40K/เดือน — Network/SysAdmin Bangkok
+  'it-management': 840000, // 70K/เดือน — IT Manager Bangkok
+  'accounting': 420000,    // 35K/เดือน — JobsDB avg accountant Bangkok
+  'engineering': 540000,   // 45K/เดือน — JobsDB avg engineer Bangkok
+  'healthcare': 360000,    // 30K/เดือน — พยาบาลวิชาชีพ รพ.รัฐ
+  'chef': 240000,          // 20K/เดือน — SEEK TH avg chef
+  'trades': 300000,        // 25K/เดือน — ช่างไฟฟ้า/ประปา กทม.
+  'other': 360000,         // 30K/เดือน
 }
 
 // Thai living costs (single, Bangkok, THB/month)

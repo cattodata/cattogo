@@ -75,15 +75,24 @@ export function AuLifeSim() {
   const salarySource = selectedOcc?.salarySource || ''
 
   const preDepartureCosts = useMemo(() => {
-    const visa = profile.family === 'family' ? 8595 : profile.family === 'couple' ? 7365 : 4910
+    // Visa 189/190: Primary $4,640 + Partner $2,320 + Child $1,160 (FY2025-26)
+    const visa = profile.family === 'family' ? 8120 : profile.family === 'couple' ? 6960 : 4640
+    // Skills Assessment: IT (ACS) ~$530, Other (VETASSESS) ~$1,000
+    const itOccs = ['softwareEngineer', 'dataEngineer', 'dataScientist', 'mlEngineer',
+      'devopsEngineer', 'cloudArchitect', 'cybersecurityAnalyst', 'networkEngineer',
+      'systemAdministrator', 'itProjectManager', 'solutionArchitect', 'uxDesigner',
+      'webDeveloper', 'mobileDeveloper', 'databaseAdmin', 'businessAnalyst', 'qualityAssurance']
+    const isIT = itOccs.includes(profile.occupation) || profile.occupation.toLowerCase().includes('software') || profile.occupation.toLowerCase().includes('ict')
+    const saFee = isIT ? 530 : 1000
+    const saLabel = isIT ? '📝 Skills Assessment (ACS)' : '📝 Skills Assessment (VETASSESS)'
     return [
-      { label: '📋 Visa ทำงาน (Skilled/Sponsored)', aud: visa, source: 'Home Affairs' },
-      { label: '📝 Skills Assessment', aud: 1000, source: 'ACS/VETASSESS' },
-      { label: '📖 IELTS สอบภาษา', aud: 400, source: 'IELTS.org' },
+      { label: '📋 Visa 189/190 (Skilled)', aud: visa, source: 'Home Affairs FY25-26' },
+      { label: saLabel, aud: saFee, source: isIT ? 'ACS' : 'VETASSESS' },
+      { label: '📖 IELTS/PTE สอบภาษา', aud: 410, source: 'IELTS.org / PTE' },
       { label: '🏥 ตรวจสุขภาพ Medical', aud: 400, source: 'Bupa/HAP' },
       { label: '📄 เอกสาร+แปล+รับรอง', aud: 500, source: 'ประมาณ' },
     ]
-  }, [profile.family])
+  }, [profile.family, profile.occupation])
   const preDepartureTotal = preDepartureCosts.reduce((s, c) => s + c.aud, 0)
 
   const grossAnnual = choices['job'] === 'p90' ? salaryP90 : choices['job'] === 'p10' ? salaryP10 : choices['job'] === 'min' ? AU_UNSKILLED_SALARY : salaryMedian

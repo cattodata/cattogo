@@ -73,15 +73,21 @@ export interface MatchResult {
   country: Country
   matchPct: number
   highlights: string[]
+  goalReasons: string[]
   challenges: string[]
   occupationNote: string
 }
 
 // ===== OCCUPATION CATEGORIES (6 กลุ่มรวม — matchIds ใช้จับคู่กับ hotJobs) =====
 export const OCCUPATIONS = [
-  { id: 'software', label: '💻 Software Developer / IT', labelTH: 'โปรแกรมเมอร์ / IT', matchIds: ['software'] },
+  // 6 Tech/IT subcategories based on ANZSCO grouping
+  { id: 'software', label: '💻 Software Developer / Programmer', labelTH: 'โปรแกรมเมอร์', matchIds: ['software'] },
   { id: 'data-ai', label: '🤖 Data / AI / ML Engineer', labelTH: 'Data / AI / ML', matchIds: ['data-ai', 'software'] },
-  { id: 'other', label: '📋 สาย Tech อื่นๆ (DevOps, Security, PM)', labelTH: 'Tech อื่นๆ', matchIds: ['software', 'other'] },
+  { id: 'devops-cloud', label: '☁️ DevOps / Cloud / Infra', labelTH: 'DevOps / Cloud', matchIds: ['software'] },
+  { id: 'cybersecurity', label: '🔒 Cybersecurity', labelTH: 'Cybersecurity', matchIds: ['software'] },
+  { id: 'network-admin', label: '🌐 Network / SysAdmin / IT Support', labelTH: 'Network / IT Support', matchIds: ['software', 'other'] },
+  { id: 'it-management', label: '📋 IT Manager / PM / Scrum Master', labelTH: 'IT Manager / PM', matchIds: ['software', 'other'] },
+  { id: 'other', label: '🔍 สาย Tech อื่นๆ', labelTH: 'Tech อื่นๆ', matchIds: ['software', 'other'] },
   /* Temporarily disabled — scope reduced to Tech/IT
   { id: 'engineering', label: '⚙️ วิศวกร / ช่างเทคนิค', labelTH: 'วิศวกร / ช่าง', matchIds: ['engineering', 'trades'] },
   { id: 'creative', label: '🎨 ครีเอทีฟ / ดีไซน์ / สื่อ', labelTH: 'ครีเอทีฟ / ดีไซน์', matchIds: ['creative', 'marketing'] },
@@ -496,12 +502,14 @@ export function matchCountries(params: MatchParams): MatchResult[] {
 
     // Generate TRANSPARENT highlights tied to user's actual choices
     const highlights = generateHighlights(country, params, breakdown, isHotJob, affordRatio)
+    const goalReasons = generateGoalReasons(country, params, breakdown)
     const occupationNote = getOccupationNote(country.id, params.occupation)
 
     return {
       country,
       matchPct,
       highlights,
+      goalReasons,
       challenges: country.cons,
       occupationNote,
     }
@@ -548,4 +556,59 @@ function generateHighlights(
   }
 
   return highlights.slice(0, 4)
+}
+
+// Generate explicit goal→score connection for transparency
+const GOAL_LABELS: Record<string, string> = {
+  'money-job': '💰 เงินดี หางานง่าย',
+  'balance': '⚖️ Work-life balance',
+  'family': '🎓 ลูกเรียนดี สวัสดิการ',
+  'stable': '🛡️ การเมืองมั่นคง',
+  'lifestyle': '☀️ อากาศดี ย้ายง่าย',
+}
+
+const GOAL_TO_CRITERIA: Record<string, { keys: (keyof CountryScores)[]; labels: string[] }> = {
+  'money-job': { keys: ['jobMarket', 'taxFriendliness', 'costOfLiving'], labels: ['ตลาดงาน', 'ภาษีเป็นมิตร', 'ค่าครองชีพ'] },
+  'balance': { keys: ['workLifeBalance', 'safety'], labels: ['Work-life balance', 'ปลอดภัย'] },
+  'family': { keys: ['education', 'healthcare'], labels: ['การศึกษา', 'สาธารณสุข'] },
+  'stable': { keys: ['politicalStability', 'safety'], labels: ['การเมืองมั่นคง', 'ปลอดภัย'] },
+  'lifestyle': { keys: ['climate', 'immigrationEase', 'costOfLiving'], labels: ['อากาศ', 'ย้ายเข้าง่าย', 'ค่าครองชีพ'] },
+}
+
+function generateGoalReasons(
+  country: Country,
+  params: MatchParams,
+  breakdown: Array<{ label: string; val: number; weight: number }>,
+): string[] {
+  const reasons: string[] = []
+
+  for (const goalId of params.goals) {
+    const goalLabel = GOAL_LABELS[goalId]
+    const mapping = GOAL_TO_CRITERIA[goalId]
+    if (!goalLabel || !mapping) continue
+
+    const scoreParts = mapping.keys.map((key, i) => {
+      const val = country.scores[key]
+      return `${mapping.labels[i]} ${val}/10`
+    })
+
+    const avgScore = mapping.keys.reduce((sum, key) => sum + country.scores[key], 0) / mapping.keys.length
+    const emoji = avgScore >= 8 ? '✅' : avgScore >= 6 ? '👍' : avgScore >= 4 ? '⚠️' : '❌'
+
+    reasons.push(`${emoji} คุณเลือก ${goalLabel} → ${scoreParts.join(', ')}`)
+  }
+
+  // Family status reason
+  if (params.family === 'family') {
+    const eduScore = country.scores.education
+    const hcScore = country.scores.healthcare
+    reasons.push(`👨‍👩‍👧 ไปกับครอบครัว → การศึกษา ${eduScore}/10, สาธารณสุข ${hcScore}/10`)
+  }
+
+  // Age reason for points-based
+  if (params.age === '45+' && ['australia', 'canada', 'newzealand'].includes(country.id)) {
+    reasons.push(`⚠️ อายุ 45+ → ระบบ Points-based ให้คะแนนน้อยลง`)
+  }
+
+  return reasons
 }
