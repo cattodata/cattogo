@@ -322,140 +322,135 @@ function recommend(p: Profile): Rec[] {
     }
   }
 
-  if (p.situation === 'student') {
-    const occ = p.occupationKey ? occupations[p.occupationKey] : null
-    const durLabel = p.studyLevel === 'phd' ? '4 ปี' : p.studyLevel === 'masters' ? '3 ปี' : '2 ปี'
-    const studyBonus = p.studyLevel === 'phd' ? 20 : p.studyLevel === 'masters' ? 15 : 10
+  // --- Student situation commented out (focusing on working professionals) ---
+  // if (p.situation === 'student') {
+  //   const occ = p.occupationKey ? occupations[p.occupationKey] : null
+  //   const durLabel = p.studyLevel === 'phd' ? '4 ปี' : p.studyLevel === 'masters' ? '3 ปี' : '2 ปี'
+  //   const studyBonus = p.studyLevel === 'phd' ? 20 : p.studyLevel === 'masters' ? 15 : 10
+  //   let studentPct = 70
+  //   const studentTips = ['เริ่มต้นได้เลยไม่ต้องมีประสบการณ์', `จบแล้ว 485 ทำงานได้ ${durLabel}`, 'ได้วุฒิ AU +5 คะแนน Points']
+  //   if (occ) {
+  //     const shortage = getShortageLevel(occ.shortageList)
+  //     const listBonus = shortage === 'mltssl_csol' ? 15 : shortage === 'mltssl' ? 10 : shortage === 'csol' || shortage === 'stsol_csol' ? 8 : 5
+  //     studentPct = 55 + listBonus + (studyBonus > 10 ? 10 : 5) + getDemandScore(occ.demand)
+  //     studentTips.push(`สาย "${occ.title}" — ${occ.shortageList}`)
+  //     studentTips.push(`ตลาดต้องการ: ${occ.demand}`)
+  //     if (shortage === 'mltssl_csol') studentTips.push('🔥 สายนี้อยู่ใน MLTSSL;CSOL — โอกาส PR สูงมาก!')
+  //   } else {
+  //     studentTips.push('เลือกสายอาชีพเพื่อดูโอกาส PR')
+  //   }
+  //   studentPct = Math.min(studentPct, 92)
+  //   r.push({
+  //     type: '500→485', name: 'Student → Graduate → PR', pct: studentPct, emoji: '🎓',
+  //     tips: studentTips,
+  //     journey: ['เรียน (500)', `จบ → 485 (${durLabel})`, 'ทำงาน full-time', '482→186 หรือ 189/190', '🏠 ได้ PR!'],
+  //     catId: 'student',
+  //   })
+  //   let empPct = 55
+  //   if (occ) {
+  //     const shortage = getShortageLevel(occ.shortageList)
+  //     empPct = 40 + (shortage === 'mltssl_csol' ? 25 : shortage === 'mltssl' ? 18 : shortage === 'csol' || shortage === 'stsol_csol' ? 15 : 10) + getDemandScore(occ.demand)
+  //   }
+  //   empPct = Math.min(empPct, 90)
+  //   r.push({
+  //     type: '482→186', name: 'Employer Sponsored (หลังจบ)', pct: empPct, emoji: '💼',
+  //     tips: [
+  //       'จบแล้วหา employer sponsor', 'ไม่ต้องใช้คะแนน Points',
+  //       occ ? `"${occ.title}" — ความต้องการ ${occ.demand}` : '',
+  //     ].filter(Boolean),
+  //     journey: ['เรียนจบ', '485 หางาน', 'Employer → 482', '2 ปี → 186', '🏠 ได้ PR!'],
+  //     catId: 'employer',
+  //   })
+  //   if (['18-24', '25-32'].includes(p.age)) {
+  //     r.push({
+  //       type: '462', name: 'WHV ก่อนเรียน (ลองก่อน)', pct: 35, emoji: '🏖️',
+  //       tips: ['ลองไปอยู่ AU ก่อนลงทุนค่าเทอม', 'ค่าวีซ่าถูก $640', 'ได้ข้อมูลจริง ก่อนตัดสินใจ'],
+  //       journey: ['462 → ทำงาน 1 ปี', 'ตัดสินใจ → เรียน (500)', 'จบ → 485', 'หา sponsor → PR'],
+  //       catId: 'whv',
+  //     })
+  //   }
+  // }
 
-    // Student path score depends on field demand
-    let studentPct = 70
-    const studentTips = ['เริ่มต้นได้เลยไม่ต้องมีประสบการณ์', `จบแล้ว 485 ทำงานได้ ${durLabel}`, 'ได้วุฒิ AU +5 คะแนน Points']
-    if (occ) {
-      const shortage = getShortageLevel(occ.shortageList)
-      const listBonus = shortage === 'mltssl_csol' ? 15 : shortage === 'mltssl' ? 10 : shortage === 'csol' || shortage === 'stsol_csol' ? 8 : 5
-      studentPct = 55 + listBonus + (studyBonus > 10 ? 10 : 5) + getDemandScore(occ.demand)
-      studentTips.push(`สาย "${occ.title}" — ${occ.shortageList}`)
-      studentTips.push(`ตลาดต้องการ: ${occ.demand}`)
-      if (shortage === 'mltssl_csol') studentTips.push('🔥 สายนี้อยู่ใน MLTSSL;CSOL — โอกาส PR สูงมาก!')
-    } else {
-      studentTips.push('เลือกสายอาชีพเพื่อดูโอกาส PR')
-    }
-    studentPct = Math.min(studentPct, 92)
+  // --- Partner situation commented out (focusing on working professionals) ---
+  // if (p.situation === 'partner') {
+  //   const onshore = p.location === 'australia'
+  //   const vn = onshore ? '820/801' : '309/100'
+  //   const nm = onshore ? 'Partner Visa (Onshore)' : 'Partner Visa (Offshore)'
+  //   const tip3 = p.partnerType === 'married' ? 'แต่งงานแล้ว — หลักฐานชัดเจน' : 'De facto — เตรียมหลักฐานความสัมพันธ์ให้ดี'
+  //   const partnerPct = p.partnerType === 'married' ? 90 : 82
+  //   r.push({
+  //     type: vn, name: nm, pct: partnerPct, emoji: onshore ? '💑' : '💍',
+  //     tips: ['ไม่ต้องมี skills/points/English!', onshore ? 'ได้ bridging visa ทำงานได้ทันที' : 'สมัครจากไทยได้เลย', tip3, 'ค่าวีซ่า $9,095 — แต่ได้ PR แน่นอน'],
+  //     journey: ['เตรียมเอกสาร', `ยื่น ${vn.split('/')[0]}`, 'รอ 12-24 เดือน', onshore ? 'Bridging → ทำงาน' : 'ย้ายไป AU', `🏠 ${vn.split('/')[1]} PR!`],
+  //     catId: 'partner',
+  //     factors: [
+  //       { label: p.partnerType === 'married' ? 'แต่งงาน — หลักฐานชัด' : 'De facto — เตรียมเอกสารให้ดี', status: p.partnerType === 'married' ? 'good' as const : 'ok' as const },
+  //       { label: 'ไม่ต้องมี skill/points/English', status: 'good' as const },
+  //       { label: onshore ? 'อยู่ AU แล้ว — ได้ bridging visa' : 'สมัครจากต่างประเทศ', status: onshore ? 'good' as const : 'ok' as const },
+  //     ],
+  //   })
+  // }
 
-    r.push({
-      type: '500→485', name: 'Student → Graduate → PR', pct: studentPct, emoji: '🎓',
-      tips: studentTips,
-      journey: ['เรียน (500)', `จบ → 485 (${durLabel})`, 'ทำงาน full-time', '482→186 หรือ 189/190', '🏠 ได้ PR!'],
-      catId: 'student',
-    })
-
-    let empPct = 55
-    if (occ) {
-      const shortage = getShortageLevel(occ.shortageList)
-      empPct = 40 + (shortage === 'mltssl_csol' ? 25 : shortage === 'mltssl' ? 18 : shortage === 'csol' || shortage === 'stsol_csol' ? 15 : 10) + getDemandScore(occ.demand)
-    }
-    empPct = Math.min(empPct, 90)
-    r.push({
-      type: '482→186', name: 'Employer Sponsored (หลังจบ)', pct: empPct, emoji: '💼',
-      tips: [
-        'จบแล้วหา employer sponsor', 'ไม่ต้องใช้คะแนน Points',
-        occ ? `"${occ.title}" — ความต้องการ ${occ.demand}` : '',
-      ].filter(Boolean),
-      journey: ['เรียนจบ', '485 หางาน', 'Employer → 482', '2 ปี → 186', '🏠 ได้ PR!'],
-      catId: 'employer',
-    })
-    if (['18-24', '25-32'].includes(p.age)) {
-      r.push({
-        type: '462', name: 'WHV ก่อนเรียน (ลองก่อน)', pct: 35, emoji: '🏖️',
-        tips: ['ลองไปอยู่ AU ก่อนลงทุนค่าเทอม', 'ค่าวีซ่าถูก $640', 'ได้ข้อมูลจริง ก่อนตัดสินใจ'],
-        journey: ['462 → ทำงาน 1 ปี', 'ตัดสินใจ → เรียน (500)', 'จบ → 485', 'หา sponsor → PR'],
-        catId: 'whv',
-      })
-    }
-  }
-
-  if (p.situation === 'partner') {
-    const onshore = p.location === 'australia'
-    const vn = onshore ? '820/801' : '309/100'
-    const nm = onshore ? 'Partner Visa (Onshore)' : 'Partner Visa (Offshore)'
-    const tip3 = p.partnerType === 'married' ? 'แต่งงานแล้ว — หลักฐานชัดเจน' : 'De facto — เตรียมหลักฐานความสัมพันธ์ให้ดี'
-    // Partner visa: high if married (strong evidence), slightly lower for de facto
-    const partnerPct = p.partnerType === 'married' ? 90 : 82
-    r.push({
-      type: vn, name: nm, pct: partnerPct, emoji: onshore ? '💑' : '💍',
-      tips: ['ไม่ต้องมี skills/points/English!', onshore ? 'ได้ bridging visa ทำงานได้ทันที' : 'สมัครจากไทยได้เลย', tip3, 'ค่าวีซ่า $9,095 — แต่ได้ PR แน่นอน'],
-      journey: ['เตรียมเอกสาร', `ยื่น ${vn.split('/')[0]}`, 'รอ 12-24 เดือน', onshore ? 'Bridging → ทำงาน' : 'ย้ายไป AU', `🏠 ${vn.split('/')[1]} PR!`],
-      catId: 'partner',
-      factors: [
-        { label: p.partnerType === 'married' ? 'แต่งงาน — หลักฐานชัด' : 'De facto — เตรียมเอกสารให้ดี', status: p.partnerType === 'married' ? 'good' as const : 'ok' as const },
-        { label: 'ไม่ต้องมี skill/points/English', status: 'good' as const },
-        { label: onshore ? 'อยู่ AU แล้ว — ได้ bridging visa' : 'สมัครจากต่างประเทศ', status: onshore ? 'good' as const : 'ok' as const },
-      ],
-    })
-  }
-
-  if (p.situation === 'whv') {
-    const occWhv = p.occupationKey ? occupations[p.occupationKey] : null
-    if (['18-24', '25-32'].includes(p.age)) {
-      r.push({
-        type: '462', name: 'Work & Holiday', pct: 88, emoji: '🏖️',
-        tips: [
-          'ค่าวีซ่าถูกที่สุด $640!', 'IELTS 4.5 ง่ายมาก',
-          'ทำงานเต็มเวลาได้ทุกอาชีพ', 'ต่อได้ถึง 3 ปี (regional work)',
-          'สร้างประสบการณ์ AU → เปลี่ยน 482 → PR',
-        ],
-        journey: ['สมัคร 462', 'ไป AU ทำงาน', 'หา employer sponsor', '482 → 2 ปี', '🏠 186 PR!'],
-        catId: 'whv',
-      })
-
-      // 482 path after WHV, factor in occupation demand
-      let whvEmpPct = 50
-      if (occWhv) {
-        const s = getShortageLevel(occWhv.shortageList)
-        whvEmpPct = 35 + (s === 'mltssl_csol' ? 25 : s === 'mltssl' ? 18 : s === 'csol' || s === 'stsol_csol' ? 15 : 10) + getDemandScore(occWhv.demand)
-      }
-      whvEmpPct = Math.min(whvEmpPct, 85)
-      r.push({
-        type: '482 (หลัง WHV)', name: 'Employer Sponsored (หลัง WHV)', pct: whvEmpPct, emoji: '💼',
-        tips: [
-          'ใช้ WHV สร้าง experience AU → หานายจ้าง sponsor',
-          occWhv ? `"${occWhv.title}" — ตลาดต้องการ ${occWhv.demand}` : 'เลือกอาชีพเพื่อดูโอกาส',
-        ],
-        journey: ['462 WHV', 'หา employer', '482 sponsor', 'ทำงาน 2 ปี', '🏠 186 PR!'],
-        catId: 'employer',
-      })
-
-      r.push({
-        type: '500', name: 'Student Visa (ทางเลือก)', pct: 40, emoji: '🎓',
-        tips: ['ได้วุฒิ AU (+5 คะแนน)', 'ทำงานพาร์ทไทม์ได้', 'จบแล้ว 485 ทำงานต่อ 2-4 ปี'],
-        journey: ['เรียน (500)', 'จบ → 485', 'หา sponsor', '482 → 186', '🏠 PR!'],
-        catId: 'student',
-      })
-    } else {
-      let overAgeEmpPct = 60
-      if (occWhv) {
-        const s = getShortageLevel(occWhv.shortageList)
-        overAgeEmpPct = 40 + (s === 'mltssl_csol' ? 25 : s === 'mltssl' ? 18 : s === 'csol' || s === 'stsol_csol' ? 15 : 10) + getDemandScore(occWhv.demand)
-      }
-      overAgeEmpPct = Math.min(overAgeEmpPct, 88)
-      r.push({
-        type: '482', name: 'Employer Sponsored (แทน WHV)', pct: overAgeEmpPct, emoji: '💼',
-        tips: [
-          '⚠️ อายุเกิน 30 — สมัคร WHV ไม่ได้',
-          '482 รับถึงอายุ 45', 'ไม่ต้องใช้คะแนน Points',
-          occWhv ? `"${occWhv.title}" — ความต้องการ ${occWhv.demand}` : '',
-        ].filter(Boolean),
-        journey: ['หางาน AU + sponsor', 'ได้ 482', 'ทำงาน 2 ปี', 'ยื่น 186', '🏠 ได้ PR!'],
-        catId: 'employer',
-      })
-      r.push({
-        type: '500', name: 'Student Visa', pct: 45, emoji: '🎓',
-        tips: ['ไม่จำกัดอายุ (ถึง 50 ปี)', 'เรียน + ทำงานพาร์ทไทม์', 'จบแล้วได้ 485 ทำงานต่อ'],
-        journey: ['เรียน (500)', 'จบ → 485', 'หา sponsor', '482 → 186', '🏠 PR!'],
-        catId: 'student',
-      })
-    }
-  }
+  // --- WHV situation commented out (focusing on working professionals) ---
+  // if (p.situation === 'whv') {
+  //   const occWhv = p.occupationKey ? occupations[p.occupationKey] : null
+  //   if (['18-24', '25-32'].includes(p.age)) {
+  //     r.push({
+  //       type: '462', name: 'Work & Holiday', pct: 88, emoji: '🏖️',
+  //       tips: [
+  //         'ค่าวีซ่าถูกที่สุด $640!', 'IELTS 4.5 ง่ายมาก',
+  //         'ทำงานเต็มเวลาได้ทุกอาชีพ', 'ต่อได้ถึง 3 ปี (regional work)',
+  //         'สร้างประสบการณ์ AU → เปลี่ยน 482 → PR',
+  //       ],
+  //       journey: ['สมัคร 462', 'ไป AU ทำงาน', 'หา employer sponsor', '482 → 2 ปี', '🏠 186 PR!'],
+  //       catId: 'whv',
+  //     })
+  //     let whvEmpPct = 50
+  //     if (occWhv) {
+  //       const s = getShortageLevel(occWhv.shortageList)
+  //       whvEmpPct = 35 + (s === 'mltssl_csol' ? 25 : s === 'mltssl' ? 18 : s === 'csol' || s === 'stsol_csol' ? 15 : 10) + getDemandScore(occWhv.demand)
+  //     }
+  //     whvEmpPct = Math.min(whvEmpPct, 85)
+  //     r.push({
+  //       type: '482 (หลัง WHV)', name: 'Employer Sponsored (หลัง WHV)', pct: whvEmpPct, emoji: '💼',
+  //       tips: [
+  //         'ใช้ WHV สร้าง experience AU → หานายจ้าง sponsor',
+  //         occWhv ? `"${occWhv.title}" — ตลาดต้องการ ${occWhv.demand}` : 'เลือกอาชีพเพื่อดูโอกาส',
+  //       ],
+  //       journey: ['462 WHV', 'หา employer', '482 sponsor', 'ทำงาน 2 ปี', '🏠 186 PR!'],
+  //       catId: 'employer',
+  //     })
+  //     r.push({
+  //       type: '500', name: 'Student Visa (ทางเลือก)', pct: 40, emoji: '🎓',
+  //       tips: ['ได้วุฒิ AU (+5 คะแนน)', 'ทำงานพาร์ทไทม์ได้', 'จบแล้ว 485 ทำงานต่อ 2-4 ปี'],
+  //       journey: ['เรียน (500)', 'จบ → 485', 'หา sponsor', '482 → 186', '🏠 PR!'],
+  //       catId: 'student',
+  //     })
+  //   } else {
+  //     let overAgeEmpPct = 60
+  //     if (occWhv) {
+  //       const s = getShortageLevel(occWhv.shortageList)
+  //       overAgeEmpPct = 40 + (s === 'mltssl_csol' ? 25 : s === 'mltssl' ? 18 : s === 'csol' || s === 'stsol_csol' ? 15 : 10) + getDemandScore(occWhv.demand)
+  //     }
+  //     overAgeEmpPct = Math.min(overAgeEmpPct, 88)
+  //     r.push({
+  //       type: '482', name: 'Employer Sponsored (แทน WHV)', pct: overAgeEmpPct, emoji: '💼',
+  //       tips: [
+  //         '⚠️ อายุเกิน 30 — สมัคร WHV ไม่ได้',
+  //         '482 รับถึงอายุ 45', 'ไม่ต้องใช้คะแนน Points',
+  //         occWhv ? `"${occWhv.title}" — ความต้องการ ${occWhv.demand}` : '',
+  //       ].filter(Boolean),
+  //       journey: ['หางาน AU + sponsor', 'ได้ 482', 'ทำงาน 2 ปี', 'ยื่น 186', '🏠 ได้ PR!'],
+  //       catId: 'employer',
+  //     })
+  //     r.push({
+  //       type: '500', name: 'Student Visa', pct: 45, emoji: '🎓',
+  //       tips: ['ไม่จำกัดอายุ (ถึง 50 ปี)', 'เรียน + ทำงานพาร์ทไทม์', 'จบแล้วได้ 485 ทำงานต่อ'],
+  //       journey: ['เรียน (500)', 'จบ → 485', 'หา sponsor', '482 → 186', '🏠 PR!'],
+  //       catId: 'student',
+  //     })
+  //   }
+  // }
 
   r.sort((a, b) => b.pct - a.pct)
   return r
@@ -789,7 +784,7 @@ export function VisaExplorer() {
           {/* Popular occupations */}
           {!showOccPicker && (
             <div className="animate-fade-in">
-              <div className="text-[10px] text-gray-400 mb-1.5">⭐ อาชีพยอดนิยมคนไทย</div>
+              <div className="text-[10px] text-gray-400 mb-1.5">💻 อาชีพสาย Tech ยอดนิยม</div>
               <div className="flex flex-wrap gap-1.5 mb-2">
                 {POPULAR_OCCUPATIONS.map(po => {
                   const o = occupations[po.key]
@@ -959,12 +954,12 @@ export function VisaExplorer() {
                   <p className="text-sm text-gray-700">สวัสดี! 🐱 เรามาหาวีซ่าที่เหมาะกับคุณกัน<br/>ตอนนี้สถานะของคุณเป็นยังไง?</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3">
                 {([
                   { id: 'experienced' as Situation, emoji: '💼', text: 'ทำงานมาแล้ว', sub: 'มีประสบการณ์ 2+ ปี' },
-                  { id: 'student' as Situation, emoji: '🎓', text: 'จบใหม่/อยากเรียนต่อ', sub: 'ยังไม่มี exp มาก' },
-                  { id: 'partner' as Situation, emoji: '💑', text: 'มีแฟน AU citizen/PR', sub: 'สมัครผ่านคู่สมรส' },
-                  { id: 'whv' as Situation, emoji: '🏖️', text: 'อยากลอง Work & Holiday', sub: 'ทำงาน+เที่ยว' },
+                  // { id: 'student' as Situation, emoji: '🎓', text: 'จบใหม่/อยากเรียนต่อ', sub: 'ยังไม่มี exp มาก' },
+                  // { id: 'partner' as Situation, emoji: '💑', text: 'มีแฟน AU citizen/PR', sub: 'สมัครผ่านคู่สมรส' },
+                  // { id: 'whv' as Situation, emoji: '🏖️', text: 'อยากลอง Work & Holiday', sub: 'ทำงาน+เที่ยว' },
                 ] as const).map(s => (
                   <button key={s.id} onClick={() => pickSituation(s.id)}
                     className="p-4 rounded-2xl border-2 border-gray-200 hover:border-blue-400 hover:shadow-lg transition-all bg-white text-left group active:scale-95">
@@ -988,10 +983,7 @@ export function VisaExplorer() {
                 <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0 text-sm">🐱</div>
                 <div className="bg-blue-50 rounded-2xl rounded-tl-lg p-3 max-w-[85%]">
                   <p className="text-sm text-gray-700">
-                    {profile.situation === 'experienced' ? '💪 กรอกข้อมูลเพิ่มเพื่อคำนวณ Points ได้เลย' :
-                     profile.situation === 'student' ? '📚 ขอข้อมูลเพิ่มอีกเล็กน้อย' :
-                     profile.situation === 'partner' ? '💕 ขอข้อมูลเพิ่มอีก 2 ข้อ' :
-                     '✈️ ขอเช็คอายุก่อน — กดเลือกได้เลย'}
+                    💪 กรอกข้อมูลเพิ่มเพื่อคำนวณ Points ได้เลย
                   </p>
                 </div>
               </div>
@@ -1076,8 +1068,8 @@ export function VisaExplorer() {
                 })()}
               </>)}
 
-              {/* Student */}
-              {profile.situation === 'student' && (<>
+              {/* Student — commented out (focusing on working professionals) */}
+              {/* {profile.situation === 'student' && (<>
                 <OccupationPicker label="🎯 สายอาชีพที่สนใจ" />
                 <Chips label="📅 อายุ" field="age" value={profile.age} options={[
                   { id: '18-24', text: '18-24' }, { id: '25-32', text: '25-32' },
@@ -1089,10 +1081,10 @@ export function VisaExplorer() {
                   { id: 'masters', text: 'ป.โท', sub: '485 ได้ 3 ปี' },
                   { id: 'phd', text: 'ป.เอก', sub: '485 ได้ 4 ปี' },
                 ]} />
-              </>)}
+              </>)} */}
 
-              {/* Partner */}
-              {profile.situation === 'partner' && (<>
+              {/* Partner — commented out (focusing on working professionals) */}
+              {/* {profile.situation === 'partner' && (<>
                 <Chips label="💍 สถานะความสัมพันธ์" field="partnerType" value={profile.partnerType} options={[
                   { id: 'married', text: '💒 แต่งงานแล้ว' },
                   { id: 'defacto', text: '🏠 อยู่ด้วยกัน 12+ เดือน' },
@@ -1101,10 +1093,10 @@ export function VisaExplorer() {
                   { id: 'thailand', text: '🇹🇭 อยู่ไทย', sub: 'สมัคร Offshore' },
                   { id: 'australia', text: '🇦🇺 อยู่ AU แล้ว', sub: 'สมัคร Onshore' },
                 ]} />
-              </>)}
+              </>)} */}
 
-              {/* WHV */}
-              {profile.situation === 'whv' && (<>
+              {/* WHV — commented out (focusing on working professionals) */}
+              {/* {profile.situation === 'whv' && (<>
                 <OccupationPicker label="🎯 อาชีพ/สายงาน (ช่วยแนะนำหลัง WHV)" />
                 <Chips label="📅 อายุ" field="age" value={profile.age} options={[
                   { id: '18-24', text: '18-24 ✅', sub: 'สมัครได้!' },
@@ -1118,7 +1110,7 @@ export function VisaExplorer() {
                     <p className="text-xs text-amber-600 mt-1">แต่ไม่ต้องกังวล — เรามีเส้นทางอื่นแนะนำให้!</p>
                   </div>
                 )}
-              </>)}
+              </>)} */}
 
               {/* Buttons */}
               <div className="flex gap-2 mt-4">
