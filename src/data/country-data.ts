@@ -79,13 +79,16 @@ export interface MatchResult {
 
 // ===== OCCUPATION CATEGORIES (6 กลุ่มรวม — matchIds ใช้จับคู่กับ hotJobs) =====
 export const OCCUPATIONS = [
-  { id: 'software', label: '💻 IT / Tech / AI', labelTH: 'ไอที / เทค', matchIds: ['software', 'data-ai'] },
+  { id: 'software', label: '💻 Software Developer / IT', labelTH: 'โปรแกรมเมอร์ / IT', matchIds: ['software'] },
+  { id: 'data-ai', label: '🤖 Data / AI / ML Engineer', labelTH: 'Data / AI / ML', matchIds: ['data-ai', 'software'] },
+  { id: 'other', label: '📋 สาย Tech อื่นๆ (DevOps, Security, PM)', labelTH: 'Tech อื่นๆ', matchIds: ['software', 'other'] },
+  /* Temporarily disabled — scope reduced to Tech/IT
   { id: 'engineering', label: '⚙️ วิศวกร / ช่างเทคนิค', labelTH: 'วิศวกร / ช่าง', matchIds: ['engineering', 'trades'] },
   { id: 'creative', label: '🎨 ครีเอทีฟ / ดีไซน์ / สื่อ', labelTH: 'ครีเอทีฟ / ดีไซน์', matchIds: ['creative', 'marketing'] },
   { id: 'accounting', label: '💰 บัญชี / การเงิน / บริหาร', labelTH: 'บัญชี / บริหาร', matchIds: ['accounting', 'business'] },
   { id: 'healthcare', label: '🏥 แพทย์ / พยาบาล', labelTH: 'แพทย์ / สุขภาพ', matchIds: ['healthcare'] },
   { id: 'chef', label: '🍳 เชฟ / Hospitality', labelTH: 'เชฟ / บริการ', matchIds: ['chef'] },
-  { id: 'other', label: '📋 สายอื่นๆ', labelTH: 'อื่นๆ', matchIds: ['other', 'teaching'] },
+  */
 ] as const
 
 // ===== GOALS (combined motivation + priority — ถามทีเดียว เลือก 1-3) =====

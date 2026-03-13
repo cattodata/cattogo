@@ -79,7 +79,7 @@ export function AuLifeSim() {
     return [
       { label: '📋 Visa ทำงาน (Skilled/Sponsored)', aud: visa, source: 'Home Affairs' },
       { label: '📝 Skills Assessment', aud: 1000, source: 'ACS/VETASSESS' },
-      { label: '📖 IELTS/PTE สอบภาษา', aud: 400, source: 'IELTS.org' },
+      { label: '📖 IELTS สอบภาษา', aud: 400, source: 'IELTS.org' },
       { label: '🏥 ตรวจสุขภาพ Medical', aud: 400, source: 'Bupa/HAP' },
       { label: '📄 เอกสาร+แปล+รับรอง', aud: 500, source: 'ประมาณ' },
     ]
@@ -223,13 +223,13 @@ export function AuLifeSim() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="form-label">🗣️ IELTS/PTE</label>
+                <label className="form-label">🗣️ IELTS (คะแนนเฉลี่ย)</label>
                 <select className="form-select" value={profile.english} onChange={e => up('english', e.target.value)}>
                   <option value="">— เลือก —</option>
-                  <option value="superior">8.0+ Superior</option>
-                  <option value="proficient">7.0 Proficient</option>
-                  <option value="competent">6.0 Competent</option>
-                  <option value="low">ต่ำกว่า 6</option>
+                  <option value="superior">IELTS 8.0+ (Superior) — 20 คะแนน</option>
+                  <option value="proficient">IELTS 7.0-7.5 (Proficient) — 10 คะแนน</option>
+                  <option value="competent">IELTS 6.0-6.5 (Competent) — 0 คะแนน</option>
+                  <option value="low">ต่ำกว่า IELTS 6.0</option>
                 </select>
               </div>
               <div>

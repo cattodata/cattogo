@@ -22,7 +22,7 @@ export const occupations: Record<string, Occupation> = {
   // Historical + community data suggests 90-95+ for 189 invitation.
   // ═══════════════════════════════════════════════════════════
   dataEngineer: {
-    title: 'Data Engineer', anzsco: '261399', category: 'ICT & Technology',
+    title: 'Data Engineer', anzsco: '223233', category: 'ICT & Technology',
     demand: 'สูงมาก', demandSource: 'SEEK: 3,200+ listings (Jan 2026), Skills Priority List 2025',
     minPoints: 90, minPoints491: null,
     shortageList: 'MLTSSL;CSOL',
@@ -31,11 +31,11 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Data_Engineer/Salary',
     pathToPR: 'ยาก — ICT ไม่ถูกเชิญในรอบ Nov 2025 ต้อง 90+',
     skills: ['Python', 'SQL', 'AWS/Azure', 'Spark', 'Airflow'],
-    aliases: ['วิศวกรข้อมูล', 'data platform', 'etl developer', 'bi developer', 'analytics engineer', 'data pipeline'],
+    aliases: ['วิศวกรข้อมูล', 'data platform', 'etl developer', 'bi developer', 'analytics engineer', 'data pipeline', 'data', 'ข้อมูล', 'big data'],
     pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
   },
   dataScientist: {
-    title: 'Data Scientist', anzsco: '261399', category: 'ICT & Technology',
+    title: 'Data Scientist', anzsco: '223234', category: 'ICT & Technology',
     demand: 'สูง', demandSource: 'SEEK: 1,800+ listings (Jan 2026)',
     minPoints: 90, minPoints491: null,
     shortageList: 'MLTSSL;CSOL',
@@ -44,7 +44,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.seek.com.au/career-advice/role/data-scientist/salary',
     pathToPR: 'ยาก — แข่งสูง ต้อง 90+',
     skills: ['Python', 'R', 'ML/DL', 'Statistics', 'SQL'],
-    aliases: ['นักวิทยาศาสตร์ข้อมูล', 'data analyst', 'นักวิเคราะห์ข้อมูล', 'research scientist', 'quantitative analyst'],
+    aliases: ['นักวิทยาศาสตร์ข้อมูล', 'research scientist', 'quantitative analyst', 'data science'],
     pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
   },
   softwareEngineer: {
@@ -61,7 +61,7 @@ export const occupations: Record<string, Occupation> = {
     pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
   },
   mlEngineer: {
-    title: 'ML/AI Engineer', anzsco: '261399', category: 'ICT & Technology',
+    title: 'ML/AI Engineer', anzsco: '223234', category: 'ICT & Technology',
     demand: 'สูงมาก', demandSource: 'SEEK + LinkedIn: rapid growth sector',
     minPoints: 90, minPoints491: null,
     shortageList: 'MLTSSL;CSOL',
@@ -70,7 +70,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.seek.com.au/career-advice/role/machine-learning-engineer/salary',
     pathToPR: 'ยาก — ต้อง 90+ แต่ demand สูง หา sponsor ง่ายกว่า',
     skills: ['Python', 'TensorFlow/PyTorch', 'MLOps', 'Cloud', 'Docker/K8s'],
-    aliases: ['ai engineer', 'deep learning', 'nlp engineer', 'computer vision', 'machine learning', 'วิศวกร ai', 'prompt engineer', 'llm engineer'],
+    aliases: ['ai engineer', 'AI Engineer', 'deep learning', 'nlp engineer', 'computer vision', 'machine learning', 'วิศวกร ai', 'prompt engineer', 'llm engineer', 'generative ai', 'gen ai', 'artificial intelligence', 'ai', 'วิศวกรปัญญาประดิษฐ์'],
     pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
   },
   devopsEngineer: {
@@ -83,7 +83,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.seek.com.au/career-advice/role/devops-engineer/salary',
     pathToPR: 'ยาก — ต้อง 90+ แต่ employer sponsor (482) เป็นทางเลือกดี',
     skills: ['AWS/Azure/GCP', 'Docker/Kubernetes', 'CI/CD', 'Terraform', 'Linux'],
-    aliases: ['sre', 'site reliability', 'platform engineer', 'infrastructure engineer', 'cloud engineer', 'cloud architect', 'release engineer', 'sysops'],
+    aliases: ['sre', 'site reliability', 'platform engineer', 'infrastructure engineer', 'cloud engineer', 'cloud architect', 'release engineer', 'sysops', 'devops', 'cloud', 'คลาวด์', 'aws', 'azure', 'gcp'],
     pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
   },
   cybersecurityAnalyst: {
@@ -96,7 +96,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.seek.com.au/career-advice/role/cyber-security-analyst/salary',
     pathToPR: 'ยาก — ต้อง 90+ แต่ demand สูงมาก หา sponsor ง่าย',
     skills: ['Network Security', 'SIEM', 'Penetration Testing', 'ISO 27001', 'Incident Response'],
-    aliases: ['cybersecurity', 'security analyst', 'information security', 'infosec', 'penetration tester', 'pentest', 'soc analyst', 'security engineer'],
+    aliases: ['cybersecurity', 'security analyst', 'information security', 'infosec', 'penetration tester', 'pentest', 'soc analyst', 'security engineer', 'cyber', 'ไซเบอร์', 'security', 'ความปลอดภัย'],
     pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
   },
   ictBusinessAnalyst: {
@@ -161,7 +161,7 @@ export const occupations: Record<string, Occupation> = {
     salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Network_Engineer/Salary',
     pathToPR: 'ยาก — ต้อง 90+',
     skills: ['Cisco/Juniper', 'Network Design', 'Firewall', 'Cloud Networking', 'CCNP/CCIE'],
-    aliases: ['network admin', 'network administrator', 'system admin', 'sysadmin', 'infrastructure', 'it infrastructure', 'network specialist'],
+    aliases: ['network admin', 'network administrator', 'infrastructure', 'it infrastructure', 'network specialist', 'network engineer'],
     pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025',
   },
   ictProjectManager: {
@@ -219,8 +219,179 @@ export const occupations: Record<string, Occupation> = {
   },
 
   // ═══════════════════════════════════════════════════════════
-  // HEALTHCARE — SkillSelect Nov 2025 data available
+  // ICT — NEW/UPDATED ANZSCO CODES (OSCA 2024)
   // ═══════════════════════════════════════════════════════════
+  dataAnalyst: {
+    title: 'Data Analyst', anzsco: '223231', category: 'ICT & Technology',
+    demand: 'สูง', demandSource: 'SEEK: 4,000+ listings (Jan 2026)',
+    minPoints: 90, minPoints491: null,
+    shortageList: 'MLTSSL;CSOL',
+    salaryRange: { p10: 60000, median: 85000, p90: 120000 },
+    salarySource: 'SEEK + PayScale AU Jan 2026',
+    salarySourceUrl: 'https://www.seek.com.au/career-advice/role/data-analyst/salary',
+    pathToPR: 'ยาก — ICT ต้อง 90+',
+    skills: ['SQL', 'Excel/Power BI', 'Python/R', 'Data Visualization', 'Statistics'],
+    aliases: ['นักวิเคราะห์ข้อมูล', 'data analytics', 'bi analyst', 'business intelligence', 'reporting analyst', 'analytics', 'วิเคราะห์ข้อมูล'],
+    pointsNote: 'ANZSCO 223231 (OSCA 2024) — ICT คาดว่าต้อง 90+',
+  },
+  dataArchitect: {
+    title: 'Data Architect', anzsco: '223232', category: 'ICT & Technology',
+    demand: 'สูง', demandSource: 'SEEK: 1,000+ listings (Jan 2026)',
+    minPoints: 90, minPoints491: null,
+    shortageList: 'MLTSSL;CSOL',
+    salaryRange: { p10: 100000, median: 140000, p90: 185000 },
+    salarySource: 'SEEK + LinkedIn AU Jan 2026',
+    salarySourceUrl: 'https://www.seek.com.au/career-advice/role/data-architect/salary',
+    pathToPR: 'ยาก — ต้อง 90+ แต่เงินเดือนสูง หา sponsor ง่าย',
+    skills: ['Data Modeling', 'SQL', 'Cloud Data Platforms', 'Data Governance', 'ETL/ELT'],
+    aliases: ['สถาปนิกข้อมูล', 'enterprise data architect', 'data modeler', 'data platform architect'],
+    pointsNote: 'ANZSCO 223232 (OSCA 2024) — ICT คาดว่าต้อง 90+',
+  },
+  developerProgrammer: {
+    title: 'Developer Programmer', anzsco: '261312', category: 'ICT & Technology',
+    demand: 'สูง', demandSource: 'SEEK: 3,000+ listings (Jan 2026)',
+    minPoints: 90, minPoints491: null,
+    shortageList: 'MLTSSL;CSOL',
+    salaryRange: { p10: 60000, median: 85000, p90: 120000 },
+    salarySource: 'PayScale + SEEK AU Jan 2026',
+    salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Software_Developer/Salary',
+    pathToPR: 'ยาก — ต้อง 90+',
+    skills: ['JavaScript/Python/Java', 'React/Angular', 'APIs', 'Git', 'Databases'],
+    aliases: ['developer', 'programmer', 'โปรแกรมเมอร์', 'dev', 'coder', 'php developer', 'ruby developer', 'golang developer', 'go developer', '.net developer', 'c# developer'],
+    pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
+  },
+  analystProgrammer: {
+    title: 'Analyst Programmer', anzsco: '261311', category: 'ICT & Technology',
+    demand: 'สูง', demandSource: 'SEEK: 2,000+ listings (Jan 2026)',
+    minPoints: 90, minPoints491: null,
+    shortageList: 'MLTSSL;CSOL',
+    salaryRange: { p10: 65000, median: 90000, p90: 125000 },
+    salarySource: 'PayScale + SEEK AU Jan 2026',
+    salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Analyst_Programmer/Salary',
+    pathToPR: 'ยาก — ต้อง 90+',
+    skills: ['Systems Analysis', 'Programming', 'Database Design', 'Testing', 'Documentation'],
+    aliases: ['analyst programmer', 'programmer analyst', 'systems developer'],
+    pointsNote: 'ICT ไม่ถูกเชิญในรอบ Nov 2025 — คาดว่าต้อง 90-95+',
+  },
+  softwareTester: {
+    title: 'Software Tester / QA Engineer', anzsco: '261314', category: 'ICT & Technology',
+    demand: 'สูง', demandSource: 'SEEK: 2,500+ listings (Jan 2026)',
+    minPoints: 90, minPoints491: null,
+    shortageList: 'MLTSSL;CSOL',
+    salaryRange: { p10: 60000, median: 85000, p90: 115000 },
+    salarySource: 'SEEK + PayScale AU Jan 2026',
+    salarySourceUrl: 'https://www.seek.com.au/career-advice/role/test-analyst/salary',
+    pathToPR: 'ยาก — ต้อง 90+',
+    skills: ['Test Automation', 'Selenium/Cypress', 'JIRA', 'Agile Testing', 'CI/CD'],
+    aliases: ['qa', 'qa engineer', 'quality assurance', 'test analyst', 'tester', 'automation tester', 'sdet', 'test engineer', 'software testing', 'manual tester', 'test lead'],
+    pointsNote: 'ANZSCO 261314 — ICT คาดว่าต้อง 90+',
+  },
+  cyberSecurityEngineer: {
+    title: 'Cyber Security Engineer', anzsco: '261315', category: 'ICT & Technology',
+    demand: 'สูงมาก', demandSource: 'SEEK: 1,500+ listings, ACS Cyber Skills report 2025',
+    minPoints: 90, minPoints491: null,
+    shortageList: 'MLTSSL;CSOL',
+    salaryRange: { p10: 85000, median: 120000, p90: 160000 },
+    salarySource: 'SEEK + ACS salary survey 2025',
+    salarySourceUrl: 'https://www.seek.com.au/career-advice/role/security-engineer/salary',
+    pathToPR: 'ยาก — ต้อง 90+ แต่ demand สูงมาก',
+    skills: ['Security Architecture', 'Cloud Security', 'SIEM', 'Incident Response', 'Compliance'],
+    aliases: ['security engineer', 'cloud security engineer', 'application security', 'appsec', 'devsecops'],
+    pointsNote: 'ANZSCO 261315 (OSCA 2024) — ICT คาดว่าต้อง 90+',
+  },
+  penetrationTester: {
+    title: 'Penetration Tester', anzsco: '261317', category: 'ICT & Technology',
+    demand: 'สูง', demandSource: 'ACS Cyber Skills report 2025',
+    minPoints: 90, minPoints491: null,
+    shortageList: 'MLTSSL;CSOL',
+    salaryRange: { p10: 80000, median: 115000, p90: 155000 },
+    salarySource: 'SEEK + Cybersecurity sector 2025',
+    salarySourceUrl: 'https://www.seek.com.au/career-advice/role/penetration-tester/salary',
+    pathToPR: 'ยาก — ต้อง 90+',
+    skills: ['Penetration Testing', 'Ethical Hacking', 'OSCP/CEH', 'Vulnerability Assessment', 'Burp Suite'],
+    aliases: ['pentester', 'ethical hacker', 'offensive security', 'red team', 'bug bounty', 'vulnerability researcher'],
+    pointsNote: 'ANZSCO 261317 (OSCA 2024) — ICT คาดว่าต้อง 90+',
+  },
+  systemsAdministrator: {
+    title: 'Systems Administrator', anzsco: '262113', category: 'ICT & Technology',
+    demand: 'สูง', demandSource: 'SEEK: 2,000+ listings (Jan 2026)',
+    minPoints: 90, minPoints491: null,
+    shortageList: 'MLTSSL;CSOL',
+    salaryRange: { p10: 60000, median: 82000, p90: 110000 },
+    salarySource: 'PayScale + SEEK AU Jan 2026',
+    salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Systems_Administrator/Salary',
+    pathToPR: 'ยาก — ต้อง 90+',
+    skills: ['Windows Server', 'Linux', 'Active Directory', 'Virtualization', 'Scripting'],
+    aliases: ['sysadmin', 'system admin', 'it admin', 'server admin', 'windows admin', 'linux admin', 'it administrator'],
+    pointsNote: 'ANZSCO 262113 — ICT คาดว่าต้อง 90+',
+  },
+  ictSupportEngineer: {
+    title: 'ICT Support Engineer', anzsco: '263212', category: 'ICT & Technology',
+    demand: 'สูง', demandSource: 'SEEK: 3,000+ listings (Jan 2026)',
+    minPoints: 90, minPoints491: null,
+    shortageList: 'MLTSSL;CSOL',
+    salaryRange: { p10: 55000, median: 75000, p90: 100000 },
+    salarySource: 'SEEK + PayScale AU Jan 2026',
+    salarySourceUrl: 'https://www.seek.com.au/career-advice/role/it-support-engineer/salary',
+    pathToPR: 'ยาก — ต้อง 90+',
+    skills: ['IT Support', 'Troubleshooting', 'Networking', 'Help Desk', 'ITIL'],
+    aliases: ['it support', 'support engineer', 'helpdesk', 'help desk', 'desktop support', 'technical support', 'it support engineer', 'level 2', 'level 3', 'l2 support', 'l3 support'],
+    pointsNote: 'ANZSCO 263212 — ICT คาดว่าต้อง 90+',
+  },
+  ictQualityAssurance: {
+    title: 'ICT Quality Assurance Engineer', anzsco: '263211', category: 'ICT & Technology',
+    demand: 'ปานกลาง', demandSource: 'SEEK: 800+ listings (Jan 2026)',
+    minPoints: 90, minPoints491: null,
+    shortageList: 'MLTSSL;CSOL',
+    salaryRange: { p10: 65000, median: 90000, p90: 120000 },
+    salarySource: 'SEEK + PayScale AU Jan 2026',
+    salarySourceUrl: 'https://www.seek.com.au/career-advice/role/quality-assurance-engineer/salary',
+    pathToPR: 'ยาก — ต้อง 90+',
+    skills: ['Quality Assurance', 'Test Planning', 'Process Improvement', 'ISO Standards', 'Automation'],
+    aliases: ['qa manager', 'quality engineer', 'test manager', 'quality assurance manager', 'quality analyst'],
+    pointsNote: 'ANZSCO 263211 — ICT คาดว่าต้อง 90+',
+  },
+  networkAdministrator: {
+    title: 'Network Administrator', anzsco: '263112', category: 'ICT & Technology',
+    demand: 'ปานกลาง', demandSource: 'SEEK: 800+ listings (Jan 2026)',
+    minPoints: 90, minPoints491: null,
+    shortageList: 'MLTSSL;CSOL',
+    salaryRange: { p10: 55000, median: 75000, p90: 100000 },
+    salarySource: 'PayScale + SEEK AU Jan 2026',
+    salarySourceUrl: 'https://www.payscale.com/research/AU/Job=Network_Administrator/Salary',
+    pathToPR: 'ยาก — ต้อง 90+',
+    skills: ['Cisco', 'Firewall', 'LAN/WAN', 'VPN', 'CCNA/CCNP'],
+    aliases: ['network admin', 'เน็ตเวิร์ค', 'network support'],
+    pointsNote: 'ANZSCO 263112 — ICT คาดว่าต้อง 90+',
+  },
+
+  // ═══════════════════════════════════════════════════════════
+  // OTHER — Generic fallback for non-tech occupations
+  // ═══════════════════════════════════════════════════════════
+  'other-generic': {
+    title: 'อาชีพอื่นๆ (Other)',
+    anzsco: '000000',
+    category: 'Other',
+    demand: 'ปานกลาง',
+    demandSource: 'ตรวจสอบ Skill Shortage List',
+    minPoints: 85,
+    minPoints491: null,
+    shortageList: 'MLTSSL',
+    salaryRange: { p10: 55000, median: 70000, p90: 90000 },
+    salarySource: 'ABS Average Weekly Earnings 2026',
+    salarySourceUrl: 'https://www.abs.gov.au/statistics/labour/earnings-and-working-conditions/average-weekly-earnings-australia',
+    pathToPR: 'ขึ้นกับอาชีพ — ตรวจสอบ Skill List',
+    skills: [],
+    aliases: ['อื่นๆ', 'other', 'ทั่วไป', 'general'],
+    pointsNote: 'ขึ้นกับอาชีพ',
+  },
+
+  /* ═══════════════════════════════════════════════════════════
+   * NON-TECH OCCUPATIONS — temporarily disabled (scope reduced to Tech/IT)
+   * Uncomment when ready to expand scope
+   * ═══════════════════════════════════════════════════════════ */
+
+  /* // HEALTHCARE
   registeredNurse: {
     title: 'Registered Nurse', anzsco: '254499', category: 'Healthcare',
     demand: 'สูงมาก', demandSource: 'SEEK: 8,000+ listings, Skills Priority List "National Shortage"',
@@ -999,6 +1170,7 @@ export const occupations: Record<string, Occupation> = {
     aliases: ['นักสังคมสงเคราะห์', 'community worker', 'พัฒนาสังคม', 'welfare worker', 'case worker', 'case manager'],
     pointsNote: 'SkillSelect Nov 2025: 75 (189), 85 (491)',
   },
+  */ // END NON-TECH OCCUPATIONS
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1007,16 +1179,16 @@ export const occupations: Record<string, Occupation> = {
 
 /** Popular occupations for quick access */
 export const POPULAR_OCCUPATIONS = [
-  { key: 'dataEngineer', emoji: '💻' },
   { key: 'softwareEngineer', emoji: '💻' },
+  { key: 'dataEngineer', emoji: '📊' },
+  { key: 'dataAnalyst', emoji: '📈' },
   { key: 'mlEngineer', emoji: '🤖' },
   { key: 'devopsEngineer', emoji: '☁️' },
   { key: 'cybersecurityAnalyst', emoji: '🔒' },
-  { key: 'registeredNurse', emoji: '🏥' },
-  { key: 'electrician', emoji: '🔧' },
-  { key: 'generalPractitioner', emoji: '👨‍⚕️' },
-  { key: 'civilEngineer', emoji: '⚙️' },
-  { key: 'secondaryTeacher', emoji: '📚' },
+  { key: 'softwareTester', emoji: '🧪' },
+  { key: 'webDeveloper', emoji: '🌐' },
+  { key: 'ictProjectManager', emoji: '📁' },
+  { key: 'systemsAdministrator', emoji: '🖥️' },
 ] as const
 
 /** Get unique categories */
@@ -1040,6 +1212,7 @@ const CATEGORY_TO_OCC_ID: Record<string, string> = {
   'Science & Research': 'other',
   'Agriculture & Environment': 'other',
   'Community Services': 'other',
+  'Other': 'other',
 }
 
 /** ค้นหาอาชีพจากชื่อ, aliases, ANZSCO code, หรือ category (case-insensitive) */

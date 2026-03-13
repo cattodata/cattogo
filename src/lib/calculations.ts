@@ -154,7 +154,7 @@ export function calculateFeasibility(
     warnings.push('อายุ 45+ จะได้ 0 คะแนนอายุ ยากมากใน skilled visa')
   }
   if (englishLevel === 'functional' || !englishLevel) {
-    warnings.push('ต้องมี IELTS/PTE ขั้นต่ำ Competent (6.0) ถึงจะสมัคร skilled visa ได้')
+    warnings.push('ต้องมี IELTS ขั้นต่ำ Competent (6.0) ถึงจะสมัคร skilled visa ได้')
     if (englishLevel === 'functional') feasible = false
   }
   if (experience === '0-2' || !experience) {

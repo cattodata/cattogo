@@ -161,11 +161,10 @@ export function ChatSimulator() {
     setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 200)
   }, [quizStep, phase, simStage, aiMessages.length])
 
-  // Init: auto-start AI mode
+  // Init: auto-start quiz mode (choice-based — easier to control than AI chat)
   useEffect(() => {
-    // Auto launch AI chat on first load
-    if (phase === 'welcome' && apiKey) {
-      startAiChat()
+    if (phase === 'welcome') {
+      setPhase('quiz')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -436,7 +435,7 @@ export function ChatSimulator() {
     return [
       { label: '📋 Visa Application Fee', aud: visa },
       { label: '📝 Skills Assessment', aud: 1000 },
-      { label: '📖 IELTS/PTE สอบภาษา', aud: 400 },
+      { label: '📖 IELTS สอบภาษา', aud: 400 },
       { label: '🏥 ตรวจสุขภาพ Medical', aud: 400 },
       { label: '📄 เอกสาร+แปล+รับรอง', aud: 500 },
     ]
@@ -556,13 +555,9 @@ export function ChatSimulator() {
     setSimStage(0); setSavingsInput(''); setIsMotherLord(false); setInitialAUD(0); setChoices({})
     setAiMessages([]); setAiChatHistory([]); setAiInput(''); setAiGathered({ goals: [], occupation: '', monthlyIncome: 0, age: '', family: '', ready: false })
     setAiAnalysis(''); setAiError(''); setOccDisplayLabel(''); setChipSelected([]); setShowOccSearch(false); setOccChatSearch(''); setAiMode(false); setGoalsConfirmed(false)
-    // Re-start AI chat after reset
+    // Re-start quiz mode after reset
     setTimeout(() => {
-      setAiMode(true)
-      setPhase('aiChat')
-      const greeting = 'สวัสดีอีกครั้ง! 👋 เล่าใหม่ได้เลยนะ ตอนนี้ทำอะไรอยู่ แล้วทำไมถึงอยากย้ายประเทศ? 🌍'
-      setAiMessages([{ role: 'bot', text: greeting }])
-      setAiChatHistory([{ role: 'system', content: AI_SYSTEM_PROMPT }, { role: 'assistant', content: JSON.stringify({ message: greeting, gathered: { goals: [], occupation: '', monthlyIncome: 0, age: '', family: '', ready: false } }) }])
+      setPhase('quiz')
     }, 100)
   }
 
@@ -578,13 +573,15 @@ export function ChatSimulator() {
             <div className="text-2xl font-bold text-gray-800 mb-2">คุณเหมาะจะย้ายไปประเทศไหน?</div>
             <div className="text-sm text-gray-500 mb-8">วิเคราะห์จาก 14 ประเทศ — เงินเดือน วีซ่า ค่าครองชีพ ข้อมูลจริง</div>
 
-            <button onClick={startAiChat} className="btn-primary w-full justify-center rounded-xl py-4 text-base mb-3">
-              🐱 เริ่มคุยกับ AI วิเคราะห์
+            <button onClick={() => setPhase('quiz')} className="btn-primary w-full justify-center rounded-xl py-4 text-base mb-3">
+              📋 เริ่มเลือกตอบ!
             </button>
 
-            <button onClick={() => setPhase('quiz')} className="w-full py-3 rounded-xl border-2 border-gray-200 text-gray-500 hover:bg-gray-50 text-sm font-medium">
-              📋 ใช้แบบกดเลือก (ไม่ใช้ AI)
+            {/* AI Chat mode — temporarily disabled for stability
+            <button onClick={startAiChat} className="w-full py-3 rounded-xl border-2 border-gray-200 text-gray-500 hover:bg-gray-50 text-sm font-medium">
+              🐱 คุยกับ AI วิเคราะห์
             </button>
+            */}
           </div>
         </div>
       </div>
@@ -1257,13 +1254,13 @@ export function ChatSimulator() {
             <div className="stage-body space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="form-label">🗣️ IELTS/PTE</label>
+                  <label className="form-label">🗣️ IELTS (คะแนนเฉลี่ย)</label>
                   <select className="form-select" value={auProfile.english} onChange={e => upAU('english', e.target.value)}>
                     <option value="">— เลือก —</option>
-                    <option value="superior">8.0+ Superior</option>
-                    <option value="proficient">7.0 Proficient</option>
-                    <option value="competent">6.0 Competent</option>
-                    <option value="low">ต่ำกว่า 6</option>
+                    <option value="superior">IELTS 8.0+ (Superior) — 20 คะแนน</option>
+                    <option value="proficient">IELTS 7.0-7.5 (Proficient) — 10 คะแนน</option>
+                    <option value="competent">IELTS 6.0-6.5 (Competent) — 0 คะแนน</option>
+                    <option value="low">ต่ำกว่า IELTS 6.0</option>
                   </select>
                 </div>
                 <div>
