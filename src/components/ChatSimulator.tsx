@@ -1264,7 +1264,7 @@ export function ChatSimulator() {
 
                   {/* CTA for AU */}
                   {isAU && (
-                    <div className="px-4 pb-4">
+                    <div className="px-4 pb-2">
                       <button onClick={() => selectCountryForDeepDive('australia')} className="btn-primary w-full justify-center rounded-xl py-3 text-base">
                         🎮 จำลองชีวิตจริงที่ออส! (มีข้อมูลละเอียด)
                       </button>
@@ -1272,13 +1272,11 @@ export function ChatSimulator() {
                   )}
 
                   {/* Expand/collapse hint */}
-                  {!isAU && (
-                    <div className="text-center pb-3">
-                      <button onClick={() => setExpandedCountry(isExpanded ? '' : result.country.id)} className="text-xs text-blue-500 hover:text-blue-700">
-                        {isExpanded ? '▲ ย่อ' : '▼ ดูรายละเอียด'}
-                      </button>
-                    </div>
-                  )}
+                  <div className="text-center pb-3">
+                    <button onClick={() => setExpandedCountry(isExpanded ? '' : result.country.id)} className="text-xs text-blue-500 hover:text-blue-700">
+                      {isExpanded ? '▲ ย่อ' : '▼ ดูรายละเอียด'}
+                    </button>
+                  </div>
                 </div>
               )
             })}
