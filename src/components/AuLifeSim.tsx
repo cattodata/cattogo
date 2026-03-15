@@ -441,11 +441,11 @@ export function AuLifeSim() {
                           )}
                           {c.skippable && preDepartureOverrides[c.key] !== -1 && (
                             <button onClick={() => setPreDepartureOverrides(p => ({ ...p, [c.key]: -1 }))}
-                              className="ml-1 px-1.5 py-0.5 text-[10px] rounded bg-gray-100 text-gray-500 hover:bg-red-100 hover:text-red-600 whitespace-nowrap">ไม่ต้องสอบ</button>
+                              className="ml-1 px-2 py-1 text-[11px] rounded-full bg-gray-100 text-gray-600 hover:bg-red-100 hover:text-red-600 whitespace-nowrap border border-gray-200 font-medium transition-colors">🚫 ไม่สอบ</button>
                           )}
                           {preDepartureOverrides[c.key] !== -1 && !(preDepartureOverrides[c.key] !== undefined && preDepartureOverrides[c.key] === 0) && (
                             <button onClick={() => setPreDepartureOverrides(p => ({ ...p, [c.key]: 0 }))}
-                              className="ml-1 px-1.5 py-0.5 text-[10px] rounded bg-green-50 text-green-600 hover:bg-green-100 whitespace-nowrap border border-green-200">บ.ออก</button>
+                              className="ml-1 px-2 py-1 text-[11px] rounded-full bg-green-100 text-green-700 hover:bg-green-200 whitespace-nowrap border border-green-300 font-medium transition-colors shadow-sm">🏢 บริษัทออก</button>
                           )}
                         </div>
                       </div>
@@ -608,127 +608,127 @@ export function AuLifeSim() {
           </div>
         </div>
 
-        {/* Monthly breakdown */}
+        {/* TH vs AU side-by-side comparison */}
         <div className="result-section">
-          <h4 className="text-base font-bold text-gray-800 mb-2">📊 รายรับ-รายจ่ายรายเดือน</h4>
-          <Row label="💰 เงินเดือน (gross)" val={fmtAud(Math.round(grossAnnual / 12))} note={selectedOcc ? `${salaryLabel} — ${salarySource}` : undefined} />
-          <Row label="📋 ภาษี+Medicare" val={`-${fmtAud(Math.round((auTax.tax + auTax.medicare) / 12))}`} red note={`ATO FY 2025-26 Stage 3 Tax Cuts (effective rate ${auTax.effectiveRate}%) + Medicare 2%`} />
-          <Row label="💵 สุทธิ (net)" val={fmtAud(monthlyNet)} green />
-          <div className="border-t border-gray-200 mt-2 pt-2" />
-          <Row label="🏠 ค่าเช่า" val={`-${fmtAud(monthlyRentAu)} (${fmtAud(Math.round(monthlyRentAu * 12 / 52))}/wk)`} red note={`Numbeo ${city.name} Mar 2026 — inner/mid suburbs`} />
-          <Row label="🔌 ค่าน้ำไฟ+เน็ต" val={`-${fmtAud(monthlyUtils)}`} red note={`Numbeo: utilities 85m² $${city.utilities} + internet 60Mbps $${city.internet}`} />
-          <Row label="🍳 อาหาร" val={`-${fmtAud(monthlyFood)}`} red note={`${choices['food'] === 'custom' ? '✏️ กำหนดเอง' : (FOOD_COSTS[choices['food']]?.label || 'ผสม')} — ประมาณจาก Numbeo meal prices`} />
-          <Row label="🚗 เดินทาง" val={`-${fmtAud(monthlyTransport)}`} red note={TRANSPORT_COSTS[choices['commute']]?.breakdown} />
-          {monthlyInsurance > 0 && <Row label="🏥 ประกัน" val={`-${fmtAud(monthlyInsurance)}`} red note="Medibank/Bupa Hospital+Extras basic cover เฉลี่ย" />}
-          <Row label="📱 มือถือ+อื่นๆ" val={`-${fmtAud(monthlyPhone + monthlyMisc)}`} red note={`มือถือ $${monthlyPhone} (Numbeo avg) + ค่าใช้จ่ายจิปาถะ $${monthlyMisc}`} />
-          <div className="flex justify-between py-2 font-bold border-t-2 border-gray-200 mt-2">
-            <span>💰 เหลือเก็บ/เดือน</span>
-            <span className={monthlySavings >= 0 ? 'text-green-600' : 'text-red-600'}>
-              {fmtAud(monthlySavings)} ({fmtThb(monthlySavingsTHB)})
-            </span>
-          </div>
-          <button onClick={() => setEditingAuCosts(e => !e)} className="mt-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-100 text-blue-700 border border-blue-300 hover:bg-blue-200 transition-colors">
-            {editingAuCosts ? '✕ ปิด' : '✏️ แก้ไขค่าใช้จ่ายออส'}
-          </button>
-          {editingAuCosts && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-2.5 my-1.5 space-y-1.5">
-              <div className="text-xs font-medium text-blue-700 mb-1">ปรับค่าใช้จ่ายรายเดือน (AUD/เดือน)</div>
-              {([
-                { key: 'rent', label: '🏠 ค่าเช่า', base: monthlyRent },
-                { key: 'food', label: '🍳 อาหาร', base: baseFood },
-                { key: 'transport', label: '🚗 เดินทาง', base: baseTransport },
-                { key: 'utilities', label: '🔌 น้ำไฟ+เน็ต', base: baseUtils },
-                { key: 'insurance', label: '🏥 ประกัน', base: baseInsurance },
-                { key: 'phone', label: '📱 มือถือ', base: basePhone },
-                { key: 'misc', label: '🛒 จิปาถะ', base: baseMisc },
-              ] as const).map(({ key, label, base }) => (
-                <div key={key} className="flex items-center gap-2">
-                  <label htmlFor={`au-cost-${key}`} className="text-xs text-gray-600 w-28">{label}</label>
-                  <input
-                    id={`au-cost-${key}`}
-                    type="number"
-                    min={0}
-                    className="flex-1 px-2 py-1 text-xs border border-blue-200 rounded bg-white text-right font-mono"
-                    placeholder={`${base}`}
-                    value={auCostOverrides[key] ?? ''}
-                    onChange={e => {
-                      const v = e.target.value
-                      if (v === '') { setAuCostOverrides(p => { const n = { ...p }; delete n[key]; return n }) }
-                      else { setAuCostOverrides(p => ({ ...p, [key]: Math.max(0, parseInt(v) || 0) })) }
-                    }}
-                  />
-                  <span className="text-[10px] text-gray-400 w-12 text-right">{fmtThb(Math.round((auCostOverrides[key] ?? base) * AUD_TO_THB))}</span>
-                </div>
-              ))}
-              <div className="flex justify-between items-center pt-1.5 border-t border-blue-200 text-xs font-semibold text-blue-800">
-                <span>รวม/เดือน</span>
-                <span>${fmt(totalMonthlyExp)} ({fmtThb(Math.round(totalMonthlyExp * AUD_TO_THB))})</span>
+          <h4 className="text-base font-bold text-gray-800 mb-3">🇹🇭 vs 🇦🇺 เปรียบเทียบรายเดือน</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* Thailand column */}
+            <div className="rounded-xl border-2 border-orange-200 bg-orange-50/50 p-3">
+              <div className="text-sm font-bold text-orange-800 mb-2 flex items-center gap-1">🇹🇭 ไทย (กรุงเทพฯ)</div>
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between"><span className="text-gray-600">💰 เงินเดือน gross</span><span className="font-mono">{fmtThb(thaiSalary)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-600">📋 ภาษี</span><span className="font-mono text-red-500">-{fmtThb(thaiSalary - thaiNetMonthly)}</span></div>
+                <div className="flex justify-between font-semibold"><span>💵 สุทธิ net</span><span className="text-green-700">{fmtThb(thaiNetMonthly)}</span></div>
               </div>
-              <button onClick={() => setAuCostOverrides({})} className="text-[10px] text-blue-500 underline hover:text-blue-700">
-                รีเซ็ตเป็นค่าเริ่มต้น
+              <div className="border-t border-orange-200 mt-2 pt-2 space-y-1 text-sm">
+                <div className="flex justify-between"><span className="text-gray-600">🏠 ค่าเช่า</span><span className="font-mono text-red-500">-{fmtThb(thaiCosts.rent)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-600">🍜 อาหาร</span><span className="font-mono text-red-500">-{fmtThb(thaiCosts.food)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-600">🚇 เดินทาง</span><span className="font-mono text-red-500">-{fmtThb(thaiCosts.transport)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-600">💡 น้ำไฟ</span><span className="font-mono text-red-500">-{fmtThb(thaiCosts.utilities)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-600">📱 มือถือ</span><span className="font-mono text-red-500">-{fmtThb(thaiCosts.phone)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-600">🎉 สังสรรค์</span><span className="font-mono text-red-500">-{fmtThb(thaiCosts.entertainment)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-600">🏥 ประกัน</span><span className="font-mono text-red-500">-{fmtThb(thaiCosts.insurance)}</span></div>
+                <div className="flex justify-between text-xs text-gray-400 pt-0.5"><span>รวมค่าใช้จ่าย</span><span>-{fmtThb(thaiTotalLiving)}</span></div>
+              </div>
+              <div className="border-t-2 border-orange-300 mt-2 pt-2 flex justify-between font-bold text-sm">
+                <span>💰 เหลือเก็บ</span>
+                <span className={thaiMonthlySavings >= 0 ? 'text-green-700' : 'text-red-600'}>{fmtThb(thaiMonthlySavings)}</span>
+              </div>
+              <button onClick={() => setEditingThaiCosts(e => !e)} className="mt-2 w-full px-3 py-1.5 text-xs font-semibold rounded-lg bg-orange-100 text-orange-700 border border-orange-300 hover:bg-orange-200 transition-colors">
+                {editingThaiCosts ? '✕ ปิด' : '✏️ แก้ไขค่าใช้จ่าย'}
               </button>
+              {editingThaiCosts && (
+                <div className="bg-white border border-orange-200 rounded-lg p-2.5 mt-1.5 space-y-1.5">
+                  {([
+                    { key: 'rent', label: '🏠 ค่าเช่า' },
+                    { key: 'food', label: '🍜 อาหาร' },
+                    { key: 'transport', label: '🚇 เดินทาง' },
+                    { key: 'utilities', label: '💡 น้ำไฟ' },
+                    { key: 'phone', label: '📱 มือถือ' },
+                    { key: 'entertainment', label: '🎉 สังสรรค์' },
+                    { key: 'insurance', label: '🏥 ประกัน' },
+                  ] as const).map(({ key, label }) => (
+                    <div key={key} className="flex items-center gap-1.5">
+                      <label htmlFor={`th-cost-${key}`} className="text-[11px] text-gray-600 w-20 shrink-0">{label}</label>
+                      <input id={`th-cost-${key}`} type="number" min={0}
+                        className="flex-1 px-2 py-1 text-xs border border-orange-200 rounded bg-white text-right font-mono"
+                        value={thaiCosts[key] || ''}
+                        onBlur={e => { if (e.target.value === '') setThaiCosts(prev => ({ ...prev, [key]: 0 })) }}
+                        onChange={e => setThaiCosts(prev => ({ ...prev, [key]: Math.max(0, parseInt(e.target.value) || 0) }))} />
+                    </div>
+                  ))}
+                  <div className="flex justify-between items-center pt-1.5 border-t border-orange-200 text-xs font-semibold text-orange-800">
+                    <span>รวม</span><span>฿{fmt(thaiTotalLiving)}</span>
+                  </div>
+                  <button onClick={() => setThaiCosts({ ...TH_LIVING_COSTS })} className="text-[10px] text-orange-500 underline hover:text-orange-700">รีเซ็ต</button>
+                </div>
+              )}
+              {!editingThaiCosts && <div className="text-[10px] text-gray-400 mt-1">(คอนโดใกล้ BTS กทม., ข้าวแกง+delivery, ประกัน OPD+IPD)</div>}
             </div>
-          )}
-        </div>
 
-        {/* TH vs AU comparison */}
-        <div className="result-section" style={{ background: '#FFF7ED', borderColor: '#FDBA74' }}>
-          <h4 className="text-base font-bold text-gray-800 mb-2">🇹🇭 vs 🇦🇺 เปรียบเทียบ</h4>
-          <Row label="เงินเดือนไทย (net)" val={fmtThb(thaiNetMonthly)} />
-          <div className="flex justify-between items-center py-1 text-sm">
-            <span className="text-gray-600">ค่าใช้จ่ายไทย</span>
-            <span className="font-mono text-red-500">-{fmtThb(thaiTotalLiving)}</span>
-          </div>
-          <div className="text-[10px] text-gray-500 ml-1 -mt-1 mb-1">
-            เช่า ฿{fmt(thaiCosts.rent)} + อาหาร ฿{fmt(thaiCosts.food)} + เดินทาง ฿{fmt(thaiCosts.transport)} + น้ำไฟ ฿{fmt(thaiCosts.utilities)} + มือถือ ฿{fmt(thaiCosts.phone)} + สังสรรค์ ฿{fmt(thaiCosts.entertainment)} + ประกัน ฿{fmt(thaiCosts.insurance)}
-          </div>
-          <button onClick={() => setEditingThaiCosts(e => !e)} className="mt-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-orange-100 text-orange-700 border border-orange-300 hover:bg-orange-200 transition-colors">
-            {editingThaiCosts ? '✕ ปิด' : '✏️ แก้ไขค่าใช้จ่ายไทย'}
-          </button>
-          {editingThaiCosts && (
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-2.5 my-1.5 space-y-1.5">
-              <div className="text-xs font-medium text-orange-700 mb-1">ปรับค่าใช้จ่ายรายเดือน (฿/เดือน)</div>
-              {([
-                { key: 'rent', label: '🏠 ค่าเช่า' },
-                { key: 'food', label: '🍜 อาหาร' },
-                { key: 'transport', label: '🚇 เดินทาง' },
-                { key: 'utilities', label: '💡 น้ำไฟ' },
-                { key: 'phone', label: '📱 มือถือ' },
-                { key: 'entertainment', label: '🎉 สังสรรค์' },
-                { key: 'insurance', label: '🏥 ประกัน' },
-              ] as const).map(({ key, label }) => (
-                <div key={key} className="flex items-center gap-2">
-                  <label htmlFor={`th-cost-${key}`} className="text-xs text-gray-600 w-24">{label}</label>
-                  <input
-                    id={`th-cost-${key}`}
-                    type="number"
-                    min={0}
-                    className="flex-1 px-2 py-1 text-xs border border-orange-200 rounded bg-white text-right font-mono"
-                    value={thaiCosts[key] || ''}
-                    onBlur={e => { if (e.target.value === '') setThaiCosts(prev => ({ ...prev, [key]: 0 })) }}
-                    onChange={e => setThaiCosts(prev => ({ ...prev, [key]: Math.max(0, parseInt(e.target.value) || 0) }))}
-                  />
-                </div>
-              ))}
-              <div className="flex justify-between items-center pt-1.5 border-t border-orange-200 text-xs font-semibold text-orange-800">
-                <span>รวม</span>
-                <span>฿{fmt(thaiTotalLiving)}</span>
+            {/* Australia column */}
+            <div className="rounded-xl border-2 border-blue-200 bg-blue-50/50 p-3">
+              <div className="text-sm font-bold text-blue-800 mb-2 flex items-center gap-1">🇦🇺 ออสเตรเลีย ({city.name})</div>
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between"><span className="text-gray-600">💰 gross</span><span className="font-mono">{fmtAud(Math.round(grossAnnual / 12))} <span className="text-[10px] text-gray-400">({fmtThb(Math.round(grossAnnual / 12 * AUD_TO_THB))})</span></span></div>
+                <div className="flex justify-between"><span className="text-gray-600">📋 ภาษี+Medicare</span><span className="font-mono text-red-500">-{fmtAud(Math.round((auTax.tax + auTax.medicare) / 12))}</span></div>
+                <div className="flex justify-between font-semibold"><span>💵 สุทธิ net</span><span className="text-green-700">{fmtAud(monthlyNet)} <span className="text-[10px] font-normal text-gray-500">({fmtThb(Math.round(monthlyNet * AUD_TO_THB))})</span></span></div>
               </div>
-              <button onClick={() => setThaiCosts({ ...TH_LIVING_COSTS })} className="text-[10px] text-orange-500 underline hover:text-orange-700">
-                รีเซ็ตเป็นค่าเริ่มต้น
+              <div className="border-t border-blue-200 mt-2 pt-2 space-y-1 text-sm">
+                <div className="flex justify-between"><span className="text-gray-600">🏠 ค่าเช่า</span><span className="font-mono text-red-500">-{fmtAud(monthlyRentAu)} <span className="text-[10px] text-gray-400">({fmtThb(Math.round(monthlyRentAu * AUD_TO_THB))})</span></span></div>
+                <div className="flex justify-between"><span className="text-gray-600">🍳 อาหาร</span><span className="font-mono text-red-500">-{fmtAud(monthlyFood)} <span className="text-[10px] text-gray-400">({fmtThb(Math.round(monthlyFood * AUD_TO_THB))})</span></span></div>
+                <div className="flex justify-between"><span className="text-gray-600">🚗 เดินทาง</span><span className="font-mono text-red-500">-{fmtAud(monthlyTransport)} <span className="text-[10px] text-gray-400">({fmtThb(Math.round(monthlyTransport * AUD_TO_THB))})</span></span></div>
+                <div className="flex justify-between"><span className="text-gray-600">🔌 น้ำไฟ+เน็ต</span><span className="font-mono text-red-500">-{fmtAud(monthlyUtils)} <span className="text-[10px] text-gray-400">({fmtThb(Math.round(monthlyUtils * AUD_TO_THB))})</span></span></div>
+                <div className="flex justify-between"><span className="text-gray-600">📱 มือถือ+อื่นๆ</span><span className="font-mono text-red-500">-{fmtAud(monthlyPhone + monthlyMisc)} <span className="text-[10px] text-gray-400">({fmtThb(Math.round((monthlyPhone + monthlyMisc) * AUD_TO_THB))})</span></span></div>
+                {monthlyInsurance > 0 && <div className="flex justify-between"><span className="text-gray-600">🏥 ประกัน</span><span className="font-mono text-red-500">-{fmtAud(monthlyInsurance)} <span className="text-[10px] text-gray-400">({fmtThb(Math.round(monthlyInsurance * AUD_TO_THB))})</span></span></div>}
+                <div className="flex justify-between text-xs text-gray-400 pt-0.5"><span>รวมค่าใช้จ่าย</span><span>-{fmtAud(totalMonthlyExp)} ({fmtThb(Math.round(totalMonthlyExp * AUD_TO_THB))})</span></div>
+              </div>
+              <div className="border-t-2 border-blue-300 mt-2 pt-2 flex justify-between font-bold text-sm">
+                <span>💰 เหลือเก็บ</span>
+                <span className={monthlySavings >= 0 ? 'text-green-700' : 'text-red-600'}>{fmtAud(monthlySavings)} <span className="text-xs font-normal">({fmtThb(monthlySavingsTHB)})</span></span>
+              </div>
+              <button onClick={() => setEditingAuCosts(e => !e)} className="mt-2 w-full px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-100 text-blue-700 border border-blue-300 hover:bg-blue-200 transition-colors">
+                {editingAuCosts ? '✕ ปิด' : '✏️ แก้ไขค่าใช้จ่าย'}
               </button>
+              {editingAuCosts && (
+                <div className="bg-white border border-blue-200 rounded-lg p-2.5 mt-1.5 space-y-1.5">
+                  {([
+                    { key: 'rent', label: '🏠 ค่าเช่า', base: monthlyRent },
+                    { key: 'food', label: '🍳 อาหาร', base: baseFood },
+                    { key: 'transport', label: '🚗 เดินทาง', base: baseTransport },
+                    { key: 'utilities', label: '🔌 น้ำไฟ+เน็ต', base: baseUtils },
+                    { key: 'insurance', label: '🏥 ประกัน', base: baseInsurance },
+                    { key: 'phone', label: '📱 มือถือ', base: basePhone },
+                    { key: 'misc', label: '🛒 จิปาถะ', base: baseMisc },
+                  ] as const).map(({ key, label, base }) => (
+                    <div key={key} className="flex items-center gap-1.5">
+                      <label htmlFor={`au-cost-${key}`} className="text-[11px] text-gray-600 w-20 shrink-0">{label}</label>
+                      <input id={`au-cost-${key}`} type="number" min={0}
+                        className="flex-1 px-2 py-1 text-xs border border-blue-200 rounded bg-white text-right font-mono"
+                        placeholder={`${base}`} value={auCostOverrides[key] ?? ''}
+                        onChange={e => {
+                          const v = e.target.value
+                          if (v === '') { setAuCostOverrides(p => { const n = { ...p }; delete n[key]; return n }) }
+                          else { setAuCostOverrides(p => ({ ...p, [key]: Math.max(0, parseInt(v) || 0) })) }
+                        }} />
+                      <span className="text-[10px] text-gray-400 w-14 text-right">{fmtThb(Math.round((auCostOverrides[key] ?? base) * AUD_TO_THB))}</span>
+                    </div>
+                  ))}
+                  <div className="flex justify-between items-center pt-1.5 border-t border-blue-200 text-xs font-semibold text-blue-800">
+                    <span>รวม</span><span>${fmt(totalMonthlyExp)} ({fmtThb(Math.round(totalMonthlyExp * AUD_TO_THB))})</span>
+                  </div>
+                  <button onClick={() => setAuCostOverrides({})} className="text-[10px] text-blue-500 underline hover:text-blue-700">รีเซ็ต</button>
+                </div>
+              )}
+              {!editingAuCosts && selectedOcc && <div className="text-[10px] text-gray-400 mt-1">{salaryLabel} — {salarySource}</div>}
             </div>
-          )}
-          {!editingThaiCosts && (
-            <div className="text-[10px] text-gray-400 ml-1 mb-1">(สมมติ: คอนโดใกล้ BTS กทม., กินข้าวแกงผสม delivery, ประกัน OPD+IPD)</div>
-          )}
-          <Row label="เหลือเก็บ (ไทย)" val={fmtThb(thaiMonthlySavings)} />
-          <div className="border-t border-gray-200 my-2" />
-          <Row label="เหลือเก็บ (ออส)" val={fmtThb(monthlySavingsTHB)} />
-          <div className="font-semibold text-sm mt-2">
+          </div>
+
+          {/* Savings difference banner */}
+          <div className={`mt-3 p-3 rounded-xl text-center font-bold text-sm ${monthlySavingsTHB > thaiMonthlySavings ? 'bg-green-50 border-2 border-green-300 text-green-800' : 'bg-red-50 border-2 border-red-300 text-red-800'}`}>
             {monthlySavingsTHB > thaiMonthlySavings
-              ? <span className="text-green-700">💡 อยู่ออส เหลือเก็บมากกว่า +{fmtThb(monthlySavingsTHB - thaiMonthlySavings)}/เดือน</span>
-              : <span className="text-red-700">⚠️ อยู่ออส เหลือเก็บน้อยกว่า — ลองปรับค่าเช่า/เมือง/การเดินทางดู</span>
+              ? <>💡 อยู่ออส เหลือเก็บมากกว่า <span className="text-lg">+{fmtThb(monthlySavingsTHB - thaiMonthlySavings)}</span>/เดือน</>
+              : <>⚠️ อยู่ออส เหลือเก็บน้อยกว่า <span className="text-lg">{fmtThb(monthlySavingsTHB - thaiMonthlySavings)}</span>/เดือน — ลองปรับค่าใช้จ่ายดู</>
             }
           </div>
         </div>
@@ -847,14 +847,34 @@ export function AuLifeSim() {
               `────────────`,
               `เหลือเก็บ/เดือน: ${fmtAud(monthlySavings)} (${fmtThb(monthlySavingsTHB)})`,
             ]},
-            { title: '🇹🇭 เปรียบเทียบ ไทย vs ออสเตรเลีย', lines: [
-              `เงินเดือนไทย (gross): ${fmtThb(thaiSalary)}/เดือน`,
-              `เงินเดือนไทย (net): ${fmtThb(thaiNetMonthly)}/เดือน`,
-              `ค่าใช้จ่ายไทย: ${fmtThb(thaiTotalLiving)}/เดือน`,
-              `เหลือเก็บไทย: ${fmtThb(thaiMonthlySavings)}/เดือน`,
+            { title: '🇹🇭 vs 🇦🇺 เปรียบเทียบรายเดือน', lines: [
+              `--- 🇹🇭 ไทย (กรุงเทพฯ) ---`,
+              `เงินเดือน gross: ${fmtThb(thaiSalary)}`,
+              `ภาษี: -${fmtThb(thaiSalary - thaiNetMonthly)}`,
+              `สุทธิ net: ${fmtThb(thaiNetMonthly)}`,
+              `ค่าเช่า: -${fmtThb(thaiCosts.rent)}`,
+              `อาหาร: -${fmtThb(thaiCosts.food)}`,
+              `เดินทาง: -${fmtThb(thaiCosts.transport)}`,
+              `น้ำไฟ: -${fmtThb(thaiCosts.utilities)}`,
+              `มือถือ: -${fmtThb(thaiCosts.phone)}`,
+              `สังสรรค์: -${fmtThb(thaiCosts.entertainment)}`,
+              `ประกัน: -${fmtThb(thaiCosts.insurance)}`,
+              `เหลือเก็บ: ${fmtThb(thaiMonthlySavings)}`,
               ``,
-              `เหลือเก็บออส: ${fmtThb(monthlySavingsTHB)}/เดือน (${fmtAud(monthlySavings)})`,
-              `ผลต่าง: ${monthlySavingsTHB - thaiMonthlySavings >= 0 ? '+' : ''}${fmtThb(monthlySavingsTHB - thaiMonthlySavings)}/เดือน`,
+              `--- 🇦🇺 ออสเตรเลีย (${city.name}) ---`,
+              `เงินเดือน gross: ${fmtAud(Math.round(grossAnnual / 12))} (${fmtThb(Math.round(grossAnnual / 12 * AUD_TO_THB))})`,
+              `ภาษี+Medicare: -${fmtAud(Math.round((auTax.tax + auTax.medicare) / 12))}`,
+              `สุทธิ net: ${fmtAud(monthlyNet)} (${fmtThb(Math.round(monthlyNet * AUD_TO_THB))})`,
+              `ค่าเช่า: -${fmtAud(monthlyRentAu)} (${fmtThb(Math.round(monthlyRentAu * AUD_TO_THB))})`,
+              `อาหาร: -${fmtAud(monthlyFood)} (${fmtThb(Math.round(monthlyFood * AUD_TO_THB))})`,
+              `เดินทาง: -${fmtAud(monthlyTransport)} (${fmtThb(Math.round(monthlyTransport * AUD_TO_THB))})`,
+              `น้ำไฟ+เน็ต: -${fmtAud(monthlyUtils)} (${fmtThb(Math.round(monthlyUtils * AUD_TO_THB))})`,
+              `มือถือ+อื่นๆ: -${fmtAud(monthlyPhone + monthlyMisc)} (${fmtThb(Math.round((monthlyPhone + monthlyMisc) * AUD_TO_THB))})`,
+              `ประกัน: -${fmtAud(monthlyInsurance)} (${fmtThb(Math.round(monthlyInsurance * AUD_TO_THB))})`,
+              `เหลือเก็บ: ${fmtAud(monthlySavings)} (${fmtThb(monthlySavingsTHB)})`,
+              ``,
+              `--- ผลต่าง ---`,
+              `${monthlySavingsTHB - thaiMonthlySavings >= 0 ? '+' : ''}${fmtThb(monthlySavingsTHB - thaiMonthlySavings)}/เดือน`,
             ]},
             { title: '📋 Visa Score', lines: [
               `คะแนน: ${visa.score}/65 (ผ่านขั้นต่ำ: ${visa.score >= 65 ? 'ใช่ ✅' : 'ไม่ผ่าน ❌'})`,
@@ -865,42 +885,51 @@ export function AuLifeSim() {
         }} className="flex-1 py-3 rounded-xl bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200 text-red-700 hover:shadow-md text-sm font-bold transition-all">
           📄 ดาวน์โหลด PDF
         </button>
-        <button onClick={() => {
-          const rows = [
-            ['หมวด', 'รายการ', 'AUD', 'THB'],
-            ['ครั้งเดียว', 'วีซ่า+เอกสาร+สอบ+ตรวจ', String(preDepartureTotal), String(Math.round(preDepartureTotal * AUD_TO_THB))],
-            ['ครั้งเดียว', 'ตั๋วเครื่องบิน', String(flightCost), String(Math.round(flightCost * AUD_TO_THB))],
-            ['ครั้งเดียว', 'ที่พักชั่วคราว', String(tempCost), String(Math.round(tempCost * AUD_TO_THB))],
-            ['ครั้งเดียว', 'มัดจำบ้าน', String(bond), String(Math.round(bond * AUD_TO_THB))],
-            ['ครั้งเดียว', 'ของเข้าบ้าน', String(furnishCost), String(Math.round(furnishCost * AUD_TO_THB))],
-            ['ครั้งเดียว', 'ขนของ', String(shippingCost), String(Math.round(shippingCost * AUD_TO_THB))],
-            ['ครั้งเดียว', 'รวม', String(finalOneTime), String(Math.round(finalOneTime * AUD_TO_THB))],
-            [],
-            ['รายเดือน (AU)', 'เงินเดือน gross', String(Math.round(grossAnnual / 12)), String(Math.round(grossAnnual / 12 * AUD_TO_THB))],
-            ['รายเดือน (AU)', 'ภาษี+Medicare', String(-Math.round((auTax.tax + auTax.medicare) / 12)), ''],
-            ['รายเดือน (AU)', 'สุทธิ net', String(monthlyNet), String(Math.round(monthlyNet * AUD_TO_THB))],
-            ['รายเดือน (AU)', 'ค่าเช่า', String(-monthlyRentAu), ''],
-            ['รายเดือน (AU)', 'น้ำไฟ+เน็ต', String(-monthlyUtils), ''],
-            ['รายเดือน (AU)', 'อาหาร', String(-monthlyFood), ''],
-            ['รายเดือน (AU)', 'เดินทาง', String(-monthlyTransport), ''],
-            ['รายเดือน (AU)', 'ประกัน', String(-monthlyInsurance), ''],
-            ['รายเดือน (AU)', 'มือถือ+อื่นๆ', String(-(monthlyPhone + monthlyMisc)), ''],
-            ['รายเดือน (AU)', 'เหลือเก็บ', String(monthlySavings), String(monthlySavingsTHB)],
-            [],
-            ['รายเดือน (TH)', 'เงินเดือน gross', '', String(thaiSalary)],
-            ['รายเดือน (TH)', 'สุทธิ net', '', String(thaiNetMonthly)],
-            ['รายเดือน (TH)', 'ค่าใช้จ่ายรวม', '', String(-thaiTotalLiving)],
-            ['รายเดือน (TH)', 'เหลือเก็บ', '', String(thaiMonthlySavings)],
+        <button onClick={async () => {
+          const XLSX = await import('xlsx')
+          const wb = XLSX.utils.book_new()
+          // Sheet 1: TH vs AU comparison side by side
+          const compRows = [
+            ['', '🇹🇭 ไทย (กรุงเทพฯ)', '', '🇦🇺 ออสเตรเลีย (' + city.name + ')', '', ''],
+            ['', 'THB', '', 'AUD', 'THB', ''],
+            ['เงินเดือน gross', thaiSalary, '', Math.round(grossAnnual / 12), Math.round(grossAnnual / 12 * AUD_TO_THB), ''],
+            ['ภาษี', -(thaiSalary - thaiNetMonthly), '', -Math.round((auTax.tax + auTax.medicare) / 12), -Math.round((auTax.tax + auTax.medicare) / 12 * AUD_TO_THB), 'Medicare 2% + Stage 3 Tax'],
+            ['สุทธิ net', thaiNetMonthly, '', monthlyNet, Math.round(monthlyNet * AUD_TO_THB), ''],
+            ['', '', '', '', '', ''],
+            ['ค่าเช่า', -thaiCosts.rent, '', -monthlyRentAu, -Math.round(monthlyRentAu * AUD_TO_THB), ''],
+            ['อาหาร', -thaiCosts.food, '', -monthlyFood, -Math.round(monthlyFood * AUD_TO_THB), ''],
+            ['เดินทาง', -thaiCosts.transport, '', -monthlyTransport, -Math.round(monthlyTransport * AUD_TO_THB), ''],
+            ['น้ำไฟ+เน็ต', -thaiCosts.utilities, '', -monthlyUtils, -Math.round(monthlyUtils * AUD_TO_THB), ''],
+            ['มือถือ+อื่นๆ', -thaiCosts.phone, '', -(monthlyPhone + monthlyMisc), -Math.round((monthlyPhone + monthlyMisc) * AUD_TO_THB), ''],
+            ['สังสรรค์', -thaiCosts.entertainment, '', '', '', ''],
+            ['ประกัน', -thaiCosts.insurance, '', -monthlyInsurance, -Math.round(monthlyInsurance * AUD_TO_THB), ''],
+            ['รวมค่าใช้จ่าย', -thaiTotalLiving, '', -totalMonthlyExp, -Math.round(totalMonthlyExp * AUD_TO_THB), ''],
+            ['', '', '', '', '', ''],
+            ['เหลือเก็บ/เดือน', thaiMonthlySavings, '', monthlySavings, monthlySavingsTHB, ''],
+            ['', '', '', '', '', ''],
+            ['ผลต่าง (ออส - ไทย)', monthlySavingsTHB - thaiMonthlySavings, 'THB/เดือน', '', '', ''],
           ]
-          const bom = '\uFEFF'
-          const csv = bom + rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n')
-          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-          const url = URL.createObjectURL(blob)
-          const a = document.createElement('a')
-          a.href = url; a.download = 'cattogo-au-sim.csv'; a.click()
-          URL.revokeObjectURL(url)
+          const ws1 = XLSX.utils.aoa_to_sheet(compRows)
+          ws1['!cols'] = [{ wch: 18 }, { wch: 14 }, { wch: 2 }, { wch: 14 }, { wch: 14 }, { wch: 22 }]
+          XLSX.utils.book_append_sheet(wb, ws1, 'TH vs AU เปรียบเทียบ')
+          // Sheet 2: One-time costs
+          const oneTimeRows = [
+            ['รายการ', 'AUD', 'THB'],
+            ...preDepartureCosts.map(c => [c.label, c.aud, Math.round(c.aud * AUD_TO_THB)]),
+            ['ตั๋วเครื่องบิน', flightCost, Math.round(flightCost * AUD_TO_THB)],
+            ['ที่พักชั่วคราว', tempCost, Math.round(tempCost * AUD_TO_THB)],
+            ['มัดจำบ้าน', bond, Math.round(bond * AUD_TO_THB)],
+            ['ของเข้าบ้าน', furnishCost, Math.round(furnishCost * AUD_TO_THB)],
+            ['ขนของ', shippingCost, Math.round(shippingCost * AUD_TO_THB)],
+            ['', '', ''],
+            ['รวมค่าเริ่มต้น', finalOneTime, Math.round(finalOneTime * AUD_TO_THB)],
+          ]
+          const ws2 = XLSX.utils.aoa_to_sheet(oneTimeRows)
+          ws2['!cols'] = [{ wch: 30 }, { wch: 12 }, { wch: 14 }]
+          XLSX.utils.book_append_sheet(wb, ws2, 'ค่าใช้จ่ายครั้งเดียว')
+          XLSX.writeFile(wb, 'cattogo-au-sim.xlsx')
         }} className="flex-1 py-3 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 text-green-700 hover:shadow-md text-sm font-bold transition-all">
-          📊 ดาวน์โหลด Excel (CSV)
+          📊 ดาวน์โหลด Excel
         </button>
       </div>
 
