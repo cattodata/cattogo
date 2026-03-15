@@ -150,14 +150,15 @@ export const AU_CITIES: Record<string, CityInfo> = {
   },
 }
 
-// ===== Food Costs (AUD/month, single person) =====
-// Numbeo Melbourne Feb 2026: inexpensive meal $25, mid-range 2-person $120
-// Grocery basket: milk $2.68, bread $4.30, rice $3.29, chicken $13.42/kg, eggs $8.51/12
+// ===== Food Costs (AUD/month, single person) — รวม grocery + กินนอก =====
+// Numbeo Melbourne Mar 2026: inexpensive meal $25, mid-range 2-person $120
+// Grocery basket 2026: milk $3, bread $4.50, rice $3.50, chicken $14/kg, eggs $9/12
+// ABS Household Expenditure: single adult food+non-alc ~$130-170/wk = $560-740/mo
 export const FOOD_COSTS: Record<string, { cost: number; label: string }> = {
-  'always': { cost: 500, label: 'ทำกินเองทุกมื้อ (ไม่ฟุ่มเฟือย)' },     // ~$17/day groceries
-  'often': { cost: 650, label: 'ทำเองบ้าง ซื้อบ้าง' },          // mix cook + eat out
-  'sometimes': { cost: 800, label: 'ซื้อกินบ่อย' },                 // eat out ~5x/week
-  'rarely': { cost: 1000, label: 'ซื้อกินเกือบทุกมื้อ' },           // ~$33/day (1-2 cheap meals/day)
+  'always': { cost: 550, label: 'ทำกินเองทุกมื้อ (grocery ~$130/wk)' },    // $18/day groceries only
+  'often': { cost: 750, label: 'ทำเอง + กินนอก 2-3 ครั้ง/wk' },           // grocery ~$100/wk + eat out 2-3x
+  'sometimes': { cost: 950, label: 'ซื้อกินบ่อย (4-5 ครั้ง/wk)' },        // grocery + eat out most days
+  'rarely': { cost: 1200, label: 'ซื้อ/สั่ง delivery เกือบทุกมื้อ' },     // ~$40/day eat out + delivery
 }
 
 // ===== Transport Costs (AUD/month) =====

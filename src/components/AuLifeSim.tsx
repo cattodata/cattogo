@@ -64,6 +64,8 @@ export function AuLifeSim() {
   const [showCustomFood, setShowCustomFood] = useState(false)
   const [auCostOverrides, setAuCostOverrides] = useState<Record<string, number>>({})
   const [editingAuCosts, setEditingAuCosts] = useState(false)
+  const [customExpenses, setCustomExpenses] = useState<{ id: number; label: string; thai: number; au: number }[]>([])
+  const [nextCustomId, setNextCustomId] = useState(1)
 
   const bottomRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -156,14 +158,16 @@ export function AuLifeSim() {
   const monthlyPhone = auCostOverrides.phone ?? basePhone
   const monthlyMisc = auCostOverrides.misc ?? baseMisc
   const monthlyRentAu = auCostOverrides.rent ?? monthlyRent
-  const totalMonthlyExp = monthlyRentAu + monthlyUtils + monthlyFood + monthlyTransport + monthlyInsurance + monthlyPhone + monthlyMisc
+  const customExpThai = customExpenses.reduce((s, e) => s + e.thai, 0)
+  const customExpAu = customExpenses.reduce((s, e) => s + e.au, 0)
+  const totalMonthlyExp = monthlyRentAu + monthlyUtils + monthlyFood + monthlyTransport + monthlyInsurance + monthlyPhone + monthlyMisc + customExpAu
   const monthlySavings = monthlyNet - totalMonthlyExp
   const monthlySavingsTHB = Math.round(monthlySavings * AUD_TO_THB)
 
   const thaiSalary = parseInt(profile.thaiSalary) || 50000
   const thaiTax = calculateThaiTax(thaiSalary * 12)
   const thaiNetMonthly = thaiTax.netMonthly
-  const thaiTotalLiving = Object.values(thaiCosts).reduce((a, b) => a + b, 0)
+  const thaiTotalLiving = Object.values(thaiCosts).reduce((a, b) => a + b, 0) + customExpThai
   const thaiMonthlySavings = thaiNetMonthly - thaiTotalLiving
 
   const visa = calculateSimpleVisaScore(profile.age, profile.english, profile.experience, profile.education, choices['job'] === 'min' ? 'unskilled' : 'skilled')
@@ -178,7 +182,7 @@ export function AuLifeSim() {
   const advanceStage = () => setSimStage(s => s + 1)
   const pick = (stageId: string, optionId: string) => { setChoices(prev => ({ ...prev, [stageId]: optionId })); setSimStage(s => s + 1) }
   const allDone = simStage >= TOTAL_STAGES
-  const restart = () => { setPhase('profile'); setSimStage(0); setSavingsInput(''); setIsMotherLord(false); setInitialAUD(0); setChoices({}); setThaiCosts({ ...TH_LIVING_COSTS }); setEditingThaiCosts(false); setVisaType('skilled'); setPreDepartureOverrides({}); setCustomSalary(''); setShowCustomSalary(false); setCustomFood(''); setShowCustomFood(false); setAuCostOverrides({}); setEditingAuCosts(false) }
+  const restart = () => { setPhase('profile'); setSimStage(0); setSavingsInput(''); setIsMotherLord(false); setInitialAUD(0); setChoices({}); setThaiCosts({ ...TH_LIVING_COSTS }); setEditingThaiCosts(false); setVisaType('skilled'); setPreDepartureOverrides({}); setCustomSalary(''); setShowCustomSalary(false); setCustomFood(''); setShowCustomFood(false); setAuCostOverrides({}); setEditingAuCosts(false); setCustomExpenses([]); setNextCustomId(1) }
 
   // When all stages done → show results
   useEffect(() => {
@@ -380,7 +384,7 @@ export function AuLifeSim() {
           {simStage > 2 && choices['job'] && <Completed emoji="💼" title="ได้งาน" detail={`${fmtAud(grossAnnual)}/ปี (${choices['job'] === 'p90' ? '👑 ระดับสูง' : choices['job'] === 'p10' ? '📊 เริ่มต้น' : choices['job'] === 'min' ? 'ขั้นต่ำ' : choices['job'] === '180k' ? '🚀 180K+' : choices['job'] === 'custom' ? '✏️ กำหนดเอง' : '💼 ระดับกลาง'})`} />}
           {simStage > 3 && choices['flight'] && <Completed emoji="✈️" title="ตั๋วเครื่องบิน" detail={choices['flight'] === 'company' ? 'ฟรี! บ.ออกให้' : `-${fmtAud(flightCost)}`} negative={choices['flight'] !== 'company'} />}
           {simStage > 4 && choices['temp'] && <Completed emoji="🏨" title="พักชั่วคราว" detail={choices['temp'] === 'friend' ? 'ฟรี!' : `-${fmtAud(tempCost)}`} negative={choices['temp'] !== 'friend'} />}
-          {simStage > 5 && choices['housing'] && <Completed emoji="🏠" title="บ้าน" detail={`มัดจำ -${fmtAud(bond)} + ${fmtAud(monthlyRent)}/เดือน`} negative />}
+          {simStage > 5 && choices['housing'] && <Completed emoji="🏠" title="บ้าน" detail={`มัดจำ -${fmtAud(bond)} + ${fmtAud(monthlyRent)}/เดือน (${fmtAud(Math.round(monthlyRent * 12 / 52))}/wk)`} negative />}
           {simStage > 6 && choices['furnish'] && <Completed emoji="🛋️" title="ของเข้าบ้าน" detail={furnishCost === 0 ? 'Furnished! $0' : `-${fmtAud(furnishCost)}`} negative={furnishCost > 0} />}
           {simStage > 7 && choices['shipping'] && <Completed emoji="📦" title="ขนของ" detail={shippingCost > 0 ? `-${fmtAud(shippingCost)}` : choices['shipping'] === 'company' ? 'บ.ออกให้!' : 'แค่กระเป๋า!'} negative={shippingCost > 0} />}
           {simStage > 8 && choices['commute'] && <Completed emoji="🚗" title="เดินทาง" detail={choices['commute'] === 'company' ? 'บ.จัดรถให้!' : `${fmtAud(monthlyTransport)}/เดือน`} />}
@@ -568,7 +572,7 @@ export function AuLifeSim() {
                 {simStage === 10 && (
                   <div className="space-y-2">
                     <Opt onClick={() => pick('insurance', 'medicare')}><div className="font-semibold">🏥 Medicare (ฟรี!)</div><div className="text-sm text-gray-500">PR/citizen ใช้ได้ — ครอบคลุม รพ.รัฐ + GP</div></Opt>
-                    <Opt onClick={() => pick('insurance', 'private')}><div className="font-semibold">🏥 Private Health Insurance</div><div className="text-sm text-gray-500">{fmtAud(150)}/เดือน — เลือก hospital ได้ ไม่ต้องรอคิว</div></Opt>
+                    <Opt onClick={() => pick('insurance', 'private')}><div className="font-semibold">🏥 Private Health Insurance</div><div className="text-sm text-gray-500">{fmtAud(150)}/เดือน — Hospital + Extras เบื้องต้น</div></Opt>
                     <Opt onClick={() => pick('insurance', 'company')}><div className="font-semibold">💼 บริษัททำให้!</div><div className="text-sm text-green-600">$0/เดือน</div></Opt>
                     <div className="text-xs text-amber-700 bg-amber-50 rounded-lg p-2.5 border border-amber-200">
                       ⚠️ วีซ่า <strong>482/494 (Employer Sponsored)</strong> บังคับทำ Private Health Insurance — เป็นเงื่อนไขวีซ่า ใช้ Medicare ไม่ได้ (ยกเว้นประเทศที่มี RHCA เช่น UK, NZ — ไทยไม่มี)
@@ -632,6 +636,9 @@ export function AuLifeSim() {
                 <div className="flex justify-between"><span className="text-gray-600">📱 มือถือ</span><span className="font-mono text-red-500">-{fmtThb(thaiCosts.phone)}</span></div>
                 <div className="flex justify-between"><span className="text-gray-600">🎉 สังสรรค์</span><span className="font-mono text-red-500">-{fmtThb(thaiCosts.entertainment)}</span></div>
                 <div className="flex justify-between"><span className="text-gray-600">🏥 ประกัน</span><span className="font-mono text-red-500">-{fmtThb(thaiCosts.insurance)}</span></div>
+                {customExpenses.map(e => (
+                  <div key={e.id} className="flex justify-between"><span className="text-gray-600">📌 {e.label}</span><span className="font-mono text-red-500">-{fmtThb(e.thai)}</span></div>
+                ))}
                 <div className="flex justify-between text-xs text-gray-400 pt-0.5"><span>รวมค่าใช้จ่าย</span><span>-{fmtThb(thaiTotalLiving)}</span></div>
               </div>
               <div className="border-t-2 border-orange-300 mt-2 pt-2 flex justify-between font-bold text-sm">
@@ -679,12 +686,15 @@ export function AuLifeSim() {
                 <div className="flex justify-between font-semibold"><span>💵 สุทธิ net</span><span className="text-green-700">{fmtAud(monthlyNet)} <span className="text-[10px] font-normal text-gray-500">({fmtThb(Math.round(monthlyNet * AUD_TO_THB))})</span></span></div>
               </div>
               <div className="border-t border-blue-200 mt-2 pt-2 space-y-1 text-sm">
-                <div className="flex justify-between"><span className="text-gray-600">🏠 ค่าเช่า</span><span className="font-mono text-red-500">-{fmtAud(monthlyRentAu)} <span className="text-[10px] text-gray-400">({fmtThb(Math.round(monthlyRentAu * AUD_TO_THB))})</span></span></div>
+                <div className="flex justify-between"><span className="text-gray-600">🏠 ค่าเช่า</span><span className="font-mono text-red-500">-{fmtAud(monthlyRentAu)}/mo <span className="text-[10px] text-gray-500">({fmtAud(Math.round(monthlyRentAu * 12 / 52))}/wk)</span> <span className="text-[10px] text-gray-400">({fmtThb(Math.round(monthlyRentAu * AUD_TO_THB))})</span></span></div>
                 <div className="flex justify-between"><span className="text-gray-600">🍳 อาหาร</span><span className="font-mono text-red-500">-{fmtAud(monthlyFood)} <span className="text-[10px] text-gray-400">({fmtThb(Math.round(monthlyFood * AUD_TO_THB))})</span></span></div>
                 <div className="flex justify-between"><span className="text-gray-600">🚗 เดินทาง</span><span className="font-mono text-red-500">-{fmtAud(monthlyTransport)} <span className="text-[10px] text-gray-400">({fmtThb(Math.round(monthlyTransport * AUD_TO_THB))})</span></span></div>
                 <div className="flex justify-between"><span className="text-gray-600">🔌 น้ำไฟ+เน็ต</span><span className="font-mono text-red-500">-{fmtAud(monthlyUtils)} <span className="text-[10px] text-gray-400">({fmtThb(Math.round(monthlyUtils * AUD_TO_THB))})</span></span></div>
                 <div className="flex justify-between"><span className="text-gray-600">📱 มือถือ+อื่นๆ</span><span className="font-mono text-red-500">-{fmtAud(monthlyPhone + monthlyMisc)} <span className="text-[10px] text-gray-400">({fmtThb(Math.round((monthlyPhone + monthlyMisc) * AUD_TO_THB))})</span></span></div>
                 {monthlyInsurance > 0 && <div className="flex justify-between"><span className="text-gray-600">🏥 ประกัน</span><span className="font-mono text-red-500">-{fmtAud(monthlyInsurance)} <span className="text-[10px] text-gray-400">({fmtThb(Math.round(monthlyInsurance * AUD_TO_THB))})</span></span></div>}
+                {customExpenses.map(e => (
+                  <div key={e.id} className="flex justify-between"><span className="text-gray-600">📌 {e.label}</span><span className="font-mono text-red-500">-{fmtAud(e.au)} <span className="text-[10px] text-gray-400">({fmtThb(Math.round(e.au * AUD_TO_THB))})</span></span></div>
+                ))}
                 <div className="flex justify-between text-xs text-gray-400 pt-0.5"><span>รวมค่าใช้จ่าย</span><span>-{fmtAud(totalMonthlyExp)} ({fmtThb(Math.round(totalMonthlyExp * AUD_TO_THB))})</span></div>
               </div>
               <div className="border-t-2 border-blue-300 mt-2 pt-2 flex justify-between font-bold text-sm">
@@ -726,6 +736,39 @@ export function AuLifeSim() {
               )}
               {!editingAuCosts && selectedOcc && <div className="text-[10px] text-gray-400 mt-1">{salaryLabel} — {salarySource}</div>}
             </div>
+          </div>
+
+          {/* Custom expense rows */}
+          <div className="mt-3 bg-gray-50 border border-gray-200 rounded-xl p-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-bold text-gray-700">📌 หมวดอื่นๆ (เพิ่มเอง)</span>
+              <button onClick={() => {
+                setCustomExpenses(prev => [...prev, { id: nextCustomId, label: '', thai: 0, au: 0 }])
+                setNextCustomId(n => n + 1)
+              }} className="px-3 py-1 text-xs font-semibold rounded-lg bg-blue-100 text-blue-700 border border-blue-300 hover:bg-blue-200 transition-colors">
+                + เพิ่มหมวด
+              </button>
+            </div>
+            {customExpenses.length === 0 && (
+              <div className="text-xs text-gray-400 text-center py-1">กด "+ เพิ่มหมวด" เพื่อเพิ่มค่าใช้จ่ายเอง เช่น ค่ายิม, ค่าเลี้ยงลูก, ค่าเรียน</div>
+            )}
+            {customExpenses.map((exp, idx) => (
+              <div key={exp.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-1.5 py-1.5 border-b border-gray-100 last:border-b-0">
+                <input type="text" placeholder="ชื่อ เช่น ค่ายิม" className="w-full sm:w-28 px-2 py-1 text-xs border border-gray-200 rounded bg-white"
+                  value={exp.label} onChange={e => setCustomExpenses(prev => prev.map(x => x.id === exp.id ? { ...x, label: e.target.value } : x))} />
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] text-orange-600">🇹🇭</span>
+                  <input type="number" min={0} placeholder="฿THB" className="w-20 px-2 py-1 text-xs border border-orange-200 rounded bg-white text-right font-mono"
+                    value={exp.thai || ''} onChange={e => setCustomExpenses(prev => prev.map(x => x.id === exp.id ? { ...x, thai: Math.max(0, parseInt(e.target.value) || 0) } : x))} />
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] text-blue-600">🇦🇺</span>
+                  <input type="number" min={0} placeholder="$AUD" className="w-20 px-2 py-1 text-xs border border-blue-200 rounded bg-white text-right font-mono"
+                    value={exp.au || ''} onChange={e => setCustomExpenses(prev => prev.map(x => x.id === exp.id ? { ...x, au: Math.max(0, parseInt(e.target.value) || 0) } : x))} />
+                </div>
+                <button onClick={() => setCustomExpenses(prev => prev.filter(x => x.id !== exp.id))} className="text-xs text-red-400 hover:text-red-600">✕</button>
+              </div>
+            ))}
           </div>
 
           {/* Savings difference banner */}
@@ -848,6 +891,7 @@ export function AuLifeSim() {
               `เดินทาง: -${fmtAud(monthlyTransport)}`,
               `ประกัน: -${fmtAud(monthlyInsurance)}`,
               `มือถือ+อื่นๆ: -${fmtAud(monthlyPhone + monthlyMisc)}`,
+              ...customExpenses.map(e => `${e.label}: -${fmtAud(e.au)}`),
               `────────────`,
               `เหลือเก็บ/เดือน: ${fmtAud(monthlySavings)} (${fmtThb(monthlySavingsTHB)})`,
             ]},
@@ -863,6 +907,7 @@ export function AuLifeSim() {
               `มือถือ: -${fmtThb(thaiCosts.phone)}`,
               `สังสรรค์: -${fmtThb(thaiCosts.entertainment)}`,
               `ประกัน: -${fmtThb(thaiCosts.insurance)}`,
+              ...customExpenses.map(e => `${e.label}: -${fmtThb(e.thai)}`),
               `เหลือเก็บ: ${fmtThb(thaiMonthlySavings)}`,
               ``,
               `--- 🇦🇺 ออสเตรเลีย (${city.name}) ---`,
@@ -875,6 +920,7 @@ export function AuLifeSim() {
               `น้ำไฟ+เน็ต: -${fmtAud(monthlyUtils)} (${fmtThb(Math.round(monthlyUtils * AUD_TO_THB))})`,
               `มือถือ+อื่นๆ: -${fmtAud(monthlyPhone + monthlyMisc)} (${fmtThb(Math.round((monthlyPhone + monthlyMisc) * AUD_TO_THB))})`,
               `ประกัน: -${fmtAud(monthlyInsurance)} (${fmtThb(Math.round(monthlyInsurance * AUD_TO_THB))})`,
+              ...customExpenses.map(e => `${e.label}: -${fmtAud(e.au)} (${fmtThb(Math.round(e.au * AUD_TO_THB))})`),
               `เหลือเก็บ: ${fmtAud(monthlySavings)} (${fmtThb(monthlySavingsTHB)})`,
               ``,
               `--- ผลต่าง ---`,
@@ -907,6 +953,7 @@ export function AuLifeSim() {
             ['มือถือ+อื่นๆ', -thaiCosts.phone, '', -(monthlyPhone + monthlyMisc), -Math.round((monthlyPhone + monthlyMisc) * AUD_TO_THB), ''],
             ['สังสรรค์', -thaiCosts.entertainment, '', '', '', ''],
             ['ประกัน', -thaiCosts.insurance, '', -monthlyInsurance, -Math.round(monthlyInsurance * AUD_TO_THB), ''],
+            ...customExpenses.map(e => [e.label || 'อื่นๆ', -e.thai, '', -e.au, -Math.round(e.au * AUD_TO_THB), '']),
             ['รวมค่าใช้จ่าย', -thaiTotalLiving, '', -totalMonthlyExp, -Math.round(totalMonthlyExp * AUD_TO_THB), ''],
             ['', '', '', '', '', ''],
             ['เหลือเก็บ/เดือน', thaiMonthlySavings, '', monthlySavings, monthlySavingsTHB, ''],
