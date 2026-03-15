@@ -75,15 +75,16 @@ function getOccSalary(countryId: string, occId: string): SalaryRange | null {
 
 const STAGE_META = [
   { id: 'savings', title: '💰 ด่าน 1: เตรียมเงิน', sub: 'มีเงินเก็บเท่าไหร่?' },
-  { id: 'predeparture', title: '📋 ด่าน 2: ค่าใช้จ่ายก่อนบิน', sub: 'ก่อนไปต้องจ่ายค่าอะไรบ้าง?' },
+  { id: 'predeparture', title: '📋 ด่าน 2: ค่าใช้จ่ายก่อนบิน', sub: 'แก้ไขได้ทุกรายการ' },
   { id: 'job', title: '💼 ด่าน 3: ได้งานแล้ว!', sub: 'เงินเดือนเท่าไหร่?' },
   { id: 'flight', title: '✈️ ด่าน 4: ซื้อตั๋วบินกัน!', sub: 'Business หรือ Economy?' },
   { id: 'temp', title: '🛬 ด่าน 5: ถึงแล้ว! พักไหนก่อน?', sub: 'ที่พักชั่วคราวช่วง 2 สัปดาห์แรก' },
   { id: 'housing', title: '🏠 ด่าน 6: หาบ้านอยู่จริงๆ!', sub: 'แชร์ห้อง หรือ อยู่คนเดียว?' },
   { id: 'furnish', title: '🛋️ ด่าน 7: ซื้อของเข้าบ้าน', sub: 'ตกแต่งบ้านสไตล์ไหน?' },
-  { id: 'commute', title: '🚗 ด่าน 8: ไปทำงานยังไง', sub: 'ขับรถ หรือ รถไฟ?' },
-  { id: 'food', title: '🍳 ด่าน 9: กินข้าวยังไง', sub: 'ทำเอง หรือ ซื้อกิน?' },
-  { id: 'insurance', title: '🏥 ด่าน 10: ประกันสุขภาพ', sub: 'จัดเอง หรือ Medicare ฟรี?' },
+  { id: 'shipping', title: '📦 ด่าน 8: ขนของจากไทย', sub: 'ส่งตู้คอนเทนเนอร์ หรือ ใส่กระเป๋า?' },
+  { id: 'commute', title: '🚗 ด่าน 9: ไปทำงานยังไง', sub: 'ขับรถ หรือ รถไฟ?' },
+  { id: 'food', title: '🍳 ด่าน 10: กินข้าวยังไง', sub: 'ทำเอง หรือ ซื้อกิน?' },
+  { id: 'insurance', title: '🏥 ด่าน 11: ประกันสุขภาพ', sub: 'จัดเอง หรือ Medicare ฟรี?' },
 ]
 const TOTAL_STAGES = STAGE_META.length
 
@@ -133,7 +134,7 @@ export function ChatSimulator() {
   const [expandedCountry, setExpandedCountry] = useState('')
 
   // AU Profile
-  const [auProfile, setAuProfile] = useState<AuProfile>({ english: '', experience: '', education: '', thaiSalary: '', city: 'melbourne' })
+  const [auProfile, setAuProfile] = useState<AuProfile>({ english: '', experience: '', education: '', thaiSalary: '', city: 'sydney' })
 
   // Simulation
   const [simStage, setSimStage] = useState(0)
@@ -148,6 +149,8 @@ export function ChatSimulator() {
   const [editingThaiCosts, setEditingThaiCosts] = useState(false)
   const [editingAuCosts, setEditingAuCosts] = useState(false)
   const [auCostOverrides, setAuCostOverrides] = useState<Record<string, number>>({})
+  // Pre-departure overrides: -1 = skip, positive number = custom amount
+  const [preDepartureOverrides, setPreDepartureOverrides] = useState<Record<string, number>>({})
   // Occupation search
   const [occSearchMode, setOccSearchMode] = useState(false)
   const [occSearchQuery, setOccSearchQuery] = useState('')
@@ -245,6 +248,18 @@ export function ChatSimulator() {
           `Occupation: ${salaryData.label}`,
           `Salary level: ${jobLabel}`,
           `Gross annual: A$${fmt(grossAnnual)}`,
+        ],
+      },
+      {
+        title: 'Initial One-Time Costs',
+        lines: [
+          `Visa + Documents + Exam + Medical: A$${fmt(preDepartureTotal)}`,
+          `Flight: A$${fmt(flightCost)}`,
+          `Temporary housing: A$${fmt(tempCost)}`,
+          `Bond/deposit: A$${fmt(bond)}`,
+          `Furnishing: A$${fmt(furnishCost)}`,
+          `Shipping from Thailand: A$${fmt(shippingCost)}`,
+          `Total: A$${fmt(finalOneTime)}`,
         ],
       },
       {
@@ -597,24 +612,30 @@ export function ChatSimulator() {
     // Visa 482 (Employer Sponsored): Primary $3,035 + Partner $3,035 + Child $760 (FY2025-26)
     const visa189 = quickProfile.family === 'family' ? 8120 : quickProfile.family === 'couple' ? 6960 : 4640
     const visa482 = quickProfile.family === 'family' ? 6830 : quickProfile.family === 'couple' ? 6070 : 3035
-    const visa = visaType === 'employer' ? visa482 : visa189
+    const visaDefault = visaType === 'employer' ? visa482 : visa189
     const visaLabel = visaType === 'employer' ? '📋 Visa 482 (Employer Sponsored)' : '📋 Visa 189/190 (Skilled)'
     const itOccs = ['software', 'data-ai', 'devops-cloud', 'cybersecurity', 'network-admin', 'it-management']
-    const saFee = visaType === 'employer' ? 0 : (itOccs.includes(occupation) ? 530 : 1000)
+    const saDefault = visaType === 'employer' ? 0 : (itOccs.includes(occupation) ? 530 : 1000)
     const saLabel = itOccs.includes(occupation) ? '📝 Skills Assessment (ACS)' : '📝 Skills Assessment (VETASSESS)'
-    const costs = [
-      { label: visaLabel, aud: visa },
+
+    const getVal = (key: string, defaultVal: number) => {
+      if (preDepartureOverrides[key] === -1) return 0 // skipped
+      return preDepartureOverrides[key] ?? defaultVal
+    }
+
+    const costs: { label: string; aud: number; key: string; defaultAud: number; skippable?: boolean }[] = [
+      { label: visaLabel, aud: getVal('visa', visaDefault), key: 'visa', defaultAud: visaDefault },
     ]
     if (visaType === 'skilled') {
-      costs.push({ label: saLabel, aud: saFee })
+      costs.push({ label: saLabel, aud: getVal('skills', saDefault), key: 'skills', defaultAud: saDefault })
     }
     costs.push(
-      { label: '📖 IELTS/PTE สอบภาษา', aud: 410 },
-      { label: '🏥 ตรวจสุขภาพ Medical', aud: 400 },
-      { label: '📄 เอกสาร+แปล+รับรอง', aud: 500 },
+      { label: '📖 IELTS/PTE สอบภาษา', aud: getVal('ielts', 410), key: 'ielts', defaultAud: 410, skippable: true },
+      { label: '🏥 ตรวจสุขภาพ Medical', aud: getVal('medical', 400), key: 'medical', defaultAud: 400 },
+      { label: '📄 เอกสาร+แปล+รับรอง', aud: getVal('documents', 500), key: 'documents', defaultAud: 500 },
     )
     return costs
-  }, [quickProfile.family, occupation, visaType])
+  }, [quickProfile.family, occupation, visaType, preDepartureOverrides])
   const preDepartureTotal = preDepartureCosts.reduce((s, c) => s + c.aud, 0)
 
   const grossAnnual = choices['job'] === 'god' ? 180000 : choices['job'] === 'custom' ? (parseInt(customSalary) || salaryData.mid) : choices['job'] === 'top' ? salaryData.senior : choices['job'] === 'min' ? AU_UNSKILLED_SALARY : salaryData.mid
@@ -623,6 +644,8 @@ export function ChatSimulator() {
   const flightCost = choices['flight'] === 'business' ? (quickProfile.family === 'single' ? 4500 : quickProfile.family === 'couple' ? 9000 : 13500) : choices['flight'] === 'company' ? 0 : (quickProfile.family === 'single' ? 1100 : quickProfile.family === 'couple' ? 2200 : 3500)
   const tempCost = choices['temp'] === 'airbnb' ? 2100 : choices['temp'] === 'hostel' ? 700 : 0
   const furnishCost = choices['furnish'] === 'nice' ? 4000 : choices['furnish'] === 'ikea' ? 2000 : choices['furnish'] === 'second' ? 800 : 0
+  // Shipping from Thailand to Australia: Full 20ft container A$4,000, Shared (LCL) A$2,000, Luggage only A$0
+  const shippingCost = choices['shipping'] === 'full' ? 4000 : choices['shipping'] === 'shared' ? 2000 : 0
 
   const oneTimeCosts = useMemo(() => {
     let total = 0
@@ -631,15 +654,16 @@ export function ChatSimulator() {
     if (simStage > 4) total += tempCost
     if (simStage > 5) total += bond
     if (simStage > 6) total += furnishCost
+    if (simStage > 7) total += shippingCost
     return total
-  }, [simStage, preDepartureTotal, flightCost, tempCost, bond, furnishCost])
+  }, [simStage, preDepartureTotal, flightCost, tempCost, bond, furnishCost, shippingCost])
 
   const balanceAUD = isMotherLord ? Infinity : initialAUD - oneTimeCosts
 
   const auTax = calculateAusTax(grossAnnual)
   const monthlyNet = auTax.netMonthly
   const baseFood = FOOD_COSTS[choices['food']]?.cost || 550
-  const baseTransport = TRANSPORT_COSTS[choices['commute']]?.cost || 200
+  const baseTransport = choices['commute'] === 'company' ? 0 : (TRANSPORT_COSTS[choices['commute']]?.cost || 200)
   const baseInsurance = choices['insurance'] === 'private' ? 150 : 0
   const baseUtils = city.utilities + city.internet
   const basePhone = 50
@@ -662,7 +686,7 @@ export function ChatSimulator() {
   const thaiMonthlySavings = thaiNetMonthly - thaiTotalLiving
 
   const visa = calculateSimpleVisaScore(quickProfile.age, auProfile.english, auProfile.experience, auProfile.education, choices['job'] === 'min' ? 'unskilled' : 'skilled')
-  const finalOneTime = preDepartureTotal + flightCost + tempCost + bond + furnishCost
+  const finalOneTime = preDepartureTotal + flightCost + tempCost + bond + furnishCost + shippingCost
 
   // ===== HANDLERS =====
   const toggleGoal = (id: string) => {
@@ -734,9 +758,9 @@ export function ChatSimulator() {
     setPhase('welcome'); setQuizStep(0); setGoals([]); setOccupation('')
     setQuickProfile({ age: '', monthlyIncome: '', savings: '', family: 'single' })
     setMatchResults([]); setSelectedCountry(''); setExpandedCountry('')
-    setAuProfile({ english: '', experience: '', education: '', thaiSalary: '', city: 'melbourne' })
+    setAuProfile({ english: '', experience: '', education: '', thaiSalary: '', city: 'sydney' })
     setSimStage(0); setSavingsInput(''); setIsMotherLord(false); setInitialAUD(0); setChoices({}); setCustomSalary(''); setVisaType('skilled')
-    setThaiCosts({ ...TH_LIVING_COSTS }); setEditingThaiCosts(false); setEditingAuCosts(false); setAuCostOverrides({})
+    setThaiCosts({ ...TH_LIVING_COSTS }); setEditingThaiCosts(false); setEditingAuCosts(false); setAuCostOverrides({}); setPreDepartureOverrides({})
     setAiMessages([]); setAiChatHistory([]); setAiInput(''); setAiGathered({ goals: [], occupation: '', monthlyIncome: 0, age: '', family: '', ready: false })
     setAiAnalysis(''); setAiError(''); setOccDisplayLabel(''); setChipSelected([]); setShowOccSearch(false); setOccChatSearch(''); setAiMode(false); setGoalsConfirmed(false)
     // Re-start quiz mode after reset
@@ -1146,7 +1170,7 @@ export function ChatSimulator() {
                   <label className="form-label">💵 เงินเดือนตอนนี้ (บาท/เดือน)</label>
                   <input type="number" className="form-input" placeholder="เช่น 45000"
                     value={quickProfile.monthlyIncome} onChange={e => upQ('monthlyIncome', e.target.value)} />
-                  <span className="text-[10px] text-gray-400 mt-1 block">ใช้เปรียบเทียบค่าครองชีพแต่ละประเทศ</span>
+                  <span className="text-[10px] text-gray-400 mt-1 block">🔒 ข้อมูลไม่ถูกส่งไปไหน ประมวลผล local บนเครื่องคุณเท่านั้น</span>
                 </div>
                 {quickProfile.age && quickProfile.monthlyIncome && (
                   <button onClick={confirmProfile} className="btn-primary w-full mt-2 justify-center rounded-xl py-3 text-sm animate-fade-in">
@@ -1555,12 +1579,13 @@ export function ChatSimulator() {
         {simStage >= 2 && <Completed emoji="📋" title="ค่าก่อนบิน" detail={`-${fmtAud(preDepartureTotal)}`} negative />}
         {simStage > 2 && choices['job'] && <Completed emoji="💼" title="ได้งาน" detail={`${fmtAud(grossAnnual)}/ปี (${choices['job'] === 'god' ? '🔥 เทพ' : choices['job'] === 'top' ? '👑 Top' : choices['job'] === 'custom' ? '✍️ กำหนดเอง' : choices['job'] === 'min' ? 'ขั้นต่ำ' : 'Average'})`} />}
         {simStage > 3 && choices['flight'] && <Completed emoji="✈️" title="ตั๋วเครื่องบิน" detail={choices['flight'] === 'company' ? 'ฟรี! บ.ออกให้' : `-${fmtAud(flightCost)}`} negative={choices['flight'] !== 'company'} />}
-        {simStage > 4 && choices['temp'] && <Completed emoji="🏨" title="พักชั่วคราว" detail={choices['temp'] === 'friend' ? 'ฟรี!' : `-${fmtAud(tempCost)}`} negative={choices['temp'] !== 'friend'} />}
+        {simStage > 4 && choices['temp'] && <Completed emoji="🏨" title="พักชั่วคราว" detail={choices['temp'] === 'company' ? 'บ.จัดให้! $0' : choices['temp'] === 'friend' ? 'ฟรี!' : `-${fmtAud(tempCost)}`} negative={choices['temp'] !== 'friend' && choices['temp'] !== 'company'} />}
         {simStage > 5 && choices['housing'] && <Completed emoji="🏠" title="บ้าน" detail={`มัดจำ -${fmtAud(bond)} + ${fmtAud(monthlyRent)}/เดือน`} negative />}
-        {simStage > 6 && choices['furnish'] && <Completed emoji="🛋️" title="ของเข้าบ้าน" detail={furnishCost === 0 ? 'Furnished! $0' : `-${fmtAud(furnishCost)}`} negative={furnishCost > 0} />}
-        {simStage > 7 && choices['commute'] && <Completed emoji="🚗" title="เดินทาง" detail={`${fmtAud(monthlyTransport)}/เดือน`} />}
-        {simStage > 8 && choices['food'] && <Completed emoji="🍳" title="อาหาร" detail={`${fmtAud(monthlyFood)}/เดือน`} />}
-        {simStage > 9 && choices['insurance'] && <Completed emoji="🏥" title="ประกัน" detail={monthlyInsurance > 0 ? '$150/เดือน' : 'ฟรี!'} />}
+        {simStage > 6 && choices['furnish'] && <Completed emoji="🛋️" title="ของเข้าบ้าน" detail={choices['furnish'] === 'company' ? 'บ.จัดให้! $0' : furnishCost === 0 ? 'Furnished! $0' : `-${fmtAud(furnishCost)}`} negative={furnishCost > 0} />}
+        {simStage > 7 && choices['shipping'] && <Completed emoji="📦" title="ขนของจากไทย" detail={shippingCost === 0 ? (choices['shipping'] === 'company' ? 'บ.จ่ายให้! $0' : '🧳 กระเป๋าเท่านั้น') : `-${fmtAud(shippingCost)}`} negative={shippingCost > 0} />}
+        {simStage > 8 && choices['commute'] && <Completed emoji="🚗" title="เดินทาง" detail={choices['commute'] === 'company' ? 'บ.มีรถให้! $0' : `${fmtAud(monthlyTransport)}/เดือน`} />}
+        {simStage > 9 && choices['food'] && <Completed emoji="🍳" title="อาหาร" detail={`${fmtAud(monthlyFood)}/เดือน`} />}
+        {simStage > 10 && choices['insurance'] && <Completed emoji="🏥" title="ประกัน" detail={monthlyInsurance > 0 ? '$150/เดือน' : 'ฟรี!'} />}
 
         {/* ===== CURRENT STAGE ===== */}
         {!allDone && phase === 'sim' && (
@@ -1577,6 +1602,7 @@ export function ChatSimulator() {
                     <input type="number" className="form-input" placeholder="เช่น 500000"
                       value={savingsInput} onChange={e => setSavingsInput(e.target.value)} />
                     {savingsInput && <div className="text-xs text-gray-500 mt-1">= {fmtAud(Math.round((parseInt(savingsInput) || 0) / AUD_TO_THB))} AUD</div>}
+                    <div className="text-[10px] text-gray-400 mt-1">🔒 ข้อมูลไม่ถูกส่งไปไหน ประมวลผล local บนเครื่องคุณเท่านั้น</div>
                   </div>
                   {savingsInput && <button onClick={() => commitSavings(false)} className="stage-option-btn">✅ มีเงินเก็บ {fmtThb(parseInt(savingsInput))} — ไปเลย!</button>}
                   <button onClick={() => commitSavings(true)} className="stage-option-btn motherlord-btn">🤑 9,999,999 MOTHERLORD — เงินไม่จำกัด!</button>
@@ -1584,7 +1610,7 @@ export function ChatSimulator() {
               )}
               {simStage === 1 && (
                 <div>
-                  <div className="text-sm text-gray-600 mb-3">ก่อนไปต้องจ่ายทั้งหมดนี้:</div>
+                  <div className="text-sm text-gray-600 mb-3">ก่อนไปต้องจ่ายทั้งหมดนี้ <span className="text-blue-500 text-xs">(แก้ไขได้)</span>:</div>
                   <div className="flex gap-2 mb-3">
                     <button onClick={() => setVisaType('skilled')} className={`flex-1 px-3 py-2 text-xs font-semibold rounded-lg border-2 transition-colors ${visaType === 'skilled' ? 'bg-blue-50 border-blue-400 text-blue-700' : 'border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
                       🎯 189/190 Skilled
@@ -1593,12 +1619,42 @@ export function ChatSimulator() {
                       💼 482 Employer Sponsored
                     </button>
                   </div>
-                  {preDepartureCosts.map((c, i) => (
-                    <div key={i} className="flex justify-between py-1.5 text-sm border-b border-gray-100">
-                      <span>{c.label}</span>
-                      <span className="font-mono text-red-500">-{fmtAud(c.aud)}</span>
-                    </div>
-                  ))}
+                  {preDepartureCosts.map((c) => {
+                    const isSkipped = preDepartureOverrides[c.key] === -1
+                    return (
+                      <div key={c.key} className={`py-2 border-b border-gray-100 ${isSkipped ? 'opacity-40' : ''}`}>
+                        <div className="flex justify-between items-center">
+                          <span className={`text-sm ${isSkipped ? 'line-through' : ''}`}>{c.label}</span>
+                          <div className="flex items-center gap-1">
+                            {!isSkipped && (
+                              <input
+                                type="number"
+                                min={0}
+                                className="w-20 px-2 py-0.5 text-xs border border-gray-200 rounded text-right font-mono focus:outline-none focus:ring-1 focus:ring-blue-400"
+                                value={preDepartureOverrides[c.key] ?? c.defaultAud}
+                                onChange={e => {
+                                  const v = parseInt(e.target.value) || 0
+                                  setPreDepartureOverrides(prev => ({ ...prev, [c.key]: Math.max(0, v) }))
+                                }}
+                              />
+                            )}
+                            {isSkipped && <span className="text-xs text-gray-400 font-mono">$0</span>}
+                          </div>
+                        </div>
+                        {c.skippable && (
+                          <button
+                            onClick={() => setPreDepartureOverrides(prev => ({
+                              ...prev,
+                              [c.key]: prev[c.key] === -1 ? c.defaultAud : -1
+                            }))}
+                            className={`mt-1 text-[11px] px-2 py-0.5 rounded-full border transition-colors ${isSkipped ? 'bg-green-50 border-green-300 text-green-600' : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-red-50 hover:border-red-200 hover:text-red-500'}`}
+                          >
+                            {isSkipped ? '✅ เปิดใช้' : '❌ ไม่ต้องสอบ'}
+                          </button>
+                        )}
+                      </div>
+                    )
+                  })}
                   <div className="flex justify-between py-2 font-bold border-t-2 border-gray-200 mt-2">
                     <span>รวม</span><span className="text-red-600">-{fmtAud(preDepartureTotal)}</span>
                   </div>
@@ -1633,6 +1689,7 @@ export function ChatSimulator() {
                     {customSalary && parseInt(customSalary) > 0 && (
                       <div className="text-xs text-gray-400 mt-1">≈ {fmtThb(Math.round(parseInt(customSalary) / 12 * AUD_TO_THB))}/เดือน</div>
                     )}
+                    <div className="text-[10px] text-gray-400 mt-1">🔒 ข้อมูลไม่ถูกส่งไปไหน ประมวลผล local บนเครื่องคุณเท่านั้น</div>
                   </div>
                 </div>
               )}
@@ -1649,6 +1706,7 @@ export function ChatSimulator() {
                   <Opt onClick={() => pick('temp', 'airbnb')}><div className="font-semibold">🏨 Airbnb</div><div className="text-sm text-red-500">-$2,100 (14 คืน) <span className="text-gray-400">({fmtThb(Math.round(2100 * AUD_TO_THB))})</span></div></Opt>
                   <Opt onClick={() => pick('temp', 'hostel')}><div className="font-semibold">🛏️ Hostel</div><div className="text-sm text-red-500">-$700 (14 คืน) <span className="text-gray-400">({fmtThb(Math.round(700 * AUD_TO_THB))})</span></div></Opt>
                   <Opt onClick={() => pick('temp', 'friend')}><div className="font-semibold">🏠 อาศัยเพื่อน/ญาติ</div><div className="text-sm text-green-600">ฟรี!</div></Opt>
+                  <Opt onClick={() => pick('temp', 'company')}><div className="font-semibold">🏢 บริษัทจัดที่พักให้!</div><div className="text-sm text-green-600">ฟรี! $0</div></Opt>
                 </div>
               )}
               {simStage === 5 && (
@@ -1665,16 +1723,27 @@ export function ChatSimulator() {
                   <Opt onClick={() => pick('furnish', 'nice')}><div className="font-semibold">✨ จัดเต็ม</div><div className="text-sm text-red-500">-$4,000 <span className="text-gray-400">({fmtThb(Math.round(4000 * AUD_TO_THB))})</span></div></Opt>
                   <Opt onClick={() => pick('furnish', 'second')}><div className="font-semibold">♻️ มือสอง</div><div className="text-sm text-red-500">-$800 <span className="text-gray-400">({fmtThb(Math.round(800 * AUD_TO_THB))})</span></div></Opt>
                   <Opt onClick={() => pick('furnish', 'furnished')}><div className="font-semibold">🏢 Furnished ไม่ต้องซื้อ!</div><div className="text-sm text-green-600">$0</div></Opt>
+                  <Opt onClick={() => pick('furnish', 'company')}><div className="font-semibold">🏢 บริษัทจัดให้!</div><div className="text-sm text-green-600">ฟรี! $0</div></Opt>
                 </div>
               )}
               {simStage === 7 && (
                 <div className="space-y-2">
-                  <Opt onClick={() => pick('commute', 'car')}><div className="font-semibold">🚗 ขับรถเอง</div><div className="text-sm text-gray-500">{fmtAud(TRANSPORT_COSTS['car'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(TRANSPORT_COSTS['car'].cost * AUD_TO_THB))})</span></div><div className="text-[10px] text-gray-400">{TRANSPORT_COSTS['car'].breakdown}</div></Opt>
-                  <Opt onClick={() => pick('commute', 'mixed')}><div className="font-semibold">🚗🚇 ผสม</div><div className="text-sm text-gray-500">{fmtAud(TRANSPORT_COSTS['mixed'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(TRANSPORT_COSTS['mixed'].cost * AUD_TO_THB))})</span></div></Opt>
-                  <Opt onClick={() => pick('commute', 'public')}><div className="font-semibold">🚇 รถไฟ/รถเมล์</div><div className="text-sm text-gray-500">{fmtAud(TRANSPORT_COSTS['public'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(TRANSPORT_COSTS['public'].cost * AUD_TO_THB))})</span></div></Opt>
+                  <div className="text-sm text-gray-600 mb-1">ย้ายของจากไทย → {city.name}:</div>
+                  <Opt onClick={() => pick('shipping', 'full')}><div className="font-semibold">📦 ตู้คอนเทนเนอร์ 20ft (FCL)</div><div className="text-sm text-red-500">-$4,000 <span className="text-gray-400">({fmtThb(Math.round(4000 * AUD_TO_THB))})</span></div><div className="text-[10px] text-gray-400">เฟอร์นิเจอร์+ของใช้ทั้งหมด ใช้เวลา 4-6 สัปดาห์</div></Opt>
+                  <Opt onClick={() => pick('shipping', 'shared')}><div className="font-semibold">📦 แชร์ตู้ (LCL)</div><div className="text-sm text-red-500">-$2,000 <span className="text-gray-400">({fmtThb(Math.round(2000 * AUD_TO_THB))})</span></div><div className="text-[10px] text-gray-400">ของส่วนตัว+กล่อง ใช้เวลา 6-8 สัปดาห์</div></Opt>
+                  <Opt onClick={() => pick('shipping', 'luggage')}><div className="font-semibold">🧳 ใส่กระเป๋าไปเลย!</div><div className="text-sm text-green-600">$0 — ซื้อใหม่ที่ออสเอง</div></Opt>
+                  <Opt onClick={() => pick('shipping', 'company')}><div className="font-semibold">🏢 บริษัทจ่ายค่าขนย้ายให้!</div><div className="text-sm text-green-600">ฟรี! $0</div></Opt>
                 </div>
               )}
               {simStage === 8 && (
+                <div className="space-y-2">
+                  <Opt onClick={() => pick('commute', 'car')}><div className="font-semibold">🚗 ขับรถเอง</div><div className="text-sm text-gray-500">{fmtAud(TRANSPORT_COSTS['car'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(TRANSPORT_COSTS['car'].cost * AUD_TO_THB))})</span></div><div className="text-[10px] text-gray-400">{TRANSPORT_COSTS['car'].breakdown}</div></Opt>
+                  <Opt onClick={() => pick('commute', 'mixed')}><div className="font-semibold">🚗🚇 ผสม</div><div className="text-sm text-gray-500">{fmtAud(TRANSPORT_COSTS['mixed'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(TRANSPORT_COSTS['mixed'].cost * AUD_TO_THB))})</span></div></Opt>
+                  <Opt onClick={() => pick('commute', 'public')}><div className="font-semibold">🚇 รถไฟ/รถเมล์</div><div className="text-sm text-gray-500">{fmtAud(TRANSPORT_COSTS['public'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(TRANSPORT_COSTS['public'].cost * AUD_TO_THB))})</span></div></Opt>
+                  <Opt onClick={() => pick('commute', 'company')}><div className="font-semibold">🏢 บริษัทมีรถ/ค่าเดินทางให้!</div><div className="text-sm text-green-600">$0/เดือน</div></Opt>
+                </div>
+              )}
+              {simStage === 9 && (
                 <div className="space-y-2">
                   <Opt onClick={() => pick('food', 'always')}><div className="font-semibold">👨‍🍳 ทำเองทุกมื้อ</div><div className="text-sm text-gray-500">{fmtAud(FOOD_COSTS['always'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(FOOD_COSTS['always'].cost * AUD_TO_THB))})</span></div></Opt>
                   <Opt onClick={() => pick('food', 'often')}><div className="font-semibold">🍳 ทำเอง+ซื้อมิกซ์</div><div className="text-sm text-gray-500">{fmtAud(FOOD_COSTS['often'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(FOOD_COSTS['often'].cost * AUD_TO_THB))})</span></div></Opt>
@@ -1682,7 +1751,7 @@ export function ChatSimulator() {
                   <Opt onClick={() => pick('food', 'rarely')}><div className="font-semibold">🛵 Uber Eats ทุกมื้อ</div><div className="text-sm text-gray-500">{fmtAud(FOOD_COSTS['rarely'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(FOOD_COSTS['rarely'].cost * AUD_TO_THB))})</span></div></Opt>
                 </div>
               )}
-              {simStage === 9 && (
+              {simStage === 10 && (
                 <div className="space-y-2">
                   <Opt onClick={() => pick('insurance', 'medicare')}><div className="font-semibold">🏥 Medicare เฉยๆ (ฟรี!)</div><div className="text-sm text-green-600">$0/เดือน</div></Opt>
                   <Opt onClick={() => pick('insurance', 'private')}><div className="font-semibold">🏥+ Medicare + ประกันเอกชน</div><div className="text-sm text-gray-500">$150/เดือน</div></Opt>
@@ -1704,6 +1773,7 @@ export function ChatSimulator() {
                 <SumRow label="🏨 ที่พักชั่วคราว" aud={tempCost} />
                 <SumRow label="🏠 มัดจำบ้าน" aud={bond} />
                 <SumRow label="🛋️ ของเข้าบ้าน" aud={furnishCost} />
+                <SumRow label="📦 ขนของจากไทย" aud={shippingCost} />
                 <div className="flex justify-between py-2 font-bold border-t-2 border-gray-300 mt-2">
                   <span>รวมค่าตั้งต้น</span><span className="text-red-600">-{fmtAud(finalOneTime)}</span>
                 </div>
