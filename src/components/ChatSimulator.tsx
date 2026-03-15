@@ -21,6 +21,7 @@ import {
   type ChatMessage, type GatheredData,
 } from '@/lib/typhoon'
 import { ShareButtons } from './ShareButtons'
+import { exportToPdf, type PdfSection } from '@/lib/pdf-export'
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
 
@@ -140,6 +141,7 @@ export function ChatSimulator() {
   const [isMotherLord, setIsMotherLord] = useState(false)
   const [initialAUD, setInitialAUD] = useState(0)
   const [choices, setChoices] = useState<Record<string, string>>({})
+  const [customSalary, setCustomSalary] = useState('')
   const [visaType, setVisaType] = useState<'skilled' | 'employer'>('skilled')
   // Cost editing
   const [thaiCosts, setThaiCosts] = useState({ ...TH_LIVING_COSTS })
@@ -206,6 +208,96 @@ export function ChatSimulator() {
         shareCardRef.current.style.opacity = '0'
       }
     }
+  }
+
+  const exportCountryResultsPdf = async () => {
+    const sections: PdfSection[] = []
+    for (const result of matchResults) {
+      const userOcc = aiMode ? aiGathered.occupation : occupation
+      const salary = getOccSalary(result.country.id, userOcc)
+      const cur = result.country.currency || 'USD'
+      const sym = CURRENCY_SYMBOLS[cur] || cur
+      const thbRate = CURRENCY_TO_THB[cur] || 1
+      const taxRate = EFFECTIVE_TAX_RATES[result.country.id] ?? 0.25
+      const lines = [
+        `Match: ${result.matchPct}%`,
+        ...result.highlights,
+      ]
+      if (salary) {
+        const netMid = Math.round(salary.mid * (1 - taxRate))
+        lines.push(`Salary (after ~${Math.round(taxRate * 100)}% tax): ${sym}${netMid.toLocaleString()}/yr`)
+        lines.push(`~ ${Math.round(netMid * thbRate / 12).toLocaleString()} THB/mo`)
+      }
+      lines.push(`Visa: ${result.country.visaPaths.join(', ')}`)
+      lines.push(`Pros: ${result.country.pros.join(' | ')}`)
+      lines.push(`Cons: ${result.country.cons.join(' | ')}`)
+      sections.push({ title: `#${matchResults.indexOf(result) + 1} ${result.country.name} ${result.country.flag}`, lines })
+    }
+    await exportToPdf('cattogo-country-comparison.pdf', 'Country Comparison Results', sections)
+  }
+
+  const exportAuResultPdf = async () => {
+    const jobLabel = choices['job'] === 'god' ? 'God Tier' : choices['job'] === 'top' ? 'Top' : choices['job'] === 'custom' ? 'Custom' : choices['job'] === 'min' ? 'Minimum' : 'Average'
+    const sections: PdfSection[] = [
+      {
+        title: `Life in ${city.name}, Australia`,
+        lines: [
+          `Occupation: ${salaryData.label}`,
+          `Salary level: ${jobLabel}`,
+          `Gross annual: A$${fmt(grossAnnual)}`,
+        ],
+      },
+      {
+        title: 'Monthly Income',
+        lines: [
+          `Gross: A$${fmt(Math.round(grossAnnual / 12))}`,
+          `Tax (${auTax.effectiveRate}%): -A$${fmt(Math.round(auTax.tax / 12))}`,
+          `Medicare 2%: -A$${fmt(Math.round(auTax.medicare / 12))}`,
+          `Net: A$${fmt(monthlyNet)}`,
+          `Super (11.5%): A$${fmt(Math.round(grossAnnual * 0.115 / 12))} (employer pays)`,
+        ],
+      },
+      {
+        title: 'Monthly Expenses',
+        lines: [
+          `Rent: A$${fmt(monthlyRentAu)}`,
+          `Food: A$${fmt(monthlyFood)}`,
+          `Transport: A$${fmt(monthlyTransport)}`,
+          `Utilities+Internet: A$${fmt(monthlyUtils)}`,
+          `Phone: A$${fmt(monthlyPhone)}`,
+          `Insurance: A$${fmt(monthlyInsurance)}`,
+          `Misc: A$${fmt(monthlyMisc)}`,
+          `Total: A$${fmt(totalMonthlyExp)}`,
+        ],
+      },
+      {
+        title: 'Monthly Savings',
+        lines: [
+          `A$${fmt(monthlySavings)} (~${fmt(monthlySavingsTHB)} THB)`,
+          `Annual savings: A$${fmt(monthlySavings * 12)}`,
+        ],
+      },
+      {
+        title: 'Visa Points (189/190)',
+        lines: [
+          `Score: ${visa.score} / 65`,
+          ...visa.details,
+          visa.score >= 65 ? 'PASS - eligible for 189/190' : visa.score >= 50 ? `Try 491 Regional (+15) = ${visa.score + 15}` : 'Consider employer-sponsored visa (482)',
+        ],
+      },
+      {
+        title: 'Thai Comparison',
+        lines: [
+          `Thai salary: ${fmt(thaiSalary)} THB/mo`,
+          `Thai net: ${fmt(thaiNetMonthly)} THB/mo`,
+          `Thai expenses: ${fmt(thaiTotalLiving)} THB/mo`,
+          `Thai savings: ${fmt(thaiMonthlySavings)} THB/mo`,
+          `AU savings in THB: ${fmt(monthlySavingsTHB)} THB/mo`,
+          `Difference: ${monthlySavingsTHB > thaiMonthlySavings ? '+' : ''}${fmt(monthlySavingsTHB - thaiMonthlySavings)} THB/mo`,
+        ],
+      },
+    ]
+    await exportToPdf('cattogo-au-simulation.pdf', `Life Simulation: ${city.name}, Australia`, sections)
   }
 
   useEffect(() => {
@@ -525,7 +617,7 @@ export function ChatSimulator() {
   }, [quickProfile.family, occupation, visaType])
   const preDepartureTotal = preDepartureCosts.reduce((s, c) => s + c.aud, 0)
 
-  const grossAnnual = choices['job'] === 'top' ? salaryData.senior : choices['job'] === 'min' ? AU_UNSKILLED_SALARY : salaryData.mid
+  const grossAnnual = choices['job'] === 'god' ? 180000 : choices['job'] === 'custom' ? (parseInt(customSalary) || salaryData.mid) : choices['job'] === 'top' ? salaryData.senior : choices['job'] === 'min' ? AU_UNSKILLED_SALARY : salaryData.mid
   const monthlyRent = choices['housing'] === 'share' ? city.rentShare : choices['housing'] === '2bed' ? (quickProfile.family === 'family' ? city.rentFamily : city.rent2br) : city.rent1br
   const bond = monthlyRent
   const flightCost = choices['flight'] === 'business' ? (quickProfile.family === 'single' ? 4500 : quickProfile.family === 'couple' ? 9000 : 13500) : choices['flight'] === 'company' ? 0 : (quickProfile.family === 'single' ? 1100 : quickProfile.family === 'couple' ? 2200 : 3500)
@@ -643,7 +735,7 @@ export function ChatSimulator() {
     setQuickProfile({ age: '', monthlyIncome: '', savings: '', family: 'single' })
     setMatchResults([]); setSelectedCountry(''); setExpandedCountry('')
     setAuProfile({ english: '', experience: '', education: '', thaiSalary: '', city: 'melbourne' })
-    setSimStage(0); setSavingsInput(''); setIsMotherLord(false); setInitialAUD(0); setChoices({}); setVisaType('skilled')
+    setSimStage(0); setSavingsInput(''); setIsMotherLord(false); setInitialAUD(0); setChoices({}); setCustomSalary(''); setVisaType('skilled')
     setThaiCosts({ ...TH_LIVING_COSTS }); setEditingThaiCosts(false); setEditingAuCosts(false); setAuCostOverrides({})
     setAiMessages([]); setAiChatHistory([]); setAiInput(''); setAiGathered({ goals: [], occupation: '', monthlyIncome: 0, age: '', family: '', ready: false })
     setAiAnalysis(''); setAiError(''); setOccDisplayLabel(''); setChipSelected([]); setShowOccSearch(false); setOccChatSearch(''); setAiMode(false); setGoalsConfirmed(false)
@@ -1336,6 +1428,10 @@ export function ChatSimulator() {
             🔄 ลองใหม่ เปลี่ยนคำตอบ
           </button>
 
+          <button onClick={exportCountryResultsPdf} className="w-full mb-2 py-3 rounded-xl border-2 border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-sm font-semibold transition-colors">
+            📄 ดาวน์โหลด PDF
+          </button>
+
           <div className="mb-4">
             <ShareButtons />
           </div>
@@ -1457,7 +1553,7 @@ export function ChatSimulator() {
         {/* ===== COMPLETED STAGES ===== */}
         {simStage >= 1 && <Completed emoji="💰" title="เตรียมเงิน" detail={isMotherLord ? 'MOTHERLORD ∞' : `${fmtThb(parseInt(savingsInput) || 0)} = ${fmtAud(initialAUD)}`} />}
         {simStage >= 2 && <Completed emoji="📋" title="ค่าก่อนบิน" detail={`-${fmtAud(preDepartureTotal)}`} negative />}
-        {simStage > 2 && choices['job'] && <Completed emoji="💼" title="ได้งาน" detail={`${fmtAud(grossAnnual)}/ปี (${choices['job'] === 'top' ? '👑 Top' : choices['job'] === 'min' ? 'ขั้นต่ำ' : 'Average'})`} />}
+        {simStage > 2 && choices['job'] && <Completed emoji="💼" title="ได้งาน" detail={`${fmtAud(grossAnnual)}/ปี (${choices['job'] === 'god' ? '🔥 เทพ' : choices['job'] === 'top' ? '👑 Top' : choices['job'] === 'custom' ? '✍️ กำหนดเอง' : choices['job'] === 'min' ? 'ขั้นต่ำ' : 'Average'})`} />}
         {simStage > 3 && choices['flight'] && <Completed emoji="✈️" title="ตั๋วเครื่องบิน" detail={choices['flight'] === 'company' ? 'ฟรี! บ.ออกให้' : `-${fmtAud(flightCost)}`} negative={choices['flight'] !== 'company'} />}
         {simStage > 4 && choices['temp'] && <Completed emoji="🏨" title="พักชั่วคราว" detail={choices['temp'] === 'friend' ? 'ฟรี!' : `-${fmtAud(tempCost)}`} negative={choices['temp'] !== 'friend'} />}
         {simStage > 5 && choices['housing'] && <Completed emoji="🏠" title="บ้าน" detail={`มัดจำ -${fmtAud(bond)} + ${fmtAud(monthlyRent)}/เดือน`} negative />}
@@ -1514,7 +1610,30 @@ export function ChatSimulator() {
                 <div className="space-y-2">
                   <Opt onClick={() => pick('job', 'avg')}><div className="font-semibold">💼 ได้งาน {salaryData.label} — Average</div><div className="text-sm text-gray-500">{fmtAud(salaryData.mid)}/ปี ≈ {fmtThb(Math.round(salaryData.mid / 12 * AUD_TO_THB))}/เดือน</div></Opt>
                   <Opt onClick={() => pick('job', 'top')}><div className="font-semibold">👑 ฉันเทพ! Top Salary</div><div className="text-sm text-gray-500">{fmtAud(salaryData.senior)}/ปี</div></Opt>
+                  <Opt onClick={() => pick('job', 'god')}><div className="font-semibold">🔥 ระดับเทพ Senior / Lead</div><div className="text-sm text-gray-500">{fmtAud(180000)}/ปี ≈ {fmtThb(Math.round(180000 / 12 * AUD_TO_THB))}/เดือน</div></Opt>
                   <Opt onClick={() => pick('job', 'min')}><div className="font-semibold">😅 ทำอะไรก็ได้ Minimum wage</div><div className="text-sm text-gray-500">{fmtAud(AU_UNSKILLED_SALARY)}/ปี</div></Opt>
+                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-3">
+                    <div className="text-sm font-semibold text-gray-600 mb-2">✍️ ใส่เงินเดือนเอง (A$/ปี)</div>
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        placeholder="เช่น 200000"
+                        value={customSalary}
+                        onChange={e => setCustomSalary(e.target.value)}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      />
+                      <button
+                        onClick={() => { if (parseInt(customSalary) > 0) pick('job', 'custom') }}
+                        disabled={!customSalary || parseInt(customSalary) <= 0}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold disabled:opacity-40 hover:bg-blue-700 transition-colors"
+                      >
+                        ตกลง
+                      </button>
+                    </div>
+                    {customSalary && parseInt(customSalary) > 0 && (
+                      <div className="text-xs text-gray-400 mt-1">≈ {fmtThb(Math.round(parseInt(customSalary) / 12 * AUD_TO_THB))}/เดือน</div>
+                    )}
+                  </div>
                 </div>
               )}
               {simStage === 3 && (
@@ -1616,7 +1735,7 @@ export function ChatSimulator() {
             <div className="result-section">
               <h4 className="text-base font-bold text-gray-800 mb-2">💵 ชีวิตรายเดือนของคุณ</h4>
               <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">รายรับ</div>
-              <Row label={`เงินเดือน (Gross) — ${choices['job'] === 'top' ? '👑 Top' : choices['job'] === 'min' ? 'ขั้นต่ำ' : 'Average'}`} val={fmtAud(Math.round(grossAnnual / 12))} />
+              <Row label={`เงินเดือน (Gross) — ${choices['job'] === 'god' ? '🔥 เทพ' : choices['job'] === 'top' ? '👑 Top' : choices['job'] === 'custom' ? '✍️ กำหนดเอง' : choices['job'] === 'min' ? 'ขั้นต่ำ' : 'Average'}`} val={fmtAud(Math.round(grossAnnual / 12))} />
               <Row label={`ภาษี (${auTax.effectiveRate}%)`} val={`-${fmtAud(Math.round(auTax.tax / 12))}`} red />
               <Row label="Medicare 2%" val={`-${fmtAud(Math.round(auTax.medicare / 12))}`} red />
               <div className="flex justify-between py-2 font-bold text-green-700 border-t border-gray-200">
@@ -1891,6 +2010,9 @@ export function ChatSimulator() {
                 🔄 ลองใหม่
               </button>
             </div>
+            <button onClick={exportAuResultPdf} className="w-full mb-2 py-3 rounded-xl border-2 border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-sm font-semibold transition-colors">
+              📄 ดาวน์โหลด PDF
+            </button>
             <div className="mb-4">
               <ShareButtons onCaptureImage={captureResultAsImage} />
             </div>

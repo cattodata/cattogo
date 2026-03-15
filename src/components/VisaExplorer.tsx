@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { occupations, getCategories, searchOccupations, POPULAR_OCCUPATIONS } from '@/data/occupations'
+import { exportToPdf, type PdfSection } from '@/lib/pdf-export'
 import type { Occupation } from '@/lib/types'
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
@@ -694,6 +695,37 @@ export function VisaExplorer() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  async function exportVisaPdf() {
+    const occName = selectedOcc?.title || 'N/A'
+    const points = calcPoints(profile.age, profile.english, profile.experience, profile.education)
+    const sections: PdfSection[] = [
+      {
+        title: 'Profile',
+        lines: [
+          `Situation: ${profile.situation}`,
+          `Age: ${profile.age}`,
+          `English: ${profile.english}`,
+          `Experience: ${profile.experience}`,
+          `Education: ${profile.education}`,
+          `Occupation: ${occName}`,
+          `Points estimate: ${points}`,
+        ],
+      },
+    ]
+    for (const rec of recs) {
+      sections.push({
+        title: `${rec.emoji} ${rec.name} (${rec.pct}% match)`,
+        lines: [
+          `Type: ${rec.type}`,
+          ...rec.tips,
+          `Journey: ${rec.journey.join(' -> ')}`,
+          ...(rec.factors?.map(f => `${f.status === 'good' ? '+' : f.status === 'warn' ? '!' : '-'} ${f.label}`) || []),
+        ],
+      })
+    }
+    await exportToPdf('cattogo-visa-analysis.pdf', 'Visa Analysis Results', sections)
+  }
+
   const set = (key: keyof Profile, val: string) => setProfile(p => ({ ...p, [key]: val }))
 
   /* ─── Occupation Picker Component ─── */
@@ -1254,6 +1286,9 @@ export function VisaExplorer() {
             <div className="flex items-center gap-3 mt-2">
               <button onClick={reset} className="px-4 py-2 text-xs text-blue-600 font-medium hover:bg-blue-50 rounded-xl transition-colors">
                 🔄 เริ่มใหม่
+              </button>
+              <button onClick={exportVisaPdf} className="px-4 py-2 text-xs text-indigo-600 font-medium hover:bg-indigo-50 rounded-xl transition-colors border border-indigo-200">
+                📄 ดาวน์โหลด PDF
               </button>
               <span className="text-gray-300">|</span>
               <a href="https://immi.homeaffairs.gov.au" target="_blank" rel="noopener noreferrer" className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
