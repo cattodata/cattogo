@@ -327,9 +327,13 @@ export function AuLifeSim() {
               </div>
             </div>
 
-            {allFilled && (
+            {allFilled ? (
               <button onClick={startSim} className="btn-primary w-full mt-2 justify-center rounded-xl py-4 text-lg animate-fade-in">
                 🎮 เริ่มจำลองชีวิตกันเลย!
+              </button>
+            ) : (
+              <button disabled className="w-full mt-2 justify-center rounded-xl py-4 text-lg bg-gray-200 text-gray-400 font-bold cursor-not-allowed border-2 border-gray-300">
+                {!profile.occupation ? '👆 เลือกอาชีพก่อน' : '📝 กรอกข้อมูลให้ครบก่อน'}
               </button>
             )}
           </div>
