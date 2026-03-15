@@ -9,6 +9,7 @@ import {
 } from '@/data/simulator-data'
 import { occupations, POPULAR_OCCUPATIONS, searchOccupations } from '@/data/occupations'
 import { ShareButtons } from './ShareButtons'
+import { exportToPdf, type PdfSection } from '@/lib/pdf-export'
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
 
@@ -57,6 +58,12 @@ export function AuLifeSim() {
   const [editingThaiCosts, setEditingThaiCosts] = useState(false)
   const [visaType, setVisaType] = useState<'skilled' | 'employer'>('skilled')
   const [preDepartureOverrides, setPreDepartureOverrides] = useState<Record<string, number>>({})
+  const [customSalary, setCustomSalary] = useState('')
+  const [showCustomSalary, setShowCustomSalary] = useState(false)
+  const [customFood, setCustomFood] = useState('')
+  const [showCustomFood, setShowCustomFood] = useState(false)
+  const [auCostOverrides, setAuCostOverrides] = useState<Record<string, number>>({})
+  const [editingAuCosts, setEditingAuCosts] = useState(false)
 
   const bottomRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -113,7 +120,7 @@ export function AuLifeSim() {
   }, [profile.family, profile.occupation, visaType, preDepartureOverrides])
   const preDepartureTotal = preDepartureCosts.reduce((s, c) => s + c.aud, 0)
 
-  const grossAnnual = choices['job'] === 'p90' ? salaryP90 : choices['job'] === 'p10' ? salaryP10 : choices['job'] === 'min' ? AU_UNSKILLED_SALARY : salaryMedian
+  const grossAnnual = choices['job'] === 'custom' ? (parseInt(customSalary) || 0) : choices['job'] === '180k' ? 180000 : choices['job'] === 'p90' ? salaryP90 : choices['job'] === 'p10' ? salaryP10 : choices['job'] === 'min' ? AU_UNSKILLED_SALARY : salaryMedian
   const monthlyRent = choices['housing'] === 'share' ? city.rentShare : choices['housing'] === '2bed' ? (profile.family === 'family' ? city.rentFamily : city.rent2br) : city.rent1br
   const bond = monthlyRent
   const flightCost = choices['flight'] === 'business' ? (profile.family === 'single' ? 4500 : profile.family === 'couple' ? 9000 : 13500) : choices['flight'] === 'company' ? 0 : (profile.family === 'single' ? 1100 : profile.family === 'couple' ? 2200 : 3500)
@@ -136,13 +143,20 @@ export function AuLifeSim() {
   const balanceAUD = isMotherLord ? Infinity : initialAUD - oneTimeCosts
   const auTax = calculateAusTax(grossAnnual)
   const monthlyNet = auTax.netMonthly
-  const monthlyFood = FOOD_COSTS[choices['food']]?.cost || 550
-  const monthlyTransport = choices['commute'] === 'company' ? 0 : (TRANSPORT_COSTS[choices['commute']]?.cost || 200)
-  const monthlyInsurance = choices['insurance'] === 'private' ? 150 : 0
-  const monthlyUtils = city.utilities + city.internet
-  const monthlyPhone = 50
-  const monthlyMisc = 250
-  const totalMonthlyExp = monthlyRent + monthlyUtils + monthlyFood + monthlyTransport + monthlyInsurance + monthlyPhone + monthlyMisc
+  const baseFood = choices['food'] === 'custom' ? (parseInt(customFood) || 550) : (FOOD_COSTS[choices['food']]?.cost || 550)
+  const baseTransport = choices['commute'] === 'company' ? 0 : (TRANSPORT_COSTS[choices['commute']]?.cost || 200)
+  const baseInsurance = choices['insurance'] === 'private' ? 150 : 0
+  const baseUtils = city.utilities + city.internet
+  const basePhone = 50
+  const baseMisc = 250
+  const monthlyFood = auCostOverrides.food ?? baseFood
+  const monthlyTransport = auCostOverrides.transport ?? baseTransport
+  const monthlyInsurance = auCostOverrides.insurance ?? baseInsurance
+  const monthlyUtils = auCostOverrides.utilities ?? baseUtils
+  const monthlyPhone = auCostOverrides.phone ?? basePhone
+  const monthlyMisc = auCostOverrides.misc ?? baseMisc
+  const monthlyRentAu = auCostOverrides.rent ?? monthlyRent
+  const totalMonthlyExp = monthlyRentAu + monthlyUtils + monthlyFood + monthlyTransport + monthlyInsurance + monthlyPhone + monthlyMisc
   const monthlySavings = monthlyNet - totalMonthlyExp
   const monthlySavingsTHB = Math.round(monthlySavings * AUD_TO_THB)
 
@@ -164,7 +178,7 @@ export function AuLifeSim() {
   const advanceStage = () => setSimStage(s => s + 1)
   const pick = (stageId: string, optionId: string) => { setChoices(prev => ({ ...prev, [stageId]: optionId })); setSimStage(s => s + 1) }
   const allDone = simStage >= TOTAL_STAGES
-  const restart = () => { setPhase('profile'); setSimStage(0); setSavingsInput(''); setIsMotherLord(false); setInitialAUD(0); setChoices({}); setThaiCosts({ ...TH_LIVING_COSTS }); setEditingThaiCosts(false); setVisaType('skilled'); setPreDepartureOverrides({}) }
+  const restart = () => { setPhase('profile'); setSimStage(0); setSavingsInput(''); setIsMotherLord(false); setInitialAUD(0); setChoices({}); setThaiCosts({ ...TH_LIVING_COSTS }); setEditingThaiCosts(false); setVisaType('skilled'); setPreDepartureOverrides({}); setCustomSalary(''); setShowCustomSalary(false); setCustomFood(''); setShowCustomFood(false); setAuCostOverrides({}); setEditingAuCosts(false) }
 
   // When all stages done → show results
   useEffect(() => {
@@ -359,14 +373,14 @@ export function AuLifeSim() {
           {/* Completed stages */}
           {simStage >= 1 && <Completed emoji="💰" title="เตรียมเงิน" detail={isMotherLord ? 'MOTHERLORD ∞' : `${fmtThb(parseInt(savingsInput) || 0)} = ${fmtAud(initialAUD)}`} />}
           {simStage >= 2 && <Completed emoji="📋" title="ค่าก่อนบิน" detail={`-${fmtAud(preDepartureTotal)}`} negative />}
-          {simStage > 2 && choices['job'] && <Completed emoji="💼" title="ได้งาน" detail={`${fmtAud(grossAnnual)}/ปี (${choices['job'] === 'p90' ? '👑 ระดับสูง' : choices['job'] === 'p10' ? '📊 เริ่มต้น' : choices['job'] === 'min' ? 'ขั้นต่ำ' : '💼 ระดับกลาง'})`} />}
+          {simStage > 2 && choices['job'] && <Completed emoji="💼" title="ได้งาน" detail={`${fmtAud(grossAnnual)}/ปี (${choices['job'] === 'p90' ? '👑 ระดับสูง' : choices['job'] === 'p10' ? '📊 เริ่มต้น' : choices['job'] === 'min' ? 'ขั้นต่ำ' : choices['job'] === '180k' ? '🚀 180K+' : choices['job'] === 'custom' ? '✏️ กำหนดเอง' : '💼 ระดับกลาง'})`} />}
           {simStage > 3 && choices['flight'] && <Completed emoji="✈️" title="ตั๋วเครื่องบิน" detail={choices['flight'] === 'company' ? 'ฟรี! บ.ออกให้' : `-${fmtAud(flightCost)}`} negative={choices['flight'] !== 'company'} />}
           {simStage > 4 && choices['temp'] && <Completed emoji="🏨" title="พักชั่วคราว" detail={choices['temp'] === 'friend' ? 'ฟรี!' : `-${fmtAud(tempCost)}`} negative={choices['temp'] !== 'friend'} />}
           {simStage > 5 && choices['housing'] && <Completed emoji="🏠" title="บ้าน" detail={`มัดจำ -${fmtAud(bond)} + ${fmtAud(monthlyRent)}/เดือน`} negative />}
           {simStage > 6 && choices['furnish'] && <Completed emoji="🛋️" title="ของเข้าบ้าน" detail={furnishCost === 0 ? 'Furnished! $0' : `-${fmtAud(furnishCost)}`} negative={furnishCost > 0} />}
           {simStage > 7 && choices['shipping'] && <Completed emoji="📦" title="ขนของ" detail={shippingCost > 0 ? `-${fmtAud(shippingCost)}` : choices['shipping'] === 'company' ? 'บ.ออกให้!' : 'แค่กระเป๋า!'} negative={shippingCost > 0} />}
           {simStage > 8 && choices['commute'] && <Completed emoji="🚗" title="เดินทาง" detail={choices['commute'] === 'company' ? 'บ.จัดรถให้!' : `${fmtAud(monthlyTransport)}/เดือน`} />}
-          {simStage > 9 && choices['food'] && <Completed emoji="🍳" title="อาหาร" detail={`${fmtAud(monthlyFood)}/เดือน`} />}
+          {simStage > 9 && choices['food'] && <Completed emoji="🍳" title="อาหาร" detail={`${choices['food'] === 'custom' ? '✏️ ' : ''}${fmtAud(monthlyFood)}/เดือน`} />}
           {simStage > 10 && choices['insurance'] && <Completed emoji="🏥" title="ประกัน" detail={monthlyInsurance > 0 ? '$150/เดือน' : choices['insurance'] === 'company' ? 'บ.ออกให้!' : 'ฟรี!'} />}
 
           {/* Current stage */}
@@ -429,6 +443,10 @@ export function AuLifeSim() {
                             <button onClick={() => setPreDepartureOverrides(p => ({ ...p, [c.key]: -1 }))}
                               className="ml-1 px-1.5 py-0.5 text-[10px] rounded bg-gray-100 text-gray-500 hover:bg-red-100 hover:text-red-600 whitespace-nowrap">ไม่ต้องสอบ</button>
                           )}
+                          {preDepartureOverrides[c.key] !== -1 && !(preDepartureOverrides[c.key] !== undefined && preDepartureOverrides[c.key] === 0) && (
+                            <button onClick={() => setPreDepartureOverrides(p => ({ ...p, [c.key]: 0 }))}
+                              className="ml-1 px-1.5 py-0.5 text-[10px] rounded bg-green-50 text-green-600 hover:bg-green-100 whitespace-nowrap border border-green-200">บ.ออก</button>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -449,7 +467,25 @@ export function AuLifeSim() {
                     <Opt onClick={() => pick('job', 'p10')}><div className="font-semibold">📊 เริ่มต้น (0-2 ปีประสบการณ์)</div><div className="text-sm text-gray-500">{fmtAud(salaryP10)}/ปี ≈ {fmtThb(Math.round(salaryP10 / 12 * AUD_TO_THB))}/เดือน</div></Opt>
                     <Opt onClick={() => pick('job', 'median')}><div className="font-semibold">💼 ระดับกลาง (3-6 ปี)</div><div className="text-sm text-gray-500">{fmtAud(salaryMedian)}/ปี ≈ {fmtThb(Math.round(salaryMedian / 12 * AUD_TO_THB))}/เดือน</div></Opt>
                     <Opt onClick={() => pick('job', 'p90')}><div className="font-semibold">👑 ระดับสูง (7+ ปี)</div><div className="text-sm text-gray-500">{fmtAud(salaryP90)}/ปี ≈ {fmtThb(Math.round(salaryP90 / 12 * AUD_TO_THB))}/เดือน</div></Opt>
+                    <Opt onClick={() => pick('job', '180k')}><div className="font-semibold">🚀 $180,000+</div><div className="text-sm text-gray-500">{fmtAud(180000)}/ปี ≈ {fmtThb(Math.round(180000 / 12 * AUD_TO_THB))}/เดือน</div></Opt>
                     <Opt onClick={() => pick('job', 'min')}><div className="font-semibold">🏣 ค่าแรงขั้นต่ำ (ทำอะไรก็ได้)</div><div className="text-sm text-gray-500">{fmtAud(AU_UNSKILLED_SALARY)}/ปี ($24.10/hr × 38hr)</div></Opt>
+                    {!showCustomSalary ? (
+                      <button onClick={() => setShowCustomSalary(true)} className="w-full text-left px-3 py-2 text-xs rounded-lg bg-gray-50 border border-gray-200 hover:bg-gray-100 text-gray-600">
+                        ✏️ กรอกเงินเดือนเอง
+                      </button>
+                    ) : (
+                      <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 space-y-2">
+                        <label className="text-xs font-semibold text-blue-700">กรอกเงินเดือน (AUD/ปี)</label>
+                        <input type="number" className="form-input text-sm" placeholder="เช่น 120000"
+                          value={customSalary} onChange={e => setCustomSalary(e.target.value)} />
+                        {customSalary && (
+                          <>
+                            <div className="text-xs text-gray-500">= {fmtThb(Math.round((parseInt(customSalary) || 0) / 12 * AUD_TO_THB))}/เดือน</div>
+                            <Opt onClick={() => pick('job', 'custom')}>✅ ใช้ {fmtAud(parseInt(customSalary) || 0)}/ปี</Opt>
+                          </>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
                 {simStage === 3 && (
@@ -505,6 +541,24 @@ export function AuLifeSim() {
                     <Opt onClick={() => pick('food', 'often')}><div className="font-semibold">🍳 ทำเอง+ซื้อบ้าง</div><div className="text-sm text-gray-500">{fmtAud(FOOD_COSTS['often'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(FOOD_COSTS['often'].cost * AUD_TO_THB))})</span></div></Opt>
                     <Opt onClick={() => pick('food', 'sometimes')}><div className="font-semibold">🍔 ซื้อกินบ่อย</div><div className="text-sm text-gray-500">{fmtAud(FOOD_COSTS['sometimes'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(FOOD_COSTS['sometimes'].cost * AUD_TO_THB))})</span></div></Opt>
                     <Opt onClick={() => pick('food', 'rarely')}><div className="font-semibold">🥡 ซื้อกินเกือบทุกมื้อ</div><div className="text-sm text-gray-500">{fmtAud(FOOD_COSTS['rarely'].cost)}/เดือน <span className="text-gray-400">({fmtThb(Math.round(FOOD_COSTS['rarely'].cost * AUD_TO_THB))})</span></div></Opt>
+                    <div className="border-t border-gray-200 pt-2 mt-1">
+                      <button onClick={() => setShowCustomFood(f => !f)} className="w-full text-left px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-colors">
+                        <div className="font-semibold">✏️ กำหนดเอง</div>
+                        <div className="text-sm text-gray-500">ใส่จำนวนเงินค่าอาหารเอง</div>
+                      </button>
+                      {showCustomFood && (
+                        <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-200 space-y-2">
+                          <label className="text-xs font-medium text-blue-700">ค่าอาหาร AUD/เดือน</label>
+                          <div className="flex gap-2">
+                            <input type="number" min={0} value={customFood} onChange={e => setCustomFood(e.target.value)} placeholder="เช่น 600" className="flex-1 px-3 py-2 text-sm border border-blue-200 rounded-lg bg-white font-mono" />
+                            <button disabled={!customFood || parseInt(customFood) <= 0} onClick={() => { setAuCostOverrides(p => ({ ...p, food: parseInt(customFood) || 0 })); pick('food', 'custom') }} className="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">ยืนยัน</button>
+                          </div>
+                          {customFood && parseInt(customFood) > 0 && (
+                            <div className="text-xs text-blue-600">≈ {fmtThb(Math.round((parseInt(customFood) || 0) * AUD_TO_THB))}/เดือน</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
                 {simStage === 10 && (
@@ -561,9 +615,9 @@ export function AuLifeSim() {
           <Row label="📋 ภาษี+Medicare" val={`-${fmtAud(Math.round((auTax.tax + auTax.medicare) / 12))}`} red note={`ATO FY 2025-26 Stage 3 Tax Cuts (effective rate ${auTax.effectiveRate}%) + Medicare 2%`} />
           <Row label="💵 สุทธิ (net)" val={fmtAud(monthlyNet)} green />
           <div className="border-t border-gray-200 mt-2 pt-2" />
-          <Row label="🏠 ค่าเช่า" val={`-${fmtAud(monthlyRent)} (${fmtAud(Math.round(monthlyRent * 12 / 52))}/wk)`} red note={`Numbeo ${city.name} Mar 2026 — inner/mid suburbs`} />
+          <Row label="🏠 ค่าเช่า" val={`-${fmtAud(monthlyRentAu)} (${fmtAud(Math.round(monthlyRentAu * 12 / 52))}/wk)`} red note={`Numbeo ${city.name} Mar 2026 — inner/mid suburbs`} />
           <Row label="🔌 ค่าน้ำไฟ+เน็ต" val={`-${fmtAud(monthlyUtils)}`} red note={`Numbeo: utilities 85m² $${city.utilities} + internet 60Mbps $${city.internet}`} />
-          <Row label="🍳 อาหาร" val={`-${fmtAud(monthlyFood)}`} red note={`${FOOD_COSTS[choices['food']]?.label || 'ผสม'} — ประมาณจาก Numbeo meal prices`} />
+          <Row label="🍳 อาหาร" val={`-${fmtAud(monthlyFood)}`} red note={`${choices['food'] === 'custom' ? '✏️ กำหนดเอง' : (FOOD_COSTS[choices['food']]?.label || 'ผสม')} — ประมาณจาก Numbeo meal prices`} />
           <Row label="🚗 เดินทาง" val={`-${fmtAud(monthlyTransport)}`} red note={TRANSPORT_COSTS[choices['commute']]?.breakdown} />
           {monthlyInsurance > 0 && <Row label="🏥 ประกัน" val={`-${fmtAud(monthlyInsurance)}`} red note="Medibank/Bupa Hospital+Extras basic cover เฉลี่ย" />}
           <Row label="📱 มือถือ+อื่นๆ" val={`-${fmtAud(monthlyPhone + monthlyMisc)}`} red note={`มือถือ $${monthlyPhone} (Numbeo avg) + ค่าใช้จ่ายจิปาถะ $${monthlyMisc}`} />
@@ -573,6 +627,48 @@ export function AuLifeSim() {
               {fmtAud(monthlySavings)} ({fmtThb(monthlySavingsTHB)})
             </span>
           </div>
+          <button onClick={() => setEditingAuCosts(e => !e)} className="mt-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-100 text-blue-700 border border-blue-300 hover:bg-blue-200 transition-colors">
+            {editingAuCosts ? '✕ ปิด' : '✏️ แก้ไขค่าใช้จ่ายออส'}
+          </button>
+          {editingAuCosts && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-2.5 my-1.5 space-y-1.5">
+              <div className="text-xs font-medium text-blue-700 mb-1">ปรับค่าใช้จ่ายรายเดือน (AUD/เดือน)</div>
+              {([
+                { key: 'rent', label: '🏠 ค่าเช่า', base: monthlyRent },
+                { key: 'food', label: '🍳 อาหาร', base: baseFood },
+                { key: 'transport', label: '🚗 เดินทาง', base: baseTransport },
+                { key: 'utilities', label: '🔌 น้ำไฟ+เน็ต', base: baseUtils },
+                { key: 'insurance', label: '🏥 ประกัน', base: baseInsurance },
+                { key: 'phone', label: '📱 มือถือ', base: basePhone },
+                { key: 'misc', label: '🛒 จิปาถะ', base: baseMisc },
+              ] as const).map(({ key, label, base }) => (
+                <div key={key} className="flex items-center gap-2">
+                  <label htmlFor={`au-cost-${key}`} className="text-xs text-gray-600 w-28">{label}</label>
+                  <input
+                    id={`au-cost-${key}`}
+                    type="number"
+                    min={0}
+                    className="flex-1 px-2 py-1 text-xs border border-blue-200 rounded bg-white text-right font-mono"
+                    placeholder={`${base}`}
+                    value={auCostOverrides[key] ?? ''}
+                    onChange={e => {
+                      const v = e.target.value
+                      if (v === '') { setAuCostOverrides(p => { const n = { ...p }; delete n[key]; return n }) }
+                      else { setAuCostOverrides(p => ({ ...p, [key]: Math.max(0, parseInt(v) || 0) })) }
+                    }}
+                  />
+                  <span className="text-[10px] text-gray-400 w-12 text-right">{fmtThb(Math.round((auCostOverrides[key] ?? base) * AUD_TO_THB))}</span>
+                </div>
+              ))}
+              <div className="flex justify-between items-center pt-1.5 border-t border-blue-200 text-xs font-semibold text-blue-800">
+                <span>รวม/เดือน</span>
+                <span>${fmt(totalMonthlyExp)} ({fmtThb(Math.round(totalMonthlyExp * AUD_TO_THB))})</span>
+              </div>
+              <button onClick={() => setAuCostOverrides({})} className="text-[10px] text-blue-500 underline hover:text-blue-700">
+                รีเซ็ตเป็นค่าเริ่มต้น
+              </button>
+            </div>
+          )}
         </div>
 
         {/* TH vs AU comparison */}
@@ -716,6 +812,95 @@ export function AuLifeSim() {
         </a>
         <button onClick={restart} className="flex-1 py-3 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 text-blue-700 hover:shadow-md text-sm font-bold transition-all">
           🔄 ลองใหม่
+        </button>
+      </div>
+      <div className="flex flex-col sm:flex-row gap-2">
+        <button onClick={async () => {
+          const sections: PdfSection[] = [
+            { title: '👤 โปรไฟล์', lines: [
+              `อาชีพ: ${salaryLabel}`,
+              `เมือง: ${city.name}`,
+              `สถานะ: ${profile.family === 'family' ? 'มีครอบครัว' : profile.family === 'couple' ? 'คู่สมรส' : 'โสด'}`,
+              `วีซ่า: ${visaType === 'employer' ? '482 Employer Sponsored' : '189/190 Skilled'}`,
+            ]},
+            { title: '💸 ค่าใช้จ่ายครั้งเดียว', lines: [
+              ...preDepartureCosts.map(c => `${c.label}: ${fmtAud(c.aud)} (${fmtThb(Math.round(c.aud * AUD_TO_THB))})`),
+              `ตั๋วเครื่องบิน: ${fmtAud(flightCost)}`,
+              `ที่พักชั่วคราว: ${fmtAud(tempCost)}`,
+              `มัดจำบ้าน: ${fmtAud(bond)}`,
+              `ของเข้าบ้าน: ${fmtAud(furnishCost)}`,
+              `ขนของ: ${fmtAud(shippingCost)}`,
+              `────────────`,
+              `รวมครั้งเดียว: ${fmtAud(finalOneTime)} (${fmtThb(Math.round(finalOneTime * AUD_TO_THB))})`,
+            ]},
+            { title: '📊 รายรับ-รายจ่ายรายเดือน (ออสเตรเลีย)', lines: [
+              `เงินเดือน (gross): ${fmtAud(Math.round(grossAnnual / 12))}/เดือน`,
+              `ภาษี+Medicare: -${fmtAud(Math.round((auTax.tax + auTax.medicare) / 12))} (${auTax.effectiveRate}%)`,
+              `สุทธิ (net): ${fmtAud(monthlyNet)}/เดือน`,
+              ``,
+              `ค่าเช่า: -${fmtAud(monthlyRentAu)}`,
+              `ค่าน้ำไฟ+เน็ต: -${fmtAud(monthlyUtils)}`,
+              `อาหาร: -${fmtAud(monthlyFood)}`,
+              `เดินทาง: -${fmtAud(monthlyTransport)}`,
+              `ประกัน: -${fmtAud(monthlyInsurance)}`,
+              `มือถือ+อื่นๆ: -${fmtAud(monthlyPhone + monthlyMisc)}`,
+              `────────────`,
+              `เหลือเก็บ/เดือน: ${fmtAud(monthlySavings)} (${fmtThb(monthlySavingsTHB)})`,
+            ]},
+            { title: '🇹🇭 เปรียบเทียบ ไทย vs ออสเตรเลีย', lines: [
+              `เงินเดือนไทย (gross): ${fmtThb(thaiSalary)}/เดือน`,
+              `เงินเดือนไทย (net): ${fmtThb(thaiNetMonthly)}/เดือน`,
+              `ค่าใช้จ่ายไทย: ${fmtThb(thaiTotalLiving)}/เดือน`,
+              `เหลือเก็บไทย: ${fmtThb(thaiMonthlySavings)}/เดือน`,
+              ``,
+              `เหลือเก็บออส: ${fmtThb(monthlySavingsTHB)}/เดือน (${fmtAud(monthlySavings)})`,
+              `ผลต่าง: ${monthlySavingsTHB - thaiMonthlySavings >= 0 ? '+' : ''}${fmtThb(monthlySavingsTHB - thaiMonthlySavings)}/เดือน`,
+            ]},
+            { title: '📋 Visa Score', lines: [
+              `คะแนน: ${visa.score}/65 (ผ่านขั้นต่ำ: ${visa.score >= 65 ? 'ใช่ ✅' : 'ไม่ผ่าน ❌'})`,
+              ...visa.details,
+            ]},
+          ]
+          await exportToPdf('cattogo-au-sim.pdf', `สรุปชีวิตจริงที่ ${city.name} — ${salaryLabel}`, sections)
+        }} className="flex-1 py-3 rounded-xl bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200 text-red-700 hover:shadow-md text-sm font-bold transition-all">
+          📄 ดาวน์โหลด PDF
+        </button>
+        <button onClick={() => {
+          const rows = [
+            ['หมวด', 'รายการ', 'AUD', 'THB'],
+            ['ครั้งเดียว', 'วีซ่า+เอกสาร+สอบ+ตรวจ', String(preDepartureTotal), String(Math.round(preDepartureTotal * AUD_TO_THB))],
+            ['ครั้งเดียว', 'ตั๋วเครื่องบิน', String(flightCost), String(Math.round(flightCost * AUD_TO_THB))],
+            ['ครั้งเดียว', 'ที่พักชั่วคราว', String(tempCost), String(Math.round(tempCost * AUD_TO_THB))],
+            ['ครั้งเดียว', 'มัดจำบ้าน', String(bond), String(Math.round(bond * AUD_TO_THB))],
+            ['ครั้งเดียว', 'ของเข้าบ้าน', String(furnishCost), String(Math.round(furnishCost * AUD_TO_THB))],
+            ['ครั้งเดียว', 'ขนของ', String(shippingCost), String(Math.round(shippingCost * AUD_TO_THB))],
+            ['ครั้งเดียว', 'รวม', String(finalOneTime), String(Math.round(finalOneTime * AUD_TO_THB))],
+            [],
+            ['รายเดือน (AU)', 'เงินเดือน gross', String(Math.round(grossAnnual / 12)), String(Math.round(grossAnnual / 12 * AUD_TO_THB))],
+            ['รายเดือน (AU)', 'ภาษี+Medicare', String(-Math.round((auTax.tax + auTax.medicare) / 12)), ''],
+            ['รายเดือน (AU)', 'สุทธิ net', String(monthlyNet), String(Math.round(monthlyNet * AUD_TO_THB))],
+            ['รายเดือน (AU)', 'ค่าเช่า', String(-monthlyRentAu), ''],
+            ['รายเดือน (AU)', 'น้ำไฟ+เน็ต', String(-monthlyUtils), ''],
+            ['รายเดือน (AU)', 'อาหาร', String(-monthlyFood), ''],
+            ['รายเดือน (AU)', 'เดินทาง', String(-monthlyTransport), ''],
+            ['รายเดือน (AU)', 'ประกัน', String(-monthlyInsurance), ''],
+            ['รายเดือน (AU)', 'มือถือ+อื่นๆ', String(-(monthlyPhone + monthlyMisc)), ''],
+            ['รายเดือน (AU)', 'เหลือเก็บ', String(monthlySavings), String(monthlySavingsTHB)],
+            [],
+            ['รายเดือน (TH)', 'เงินเดือน gross', '', String(thaiSalary)],
+            ['รายเดือน (TH)', 'สุทธิ net', '', String(thaiNetMonthly)],
+            ['รายเดือน (TH)', 'ค่าใช้จ่ายรวม', '', String(-thaiTotalLiving)],
+            ['รายเดือน (TH)', 'เหลือเก็บ', '', String(thaiMonthlySavings)],
+          ]
+          const bom = '\uFEFF'
+          const csv = bom + rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n')
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url; a.download = 'cattogo-au-sim.csv'; a.click()
+          URL.revokeObjectURL(url)
+        }} className="flex-1 py-3 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 text-green-700 hover:shadow-md text-sm font-bold transition-all">
+          📊 ดาวน์โหลด Excel (CSV)
         </button>
       </div>
 
