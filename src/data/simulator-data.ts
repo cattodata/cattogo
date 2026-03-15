@@ -18,7 +18,9 @@ export const AUD_TO_THB = _AUD_TO_THB
 export const AU_UNSKILLED_SALARY = _AU_UNSKILLED_SALARY
 
 // ===== Australian Tax Brackets FY 2025-26 (Stage 3 Tax Cuts) =====
-export function calculateAusTax(annualGross: number): {
+// medicareExempt: 482/494 visa holders สามารถขอ Medicare Levy Exemption Certificate ได้
+// เพราะไม่มีสิทธิ์ใช้ Medicare (ไทยไม่มี RHCA กับออสเตรเลีย)
+export function calculateAusTax(annualGross: number, medicareExempt = false): {
   tax: number
   medicare: number
   netAnnual: number
@@ -35,7 +37,7 @@ export function calculateAusTax(annualGross: number): {
   } else if (annualGross > 18200) {
     tax = (annualGross - 18200) * 0.16
   }
-  const medicare = annualGross * 0.02
+  const medicare = medicareExempt ? 0 : annualGross * 0.02
   const netAnnual = annualGross - tax - medicare
   return {
     tax: Math.round(tax),

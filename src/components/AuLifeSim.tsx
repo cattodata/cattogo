@@ -62,6 +62,8 @@ export function AuLifeSim() {
   const [showCustomSalary, setShowCustomSalary] = useState(false)
   const [customFood, setCustomFood] = useState('')
   const [showCustomFood, setShowCustomFood] = useState(false)
+  const [customRent, setCustomRent] = useState('')
+  const [showCustomRent, setShowCustomRent] = useState(false)
   const [auCostOverrides, setAuCostOverrides] = useState<Record<string, number>>({})
   const [editingAuCosts, setEditingAuCosts] = useState(false)
   const [customExpenses, setCustomExpenses] = useState<{ id: number; label: string; thai: number; au: number }[]>([])
@@ -123,7 +125,8 @@ export function AuLifeSim() {
   const preDepartureTotal = preDepartureCosts.reduce((s, c) => s + c.aud, 0)
 
   const grossAnnual = choices['job'] === 'custom' ? (parseInt(customSalary) || 0) : choices['job'] === '180k' ? 180000 : choices['job'] === 'p90' ? salaryP90 : choices['job'] === 'p10' ? salaryP10 : choices['job'] === 'min' ? AU_UNSKILLED_SALARY : salaryMedian
-  const monthlyRent = choices['housing'] === 'share' ? city.rentShare : choices['housing'] === '2bed' ? (profile.family === 'family' ? city.rentFamily : city.rent2br) : city.rent1br
+  const monthlyRent = choices['housing'] === 'custom' ? (parseInt(customRent) || 0) : choices['housing'] === 'share' ? city.rentShare : choices['housing'] === '2bed' ? (profile.family === 'family' ? city.rentFamily : city.rent2br) : city.rent1br
+  const is482 = visaType === 'employer'
   const bond = monthlyRent
   const flightCost = choices['flight'] === 'business' ? (profile.family === 'single' ? 4500 : profile.family === 'couple' ? 9000 : 13500) : choices['flight'] === 'company' ? 0 : (profile.family === 'single' ? 1100 : profile.family === 'couple' ? 2200 : 3500)
   const tempCost = choices['temp'] === 'airbnb' ? 2100 : choices['temp'] === 'hostel' ? 700 : 0
@@ -143,11 +146,11 @@ export function AuLifeSim() {
   }, [simStage, preDepartureTotal, flightCost, tempCost, bond, furnishCost, shippingCost])
 
   const balanceAUD = isMotherLord ? Infinity : initialAUD - oneTimeCosts
-  const auTax = calculateAusTax(grossAnnual)
+  const auTax = calculateAusTax(grossAnnual, is482)
   const monthlyNet = auTax.netMonthly
   const baseFood = choices['food'] === 'custom' ? (parseInt(customFood) || 550) : (FOOD_COSTS[choices['food']]?.cost || 550)
   const baseTransport = choices['commute'] === 'company' ? 0 : (TRANSPORT_COSTS[choices['commute']]?.cost || 200)
-  const baseInsurance = choices['insurance'] === 'private' ? 150 : 0
+  const baseInsurance = (choices['insurance'] === 'private' || is482) ? 150 : 0
   const baseUtils = city.utilities + city.internet
   const basePhone = 50
   const baseMisc = 250
@@ -182,7 +185,7 @@ export function AuLifeSim() {
   const advanceStage = () => setSimStage(s => s + 1)
   const pick = (stageId: string, optionId: string) => { setChoices(prev => ({ ...prev, [stageId]: optionId })); setSimStage(s => s + 1) }
   const allDone = simStage >= TOTAL_STAGES
-  const restart = () => { setPhase('profile'); setSimStage(0); setSavingsInput(''); setIsMotherLord(false); setInitialAUD(0); setChoices({}); setThaiCosts({ ...TH_LIVING_COSTS }); setEditingThaiCosts(false); setVisaType('skilled'); setPreDepartureOverrides({}); setCustomSalary(''); setShowCustomSalary(false); setCustomFood(''); setShowCustomFood(false); setAuCostOverrides({}); setEditingAuCosts(false); setCustomExpenses([]); setNextCustomId(1) }
+  const restart = () => { setPhase('profile'); setSimStage(0); setSavingsInput(''); setIsMotherLord(false); setInitialAUD(0); setChoices({}); setThaiCosts({ ...TH_LIVING_COSTS }); setEditingThaiCosts(false); setVisaType('skilled'); setPreDepartureOverrides({}); setCustomSalary(''); setShowCustomSalary(false); setCustomFood(''); setShowCustomFood(false); setCustomRent(''); setShowCustomRent(false); setAuCostOverrides({}); setEditingAuCosts(false); setCustomExpenses([]); setNextCustomId(1) }
 
   // When all stages done → show results
   useEffect(() => {
@@ -384,12 +387,12 @@ export function AuLifeSim() {
           {simStage > 2 && choices['job'] && <Completed emoji="💼" title="ได้งาน" detail={`${fmtAud(grossAnnual)}/ปี (${choices['job'] === 'p90' ? '👑 ระดับสูง' : choices['job'] === 'p10' ? '📊 เริ่มต้น' : choices['job'] === 'min' ? 'ขั้นต่ำ' : choices['job'] === '180k' ? '🚀 180K+' : choices['job'] === 'custom' ? '✏️ กำหนดเอง' : '💼 ระดับกลาง'})`} />}
           {simStage > 3 && choices['flight'] && <Completed emoji="✈️" title="ตั๋วเครื่องบิน" detail={choices['flight'] === 'company' ? 'ฟรี! บ.ออกให้' : `-${fmtAud(flightCost)}`} negative={choices['flight'] !== 'company'} />}
           {simStage > 4 && choices['temp'] && <Completed emoji="🏨" title="พักชั่วคราว" detail={choices['temp'] === 'friend' ? 'ฟรี!' : `-${fmtAud(tempCost)}`} negative={choices['temp'] !== 'friend'} />}
-          {simStage > 5 && choices['housing'] && <Completed emoji="🏠" title="บ้าน" detail={`มัดจำ -${fmtAud(bond)} + ${fmtAud(monthlyRent)}/เดือน (${fmtAud(Math.round(monthlyRent * 12 / 52))}/wk)`} negative />}
+          {simStage > 5 && choices['housing'] && <Completed emoji="🏠" title="บ้าน" detail={`${choices['housing'] === 'custom' ? '✏️ ' : ''}มัดจำ -${fmtAud(bond)} + ${fmtAud(monthlyRent)}/เดือน (${fmtAud(Math.round(monthlyRent * 12 / 52))}/wk)`} negative />}
           {simStage > 6 && choices['furnish'] && <Completed emoji="🛋️" title="ของเข้าบ้าน" detail={furnishCost === 0 ? 'Furnished! $0' : `-${fmtAud(furnishCost)}`} negative={furnishCost > 0} />}
           {simStage > 7 && choices['shipping'] && <Completed emoji="📦" title="ขนของ" detail={shippingCost > 0 ? `-${fmtAud(shippingCost)}` : choices['shipping'] === 'company' ? 'บ.ออกให้!' : 'แค่กระเป๋า!'} negative={shippingCost > 0} />}
           {simStage > 8 && choices['commute'] && <Completed emoji="🚗" title="เดินทาง" detail={choices['commute'] === 'company' ? 'บ.จัดรถให้!' : `${fmtAud(monthlyTransport)}/เดือน`} />}
           {simStage > 9 && choices['food'] && <Completed emoji="🍳" title="อาหาร" detail={`${choices['food'] === 'custom' ? '✏️ ' : ''}${fmtAud(monthlyFood)}/เดือน`} />}
-          {simStage > 10 && choices['insurance'] && <Completed emoji="🏥" title="ประกัน" detail={monthlyInsurance > 0 ? '$150/เดือน' : choices['insurance'] === 'company' ? 'บ.ออกให้!' : 'ฟรี!'} />}
+          {simStage > 10 && choices['insurance'] && <Completed emoji="🏥" title="ประกัน" detail={monthlyInsurance > 0 ? `$150/เดือน${is482 ? ' (บังคับ 482)' : ''}` : choices['insurance'] === 'company' ? 'บ.ออกให้!' : `Medicare ฟรี! (Levy 2% = ${fmtAud(Math.round(grossAnnual * 0.02 / 12))}/mo)`} />}
 
           {/* Current stage */}
           {!allDone && (
@@ -516,6 +519,24 @@ export function AuLifeSim() {
                     <Opt onClick={() => pick('housing', 'share')}><div className="font-semibold">👥 Share House</div><div className="text-sm text-gray-500">{fmtAud(city.rentShare)}/เดือน ({fmtAud(Math.round(city.rentShare * 12 / 52))}/wk) <span className="text-gray-400">{fmtThb(Math.round(city.rentShare * AUD_TO_THB))}</span></div></Opt>
                     <Opt onClick={() => pick('housing', '1bed')}><div className="font-semibold">🏠 1 Bed อยู่คนเดียว</div><div className="text-sm text-gray-500">{fmtAud(city.rent1br)}/เดือน ({fmtAud(Math.round(city.rent1br * 12 / 52))}/wk) <span className="text-gray-400">{fmtThb(Math.round(city.rent1br * AUD_TO_THB))}</span></div></Opt>
                     <Opt onClick={() => pick('housing', '2bed')}><div className="font-semibold">🏡 {profile.family === 'family' ? 'บ้าน 3 ห้องนอน' : '2 Bed'}</div><div className="text-sm text-gray-500">{fmtAud(profile.family === 'family' ? city.rentFamily : city.rent2br)}/เดือน ({fmtAud(Math.round((profile.family === 'family' ? city.rentFamily : city.rent2br) * 12 / 52))}/wk) <span className="text-gray-400">{fmtThb(Math.round((profile.family === 'family' ? city.rentFamily : city.rent2br) * AUD_TO_THB))}</span></div></Opt>
+                    <div className="border-t border-gray-200 pt-2 mt-1">
+                      <button onClick={() => setShowCustomRent(f => !f)} className="w-full text-left px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-colors">
+                        <div className="font-semibold">✏️ กำหนดค่าเช่าเอง</div>
+                        <div className="text-sm text-gray-500">ใส่จำนวนค่าเช่าเอง (AUD/เดือน)</div>
+                      </button>
+                      {showCustomRent && (
+                        <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-200 space-y-2">
+                          <label className="text-xs font-medium text-blue-700">ค่าเช่า AUD/เดือน (หรือกรอกค่ารายสัปดาห์แล้ว ×4.33)</label>
+                          <div className="flex gap-2">
+                            <input type="number" min={0} value={customRent} onChange={e => setCustomRent(e.target.value)} placeholder="เช่น 2000" className="flex-1 px-3 py-2 text-sm border border-blue-200 rounded-lg bg-white font-mono" />
+                            <button disabled={!customRent || parseInt(customRent) <= 0} onClick={() => pick('housing', 'custom')} className="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">ยืนยัน</button>
+                          </div>
+                          {customRent && parseInt(customRent) > 0 && (
+                            <div className="text-xs text-blue-600">{fmtAud(parseInt(customRent))}/mo = {fmtAud(Math.round(parseInt(customRent) * 12 / 52))}/wk ≈ {fmtThb(Math.round((parseInt(customRent) || 0) * AUD_TO_THB))}/เดือน</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
                 {simStage === 6 && (
@@ -571,12 +592,22 @@ export function AuLifeSim() {
                 )}
                 {simStage === 10 && (
                   <div className="space-y-2">
-                    <Opt onClick={() => pick('insurance', 'medicare')}><div className="font-semibold">🏥 Medicare (ฟรี!)</div><div className="text-sm text-gray-500">PR/citizen ใช้ได้ — ครอบคลุม รพ.รัฐ + GP</div></Opt>
-                    <Opt onClick={() => pick('insurance', 'private')}><div className="font-semibold">🏥 Private Health Insurance</div><div className="text-sm text-gray-500">{fmtAud(150)}/เดือน — Hospital + Extras เบื้องต้น</div></Opt>
-                    <Opt onClick={() => pick('insurance', 'company')}><div className="font-semibold">💼 บริษัททำให้!</div><div className="text-sm text-green-600">$0/เดือน</div></Opt>
-                    <div className="text-xs text-amber-700 bg-amber-50 rounded-lg p-2.5 border border-amber-200">
-                      ⚠️ วีซ่า <strong>482/494 (Employer Sponsored)</strong> บังคับทำ Private Health Insurance — เป็นเงื่อนไขวีซ่า ใช้ Medicare ไม่ได้ (ยกเว้นประเทศที่มี RHCA เช่น UK, NZ — ไทยไม่มี)
-                    </div>
+                    {is482 ? (
+                      <>
+                        <div className="text-xs text-amber-700 bg-amber-50 rounded-lg p-2.5 border border-amber-200 mb-2">
+                          ⚠️ วีซ่า <strong>482 (Employer Sponsored)</strong> บังคับทำ Private Health Insurance — ใช้ Medicare ไม่ได้ (ไทยไม่มี RHCA กับ AU)
+                          <div className="mt-1 text-[10px] text-amber-600">💡 แต่ได้ยกเว้น Medicare Levy 2% — ทำให้ภาษีถูกลง {fmtAud(Math.round(grossAnnual * 0.02 / 12))}/เดือน</div>
+                        </div>
+                        <Opt onClick={() => pick('insurance', 'private')}><div className="font-semibold">🏥 Private Health Insurance (บังคับ)</div><div className="text-sm text-gray-500">{fmtAud(150)}/เดือน — Hospital + Extras เบื้องต้น</div></Opt>
+                        <Opt onClick={() => pick('insurance', 'company')}><div className="font-semibold">💼 บริษัททำให้!</div><div className="text-sm text-green-600">$0/เดือน (บริษัทออกค่าประกันให้)</div></Opt>
+                      </>
+                    ) : (
+                      <>
+                        <Opt onClick={() => pick('insurance', 'medicare')}><div className="font-semibold">🏥 Medicare (ฟรี!)</div><div className="text-sm text-gray-500">PR/citizen ใช้ได้ — ครอบคลุม รพ.รัฐ + GP</div><div className="text-[10px] text-gray-400">ได้ Medicare แต่เสีย Medicare Levy 2% = {fmtAud(Math.round(grossAnnual * 0.02 / 12))}/เดือน (หักจากภาษีแล้ว)</div></Opt>
+                        <Opt onClick={() => pick('insurance', 'private')}><div className="font-semibold">🏥 Private Health Insurance</div><div className="text-sm text-gray-500">{fmtAud(150)}/เดือน — Hospital + Extras เบื้องต้น</div></Opt>
+                        <Opt onClick={() => pick('insurance', 'company')}><div className="font-semibold">💼 บริษัททำให้!</div><div className="text-sm text-green-600">$0/เดือน</div></Opt>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
@@ -682,7 +713,7 @@ export function AuLifeSim() {
               <div className="text-sm font-bold text-blue-800 mb-2 flex items-center gap-1">🇦🇺 ออสเตรเลีย ({city.name})</div>
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between"><span className="text-gray-600">💰 gross</span><span className="font-mono">{fmtAud(Math.round(grossAnnual / 12))} <span className="text-[10px] text-gray-400">({fmtThb(Math.round(grossAnnual / 12 * AUD_TO_THB))})</span></span></div>
-                <div className="flex justify-between"><span className="text-gray-600">📋 ภาษี+Medicare</span><span className="font-mono text-red-500">-{fmtAud(Math.round((auTax.tax + auTax.medicare) / 12))}</span></div>
+                <div className="flex justify-between"><span className="text-gray-600">📋 {is482 ? 'ภาษี (ไม่มี Medicare Levy)' : 'ภาษี+Medicare 2%'}</span><span className="font-mono text-red-500">-{fmtAud(Math.round((auTax.tax + auTax.medicare) / 12))}</span></div>
                 <div className="flex justify-between font-semibold"><span>💵 สุทธิ net</span><span className="text-green-700">{fmtAud(monthlyNet)} <span className="text-[10px] font-normal text-gray-500">({fmtThb(Math.round(monthlyNet * AUD_TO_THB))})</span></span></div>
               </div>
               <div className="border-t border-blue-200 mt-2 pt-2 space-y-1 text-sm">
@@ -881,8 +912,9 @@ export function AuLifeSim() {
               `รวมครั้งเดียว: ${fmtAud(finalOneTime)} (${fmtThb(Math.round(finalOneTime * AUD_TO_THB))})`,
             ]},
             { title: '📊 รายรับ-รายจ่ายรายเดือน (ออสเตรเลีย)', lines: [
+              `วีซ่า: ${is482 ? '482 Employer Sponsored' : '189/190 Skilled (PR)'}`,
               `เงินเดือน (gross): ${fmtAud(Math.round(grossAnnual / 12))}/เดือน`,
-              `ภาษี+Medicare: -${fmtAud(Math.round((auTax.tax + auTax.medicare) / 12))} (${auTax.effectiveRate}%)`,
+              `${is482 ? 'ภาษี (ไม่มี Medicare Levy)' : 'ภาษี+Medicare 2%'}: -${fmtAud(Math.round((auTax.tax + auTax.medicare) / 12))} (${auTax.effectiveRate}%)`,
               `สุทธิ (net): ${fmtAud(monthlyNet)}/เดือน`,
               ``,
               `ค่าเช่า: -${fmtAud(monthlyRentAu)}`,
@@ -912,7 +944,7 @@ export function AuLifeSim() {
               ``,
               `--- 🇦🇺 ออสเตรเลีย (${city.name}) ---`,
               `เงินเดือน gross: ${fmtAud(Math.round(grossAnnual / 12))} (${fmtThb(Math.round(grossAnnual / 12 * AUD_TO_THB))})`,
-              `ภาษี+Medicare: -${fmtAud(Math.round((auTax.tax + auTax.medicare) / 12))}`,
+              `ภาษี${is482 ? '' : '+Medicare'}: -${fmtAud(Math.round((auTax.tax + auTax.medicare) / 12))}`,
               `สุทธิ net: ${fmtAud(monthlyNet)} (${fmtThb(Math.round(monthlyNet * AUD_TO_THB))})`,
               `ค่าเช่า: -${fmtAud(monthlyRentAu)} (${fmtThb(Math.round(monthlyRentAu * AUD_TO_THB))})`,
               `อาหาร: -${fmtAud(monthlyFood)} (${fmtThb(Math.round(monthlyFood * AUD_TO_THB))})`,
@@ -943,7 +975,7 @@ export function AuLifeSim() {
             ['', '🇹🇭 ไทย (กรุงเทพฯ)', '', '🇦🇺 ออสเตรเลีย (' + city.name + ')', '', ''],
             ['', 'THB', '', 'AUD', 'THB', ''],
             ['เงินเดือน gross', thaiSalary, '', Math.round(grossAnnual / 12), Math.round(grossAnnual / 12 * AUD_TO_THB), ''],
-            ['ภาษี', -(thaiSalary - thaiNetMonthly), '', -Math.round((auTax.tax + auTax.medicare) / 12), -Math.round((auTax.tax + auTax.medicare) / 12 * AUD_TO_THB), 'Medicare 2% + Stage 3 Tax'],
+            ['ภาษี', -(thaiSalary - thaiNetMonthly), '', -Math.round((auTax.tax + auTax.medicare) / 12), -Math.round((auTax.tax + auTax.medicare) / 12 * AUD_TO_THB), is482 ? 'Stage 3 Tax (ไม่มี Medicare Levy)' : 'Medicare 2% + Stage 3 Tax'],
             ['สุทธิ net', thaiNetMonthly, '', monthlyNet, Math.round(monthlyNet * AUD_TO_THB), ''],
             ['', '', '', '', '', ''],
             ['ค่าเช่า', -thaiCosts.rent, '', -monthlyRentAu, -Math.round(monthlyRentAu * AUD_TO_THB), ''],
